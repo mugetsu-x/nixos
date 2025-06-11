@@ -22,9 +22,8 @@
       plugins = [ "git" ];
     };
     shellAliases = {
-      nixcf = "sudo nano /etc/nixos/configuration.nix";
-      nixre = "sudo nixos-rebuild switch";
-      hypcf = "sudo nano ~/.config/hypr/hyprland.conf";
+      flakecf = "nano ~/nixos-config/flake.nix";
+      nixre = "sudo nixos-rebuild switch --flake ~/nixos-config#nixos";
     };
   };
 
@@ -110,7 +109,6 @@
     kdePackages.dolphin
     kdePackages.kio
     kdePackages.kio-extras
-    home-manager
   ];
 
   fonts.fontconfig.enable = true;

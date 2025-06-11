@@ -49,8 +49,6 @@
   };
 
   programs.zsh.enable = true;
-  programs.firefox.enable = true;
-  programs.hyprland.enable = true;
 
   users.users.honswurst = {
     isNormalUser = true;
@@ -66,15 +64,6 @@
     acpi
   ];
 
-  environment.etc."xdg/mimeapps.list".text = ''
-    [Default Applications]
-    image/png=swayimg.desktop
-    image/jpeg=swayimg.desktop
-    image/jpg=swayimg.desktop
-    image/gif=swayimg.desktop
-    image/bmp=swayimg.desktop
-    image/webp=swayimg.desktop
-  '';
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;

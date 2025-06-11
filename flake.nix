@@ -17,7 +17,6 @@
     let
       system = "x86_64-linux";
       overlays = [ (import "${nixpkgs-wayland}/overlay.nix") ];
-
       pkgs = import nixpkgs {
         inherit system overlays;
         config.allowUnfree = true;
@@ -28,8 +27,8 @@
         modules = [
           ./hosts/nixos.nix
 
+          # Home Manager integrated into system
           home-manager.nixosModules.home-manager
-
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
@@ -37,6 +36,13 @@
           }
         ];
       };
-    };
 
+      homeConfigurations.honswurst = home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
+        extraSpecialArgs = { inherit system; };
+        modules = [ ./home.nix ];
+        username = "honswurst";
+        homeDirectory = "/home/honswurst";
+      };
+    };
 }
