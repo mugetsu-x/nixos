@@ -16,18 +16,27 @@
   outputs = { self, nixpkgs, nixpkgs-wayland, home-manager, flake-utils, ... }:
     let
       system = "x86_64-linux";
-      overlays = [ (import "${nixpkgs-wayland}/overlay.nix") ];
       pkgs = import nixpkgs {
-        inherit system overlays;
+        inherit system;
+        overlays = [
+          (final: prev: {
+            gtkgreet = prev.callPackage (
+              final.fetchFromGitHub {
+                owner = "dragonbuild";
+                repo = "gtkgreet";
+                rev = "b24d0c7f2c44b0cd70ea0d9a5e4cc789edab242f";
+                sha256 = "sha256-XyF4PdB8c+6XGEW6hHfqEbfAVXpKsqfAHIQ8odA6xdM=";
+              }
+            ) {};
+          })
+        ];
         config.allowUnfree = true;
       };
     in {
-      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+      nixosConfigurations.nixos = pkgs.lib.nixosSystem {
         inherit system;
         modules = [
           ./hosts/nixos.nix
-
-          # Home Manager integrated into system
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
@@ -40,9 +49,6 @@
       homeConfigurations.honswurst = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         extraSpecialArgs = { inherit system; };
-        modules = [ ./home.nix ];
-        username = "honswurst";
-        homeDirectory = "/home/honswurst";
+        modules = [ ./home/honswurst.nix ];
       };
     };
-}
