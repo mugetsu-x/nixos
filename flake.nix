@@ -33,7 +33,7 @@
         config.allowUnfree = true;
       };
     in {
-      nixosConfigurations.nixos = pkgs.lib.nixosSystem {
+      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         inherit system;
         modules = [
           ./hosts/nixos.nix
