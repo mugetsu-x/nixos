@@ -48,6 +48,17 @@
     wireplumber.enable = true;
   };
 
+  services.greetd = {
+    enable = true;
+    settings = {
+      default_session = {
+        command = "tuigreet --time --remember --cmd Hyprland";
+        user = "greeter";
+      };
+    };
+  };
+
+
   programs.zsh.enable = true;
 
   users.users.honswurst = {
@@ -62,11 +73,13 @@
     tlp
     brightnessctl
     acpi
+    tuigreet
   ];
 
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  security.pam.services.greetd.enable = true;
   system.stateVersion = "25.05";
 }
