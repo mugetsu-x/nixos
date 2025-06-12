@@ -52,3 +52,4 @@
         modules = [ ./home/honswurst.nix ];
       };
     };
+}
