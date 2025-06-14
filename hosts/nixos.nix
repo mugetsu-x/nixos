@@ -1,16 +1,9 @@
-# /etc/nixos/hosts/nixos.nix
-# This is your main NixOS system configuration, extracted from flake.nix
-# Everything system-level (boot, networking, services, packages) goes here
-
 { config, pkgs, ... }:
 
 {
+  imports = [ ../hardware-configuration.nix ];
 
-  imports = [
-    ../hardware-configuration.nix
-  ];
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
   nixpkgs.config.allowUnfree = true;
 
   networking.hostName = "nixos";
@@ -32,8 +25,6 @@
   };
 
   services.xserver.enable = false;
-  services.xserver.xkb.layout = "us";
-
   services.dbus.enable = true;
   services.tlp.enable = true;
   services.pulseaudio.enable = false;
@@ -48,17 +39,6 @@
     wireplumber.enable = true;
   };
 
-  services.greetd = {
-    enable = true;
-    settings = {
-      default_session = {
-        command = "tuigreet --time --remember --cmd Hyprland";
-        user = "greeter";
-      };
-    };
-  };
-
-
   programs.zsh.enable = true;
 
   users.users.honswurst = {
@@ -68,18 +48,12 @@
     shell = pkgs.zsh;
   };
 
-  # System-level packages only (moved user apps to home.nix)
   environment.systemPackages = with pkgs; [
-    tlp
-    brightnessctl
-    acpi
-    tuigreet
+    tlp brightnessctl acpi
   ];
-
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  security.pam.services.greetd.enable = true;
   system.stateVersion = "25.05";
 }

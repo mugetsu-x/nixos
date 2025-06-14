@@ -14,7 +14,6 @@
     userEmail = "walters@pariggers.com";
   };
 
-
   programs.zsh = {
     enable = true;
     oh-my-zsh = {
@@ -22,7 +21,9 @@
       plugins = [ "git" ];
     };
     shellAliases = {
-      flakecf = "nano ~/nixos-config/flake.nix";
+      flc = "nano ~/nixos-config/flake.nix";
+      homec = "nano ~/nixos-config/home/honswurst.nix";
+      hostsc = "nano ~/nixos-config/hosts/nixos.nix";
       nixre = "sudo nixos-rebuild switch --flake ~/nixos-config#nixos";
     };
   };
@@ -87,7 +88,7 @@
       "image/gif" = "swayimg.desktop";
       "image/jpeg" = "swayimg.desktop";
       "image/jpg" = "swayimg.desktop";
-      "image/png" = "swayimg-4.desktop";
+      "image/png" = "swayimg.desktop";
       "image/webp" = "swayimg.desktop";
     };
   };
