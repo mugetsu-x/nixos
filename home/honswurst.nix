@@ -21,9 +21,9 @@
       plugins = [ "git" ];
     };
     shellAliases = {
-      flc = "nano ~/nixos-config/flake.nix";
-      homec = "nano ~/nixos-config/home/honswurst.nix";
-      hostsc = "nano ~/nixos-config/hosts/nixos.nix";
+      cfl = "nano ~/nixos-config/flake.nix";
+      chm = "nano ~/nixos-config/home/honswurst.nix";
+      chs = "nano ~/nixos-config/hosts/nixos.nix";
       nixre = "sudo nixos-rebuild switch --flake ~/nixos-config#nixos";
     };
   };
