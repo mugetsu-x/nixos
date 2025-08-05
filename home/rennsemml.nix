@@ -5,7 +5,26 @@
   home.packages = with pkgs; [
     wofi
     mako
+    wl-clipboard
+    cliphist
   ];
+
+  systemd.user.services.cliphist-store = {
+    Unit = {
+      Description = "Wayland clipboard history daemon";
+      After = [ "graphical-session.target" ];
+    };
+
+    Service = {
+      ExecStart = "${pkgs.wl-clipboard}/bin/wl-paste --watch ${pkgs.cliphist}/bin/cliphist store";
+      Restart = "on-failure";
+    };
+
+    Install = {
+      WantedBy = [ "default.target" ];
+    };
+  };
+
 
   # Enable Home Manager itself
   programs.home-manager.enable = true;
