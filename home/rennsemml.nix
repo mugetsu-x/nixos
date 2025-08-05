@@ -40,13 +40,13 @@
     };
 
     initContent = ''
-      export EDITOR=nvim
-    nixpush() {
-      cd ~/nixos-config || return
-      git add .
-      git commit -m "$*"
-      git push
-    }
+        export EDITOR=nvim
+      nixpush() {
+        cd ~/nixos-config || return
+        git add .
+        git commit -m "$*"
+        git push -u origin HEAD
+      }
     '';
   };
 
