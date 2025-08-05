@@ -19,12 +19,14 @@
   };
 
   environment.systemPackages = with pkgs; [
+    kitty
     google-chrome
     git
   ];
 
   fonts.packages = with pkgs; [
     nerd-fonts.fira-code
+    nerd-fonts.jetbrains-mono
   ];
 
   users.users.rennsemml = {
