@@ -36,10 +36,17 @@
       nixhome = "cd ~/nixos-config";
       nixre = "sudo nixos-rebuild switch --flake ~/nixos-config#main-pc";
       nixpush = "cd ~/nixos-config && git add . && git commit -m";
+      hm = "home-manager switch --flake ~/nixos-config/rennsemml";
     };
 
     initContent = ''
       export EDITOR=nvim
+    nixpush() {
+      cd ~/nixos-config || return
+      git add .
+      git commit -m "$*"
+      git push
+    }
     '';
   };
 
