@@ -13,6 +13,8 @@
 
   i18n.defaultLocale = "en_US.UTF-8";
 
+
+
   console = {
     font = "Lat2-Terminus16";
     useXkbConfig = true;
@@ -51,7 +53,6 @@
   };
 
   security.rtkit.enable = true;
-  services.blueman.enable = true;
 
   system.stateVersion = "25.05";
 }

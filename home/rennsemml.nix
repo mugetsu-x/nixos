@@ -6,6 +6,20 @@
   # Enable Home Manager itself
   programs.home-manager.enable = true;
 
+  programs.starship = {
+    enable = true;
+    enableZshIntegration = true;
+    settings = {
+      # Optional: override some modules for cleaner look
+      add_newline = false;
+      format = "$directory$git_branch$git_status$cmd_duration$character";
+      directory.truncation_length = 3;
+      git_branch.symbol = "🌱 ";
+      character.success_symbol = "[➜](bold green)";
+      character.error_symbol = "[✗](bold red)";
+    };
+  };
+
   programs.zsh = {
     enable = true;
     enableCompletion = true;
