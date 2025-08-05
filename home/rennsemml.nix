@@ -4,6 +4,7 @@
   home.stateVersion = "25.05";
   home.packages = with pkgs; [
     wofi
+    mako
   ];
 
   # Enable Home Manager itself
@@ -69,6 +70,9 @@
 
   # Wofi
   xdg.configFile."wofi/style.css".source = ./wofi/style.css;
+
+  # Mako
+  xdg.configFile."mako/config".source = ./mako/config;
 
   # Kitty terminal config
   programs.kitty = {
