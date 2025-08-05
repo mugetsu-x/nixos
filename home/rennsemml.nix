@@ -2,6 +2,9 @@
   home.username = "rennsemml";
   home.homeDirectory = "/home/rennsemml";
   home.stateVersion = "25.05";
+  home.packages = with pkgs; [
+    wofi
+  ];
 
   # Enable Home Manager itself
   programs.home-manager.enable = true;
@@ -64,6 +67,8 @@
     };
   };
 
+  # Wofi
+  xdg.configFile."wofi/style.css".source = ./wofi/style.css;
 
   # Kitty terminal config
   programs.kitty = {
