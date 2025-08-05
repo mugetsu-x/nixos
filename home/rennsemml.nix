@@ -62,7 +62,7 @@
     enable = true;
 
     font.name = "JetBrainsMono Nerd Font";
-    font.size = 13;
+    font.size = 11;
 
     settings = {
       background_opacity = "0.8";
