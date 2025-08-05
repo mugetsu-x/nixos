@@ -43,21 +43,10 @@
       export EDITOR=nvim
     
       nixpush() {
-        cd ~/nixos-config || return 1
+        cd ~/nixos-config || return
         git add .
-        if git diff --cached --quiet; then
-          echo "🟡 Nothing to commit."
-          return 0
-        fi
-
-        git commit -m "$*" || return 1
-        git rev-parse --abbrev-ref --symbolic-full-name @{u} >/dev/null 2>&1
-        if [ $? -ne 0 ]; then
-          echo "🔁 No upstream set. Pushing with upstream tracking..."
-          git push -u origin "$(git rev-parse --abbrev-ref HEAD)"
-        else
-          git push
-        fi
+        git commit -m "$*"
+	git push
       }
     '';
   };
