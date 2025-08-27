@@ -7,6 +7,8 @@
     mako
     wl-clipboard
     cliphist
+    pamixer
+    pavucontrol
   ];
 
   systemd.user.services.cliphist-store = {
