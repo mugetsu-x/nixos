@@ -9,6 +9,8 @@
     cliphist
     pamixer
     pavucontrol
+    waybar
+    hyprpaper
   ];
 
   systemd.user.services.cliphist-store = {
@@ -88,7 +90,14 @@
       color.ui = "auto";
     };
   };
+  
+  # Hyprpapr
+  xdg.configFile."hypr/hyprpaper.conf".source = ./hypr/hyprpaper.conf;
 
+  # Waybar
+  xdg.configFile."waybar/config.jsonc".source = ./waybar/config.jsonc;
+  xdg.configFile."waybar/style.css".source   = ./waybar/style.css;
+  
   # Wofi
   xdg.configFile."wofi/style.css".source = ./wofi/style.css;
 

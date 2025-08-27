@@ -1,0 +1,17 @@
+* {
+  font-family: "JetBrainsMono Nerd Font";
+  font-size: 13px;
+  color: #cad3f5;
+}
+window {
+  background: #24273a;
+}
+#clock, #pulseaudio, #tray {
+  padding: 0 10px;
+  margin: 6px;
+  border-radius: 8px;
+  background: #1e2030;
+}
+#pulseaudio.muted { opacity: 0.7; }
+
+/* workspace styling will come later with Hyprland */

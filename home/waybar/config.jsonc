@@ -1,0 +1,27 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 28,
+
+  "modules-left": ["clock"],
+  "modules-center": [],
+  "modules-right": ["pulseaudio", "tray"],
+
+  "clock": { "format": "{:%a %d %b  %H:%M}" },
+
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-muted": " {volume}%",
+    "format-icons": ["","",""],
+    "scroll-step": 5,
+    "on-click": "pavucontrol"
+  },
+
+  "tray": {
+    "icon-size": 16,
+    "spacing": 6
+  }
+
+  // Hyprland pieces we’ll add after the switch:
+  // "modules-left": ["hyprland/workspaces", "clock"]
+}
