@@ -11,6 +11,7 @@
     pavucontrol
     waybar
     hyprpaper
+    hyprland
   ];
 
   systemd.user.services.cliphist-store = {
@@ -91,6 +92,9 @@
     };
   };
   
+  # Hyprland
+  xdg.configFile."hypr/hyprland.conf".source = ./hypr/hyprland.conf;
+
   # Hyprpapr
   xdg.configFile."hypr/hyprpaper.conf".source = ./hypr/hyprpaper.conf;
 
