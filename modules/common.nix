@@ -50,10 +50,9 @@
     settings = {
       General = {
         Experimental = true;
-        AutoEnable = true;
       };
       Policy = {
-        AutoConnect = true;
+        AutoEnable = true;   # valid here
       };
     };
   };
