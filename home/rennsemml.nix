@@ -13,7 +13,6 @@
     hyprpaper
     hyprland
     libnotify
-    wev
   ];
 
   systemd.user.services.cliphist-store = {

@@ -22,8 +22,8 @@
 
   environment.systemPackages = with pkgs; [
     kitty
-    google-chrome
     git
+    firefox
   ];
 
   fonts.packages = with pkgs; [
