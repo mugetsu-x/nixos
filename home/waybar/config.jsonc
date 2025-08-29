@@ -1,27 +1,85 @@
 {
   "layer": "top",
   "position": "top",
-  "height": 28,
 
-  "modules-left": ["clock"],
-  "modules-center": [],
+  "modules-left": ["cpu", "memory", "custom/net", "custom/speedtest", "hyprland/workspace"],
+  "modules-center": ["clock"],
   "modules-right": ["pulseaudio", "tray"],
 
-  "clock": { "format": "{:%a %d %b  %H:%M}" },
+  "hyprland/workspaces": {
+    "format": "{name}",
+    "persistent_workspaces": { "": [1, 2, 3] },
+    "disable-scroll": true,
+    "all-outputs": true,
+    "sort-by-number": true,
+    "show-special": false
+  },
+  "custom/net": {
+    "exec": "~/.config/waybar/scripts/net-speed.sh",
+    "interval": 2,
+    "return-type": "plain",
+    "tooltip": true,
+    "on-click": "nm-connection-editor",
+    "format": " {}"
+  },
+
+  "custom/speedtest": {
+    "exec": "~/.config/waybar/scripts/speedtest.sh",
+    "interval": 10,
+    "return-type": "plain",
+    "format": "{}",
+    "tooltip": true,
+    "on-click": "bash -lc 'rm -f ~/.cache/waybar_speed.json; ~/.config/waybar/scripts/speedtest.sh >/dev/null & disown'"
+  },
+
+  "clock": {
+    "format": "{:%a %d %b  %H:%M}",
+    "tooltip-format": "{:%Y-%m-%d %H:%M:%S}"
+  },
+
+  "cpu": {
+    "interval": 2,
+    "format": " {usage}%",
+    "tooltip": true
+  },
+
+  "memory": {
+    "interval": 5,
+    "format": " {used:0.1f}G",
+    "tooltip": true
+  },
+
+  "network": {
+    "interval": 3,
+    "format-wifi": " {essid} ({signalStrength}%)",
+    "format-ethernet": " {ifname}",
+    "format-disconnected": " no net",
+    "tooltip": true,
+    "on-click": "nm-connection-editor"
+  },
 
   "pulseaudio": {
     "format": "{icon} {volume}%",
-    "format-muted": " {volume}%",
-    "format-icons": ["","",""],
-    "scroll-step": 5,
+    "format-muted": " muted",
+    "format-icons": {
+      "default": ["", "", ""]
+    },
+    "scroll-step": 3,
     "on-click": "pavucontrol"
+  },
+
+  // Waybar has a native bluetooth module on recent versions.
+  // If your Waybar is older and this fails, tell me and I’ll swap to a custom script.
+  "bluetooth": {
+    "format-on": " {num_connections}",
+    "format-off": " off",
+    "format-disabled": " disabled",
+    "tooltip": true,
+    "on-click": "blueman-manager"
   },
 
   "tray": {
     "icon-size": 16,
     "spacing": 6
   }
-
-  // Hyprland pieces we’ll add after the switch:
-  // "modules-left": ["hyprland/workspaces", "clock"]
 }

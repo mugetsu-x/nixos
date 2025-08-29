@@ -56,9 +56,11 @@
       };
     };
   };
+  
+  services.xserver.xkb.layout = "us";
+  services.xserver.xkb.variant = "altgr-intl";
 
   services.blueman.enable = true;
-
 
   services.pulseaudio.enable = false;
 

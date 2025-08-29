@@ -22,60 +22,101 @@ in {
 
   programs.home-manager.enable = true;
 
-  # Shell setup
-  programs.zsh = {
-    enable = true;
-    autosuggestion.enable = true;
-    syntaxHighlighting.enable = true;
-    history.size = 10000;
-    shellAliases = {
-      nixre = "sudo nixos-rebuild switch --flake ~/nixos-config#main-pc";
-      nixhome = "cd ~/nixos-config";
-      nixpush = "cd ~/nixos-config && git add . && git commit -m \"$1\" && git push";
+   # Shell setup
+    programs.zsh = {
+      enable = true;
+      autosuggestion.enable = true;
+      syntaxHighlighting.enable = true;
+      history.size = 10000;
+      shellAliases = {
+        nixre = "sudo nixos-rebuild switch --flake ~/nixos-config#main-pc";
+        nixhome = "cd ~/nixos-config";
+        nixpush = "cd ~/nixos-config && git add . && git commit -m \"$1\" && git push";
+      };
+      initContent = ''
+        export EDITOR=nvim
+      '';
     };
-    initContent = ''
-      export EDITOR=nvim
-    '';
+
+  programs.starship = {
+    enable = true;
+    settings = {
+      scan_timeout = 10;            # default ok
+      palette = "catppuccin_macchiato";
+      palettes.catppuccin_macchiato = {
+        text = "#cad3f5";
+        green = "#a6da95";
+        blue = "#8aadf4";
+        red = "#ed8796";
+        yellow = "#eed49f";
+      };
+
+      directory = {
+        style = "bold green";
+        read_only = " ";
+        format = "[$path]($style)" ; # tweak as you like
+      };
+
+      # Git status with “branch” symbol etc.
+      git_branch = { symbol = " "; style = "blue"; };
+      git_status = { format = "([$all_status$ahead_behind]($style)) "; style = "yellow"; };
+
+      # Prompt symbol
+      character = {
+        success_symbol = "[❯](green)";
+        error_symbol   = "[❯](red)";
+        vicmd_symbol   = "[❮](blue)";
+      };
+    };
   };
 
-  programs.starship.enable = true;
+
 
   # Applications
   home.packages = with pkgs; [
-    # terminal
     kitty
-
-    # notifications + clipboard
     libnotify
     wl-clipboard
     cliphist
     wofi
     mako
-
-    # volume + audio
     pamixer
     pavucontrol
-
-    # bar + wallpaper
     waybar
     hyprpaper
-
-    # browser
     firefox
-
-    # utils
     blueman
+    networkmanagerapplet
+    speedtest-cli
+    jq
   ];
 
-  # Kitty config
-  xdg.configFile."kitty/kitty.conf".source = ./kitty/macchiato.conf;
+  # Kitty
+  xdg.configFile."kitty/macchiato.conf".source  = ./kitty/macchiato.conf;
 
-  # Waybar config
+  # Wofi
+  xdg.configFile."wofi/style.css".source = ./wofi/style.css;
+  xdg.configFile."kitty/kitty.conf".source     = ./kitty/kitty.conf;  
+
+  # Waybar
   xdg.configFile."waybar/config.jsonc".source = ./waybar/config.jsonc;
   xdg.configFile."waybar/style.css".source   = ./waybar/style.css;
 
-  # Hyprpaper config
+  # Hyprland and paper
+  xdg.configFile."hypr/hyprland.conf".source = ./hypr/hyprland.conf;
   xdg.configFile."hypr/hyprpaper.conf".source = ./hypr/hyprpaper.conf;
+
+  home.file.".config/waybar/scripts/net-speed.sh" = {
+    source = ./waybar/scripts/net-speed.sh;
+    executable = true;
+  };
+
+  home.file.".config/waybar/scripts/speedtest.sh" = {
+    source = ./waybar/scripts/speedtest.sh;
+    executable = true;
+  };
+
+
 
   # Systemd user service: clipboard history
   systemd.user.services.cliphist-store = {
