@@ -68,7 +68,7 @@ in {
   ];
 
   # Kitty config
-  xdg.configFile."kitty/kitty.conf".source = ./macchiato.conf;
+  xdg.configFile."kitty/kitty.conf".source = ./kitty/macchiato.conf;
 
   # Waybar config
   xdg.configFile."waybar/config.jsonc".source = ./waybar/config.jsonc;
