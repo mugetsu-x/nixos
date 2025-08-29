@@ -41,6 +41,25 @@
   programs.zsh.enable = true;
   programs.dconf.enable = true;
 
+  # Bluetooth stack
+  hardware.enableRedistributableFirmware = true;
+  hardware.firmware = [ pkgs.linux-firmware ];  
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+    settings = {
+      General = {
+        Experimental = true;
+        AutoEnable = true;
+      };
+      Policy = {
+        AutoConnect = true;
+      };
+    };
+  };
+
+  services.blueman.enable = true;
+
 
   services.pulseaudio.enable = false;
 
