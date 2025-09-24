@@ -31,7 +31,6 @@ in {
       shellAliases = {
         nixre = "sudo nixos-rebuild switch --flake ~/nixos-config#main-pc";
         nixhome = "cd ~/nixos-config";
-        nixpush = "cd ~/nixos-config && git add . && git commit -m \"$1\" && git push";
       };
       initContent = ''
         export EDITOR=nvim
@@ -88,7 +87,6 @@ in {
     blueman
     networkmanagerapplet
     speedtest-cli
-    jq
   ];
 
   # Kitty
@@ -106,16 +104,23 @@ in {
   xdg.configFile."hypr/hyprland.conf".source = ./hypr/hyprland.conf;
   xdg.configFile."hypr/hyprpaper.conf".source = ./hypr/hyprpaper.conf;
 
-  home.file.".config/waybar/scripts/net-speed.sh" = {
-    source = ./waybar/scripts/net-speed.sh;
+  # Mako
+  xdg.configFile."mako/config".source = ./mako/config;
+
+  home.file.".config/waybar/scripts/net-upload.sh" = {
+    source = ./waybar/scripts/net-upload.sh;
     executable = true;
   };
 
-  home.file.".config/waybar/scripts/speedtest.sh" = {
-    source = ./waybar/scripts/speedtest.sh;
+  home.file.".config/waybar/scripts/speedtest-download.sh" = {
+    source = ./waybar/scripts/speedtest-download.sh;
     executable = true;
   };
 
+  home.file.".config/waybar/scripts/ws.sh" = {
+    source = ./waybar/scripts/ws.sh;
+    executable = true;
+  };
 
 
   # Systemd user service: clipboard history
@@ -132,6 +137,7 @@ in {
       WantedBy = [ "default.target" ];
     };
   };
+
 
   # Systemd user service: auto-connect Bluetooth trusted devices
   systemd.user.services.bt-autoconnect = {

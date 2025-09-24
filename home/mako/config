@@ -2,13 +2,12 @@
 anchor=top-center
 layer=overlay
 max-visible=5
-sort=descending
-default-timeout=5000        # 5s for normal notifications
+default-timeout=5000
 ignore-timeout=0
 
 # look
 font=JetBrainsMono Nerd Font 12
-background-color=#24273acc  # Catppuccin Macchiato base with alpha
+background-color=#24273acc
 text-color=#cad3f5
 border-color=#8aadf4
 border-size=2
