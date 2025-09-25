@@ -19,9 +19,9 @@ icons=1
 progress-color=#8aadf4
 
 # mouse actions
-on-button-left=exec:makoctl dismiss
-on-button-middle=exec:makoctl dismiss --all
-on-button-right=exec:makoctl invoke-default-action
+on-button-left=exec makoctl dismiss
+on-button-middle=exec makoctl dismiss --all
+on-button-right=exec makoctl invoke-default-action
 
 # ensure “critical” also expires
 [urgency=critical]

@@ -69,8 +69,6 @@ in {
     };
   };
 
-
-
   # Applications
   home.packages = with pkgs; [
     kitty
@@ -87,7 +85,11 @@ in {
     blueman
     networkmanagerapplet
     speedtest-cli
+    grim
+    slurp
+    swappy
   ];
+
 
   # Kitty
   xdg.configFile."kitty/macchiato.conf".source  = ./kitty/macchiato.conf;

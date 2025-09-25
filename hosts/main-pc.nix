@@ -3,6 +3,7 @@
     ../modules/hardware.nix
     ../modules/nvidia.nix
     ../modules/common.nix
+    ../modules/login.nix
     home-manager.nixosModules.home-manager
   ];
   # Hyprland
