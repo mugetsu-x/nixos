@@ -88,6 +88,9 @@ in {
     slurp
     swappy
     spotify
+    kdePackages.okular
+    kdePackages.kimageformats
+    kdePackages.kio-extras
   ];
 
 
