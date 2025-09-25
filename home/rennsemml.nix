@@ -15,12 +15,11 @@ let
     done
   '';
 in {
+  nixpkgs.config.allowUnfree = true;
   home.username = "rennsemml";
   home.homeDirectory = "/home/rennsemml";
 
   home.stateVersion = "25.05";
-
-  programs.home-manager.enable = true;
 
    # Shell setup
     programs.zsh = {
@@ -88,6 +87,7 @@ in {
     grim
     slurp
     swappy
+    spotify
   ];
 
 

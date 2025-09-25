@@ -21,6 +21,4 @@
 
   # Home Manager user config
   home-manager.users.rennsemml = import ../home/rennsemml.nix;
-
-  nixpkgs.config.allowUnfree = true;
 }
