@@ -7,6 +7,7 @@
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
+
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/df16a55c-fdc7-40d1-b274-5a0c085df3ab";
     fsType = "ext4";
@@ -16,5 +17,4 @@
     fsType = "vfat";
     options = [ "umask=0077" ];
   };
-
 }

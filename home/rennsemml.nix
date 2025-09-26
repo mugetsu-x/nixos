@@ -12,6 +12,6 @@
     ./modules/shell.nix
     ./modules/wayland.nix
     ./modules/services.nix
-    # (LazyVim module can be added later when we do it)
+    ./modules/neovim-lazyvim.nix
   ];
 }

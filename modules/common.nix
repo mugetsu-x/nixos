@@ -8,9 +8,7 @@
   networking.networkmanager.enable = true;
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
   time.timeZone = "Europe/Vienna";
-
   i18n.defaultLocale = "en_US.UTF-8";
 
   nixpkgs.config.allowUnfree = true;
@@ -52,7 +50,7 @@
         Experimental = true;
       };
       Policy = {
-        AutoEnable = true;   # valid here
+        AutoEnable = true;
       };
     };
   };

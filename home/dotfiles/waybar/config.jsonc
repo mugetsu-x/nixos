@@ -2,16 +2,9 @@
   "layer": "top",
   "position": "top",
 
-  "modules-left": ["custom/workspaces"],
+  "modules-left": [],
   "modules-center": ["clock"],
-  "modules-right": ["pulseaudio", "custom/speedtest_dl", "custom/net_up", "cpu", "memory"],
-
-  "custom/workspaces": {
-    "exec": "~/.config/waybar/scripts/ws.sh",
-    "interval": 1,
-    "return-type": "plain",
-    "tooltip": false
-  },
+  "modules-right": ["pulseaudio", "cpu", "memory"],
 
   "clock": {
     "format": "{:%a %d %b  %H:%M}",
@@ -27,23 +20,6 @@
 
   "cpu": { "interval": 2, "format": " {usage}%", "tooltip": true },
   "memory": { "interval": 5, "format": " {used:0.1f}G", "tooltip": true },
-
-  "custom/speedtest_dl": {
-    "exec": "~/.config/waybar/scripts/speedtest-download.sh",
-    "interval": 10,
-    "return-type": "plain",
-    "format": "{}",
-    "tooltip": true,
-    "on-click": "bash -lc 'rm -f ~/.cache/waybar_speed.json; ~/.config/waybar/scripts/speedtest-download.sh >/dev/null & disown'"
-  },
-
-  "custom/net_up": {
-    "exec": "~/.config/waybar/scripts/net-upload.sh",
-    "interval": 2,
-    "return-type": "plain",
-    "format": "{}",
-    "tooltip": true
-  },
 
   "tray": { "icon-size": 16, "spacing": 6 }
 }

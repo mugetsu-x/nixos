@@ -1,34 +1,34 @@
 { pkgs, ... }:
 {
   # Kitty
-  xdg.configFile."kitty/macchiato.conf".source = ../kitty/macchiato.conf;
-  xdg.configFile."kitty/kitty.conf".source     = ../kitty/kitty.conf;
+  xdg.configFile."kitty/macchiato.conf".source = ../dotfiles/kitty/macchiato.conf;
+  xdg.configFile."kitty/kitty.conf".source     = ../dotfiles/kitty/kitty.conf;
 
   # Wofi
-  xdg.configFile."wofi/style.css".source       = ../wofi/style.css;
+  xdg.configFile."wofi/style.css".source       = ../dotfiles/wofi/style.css;
 
   # Waybar
-  xdg.configFile."waybar/config.jsonc".source  = ../waybar/config.jsonc;
-  xdg.configFile."waybar/style.css".source     = ../waybar/style.css;
+  xdg.configFile."waybar/config.jsonc".source  = ../dotfiles/waybar/config.jsonc;
+  xdg.configFile."waybar/style.css".source     = ../dotfiles/waybar/style.css;
 
   # Hyprland & Hyprpaper
-  xdg.configFile."hypr/hyprland.conf".source   = ../hypr/hyprland.conf;
-  xdg.configFile."hypr/hyprpaper.conf".source  = ../hypr/hyprpaper.conf;
+  xdg.configFile."hypr/hyprland.conf".source   = ../dotfiles/hypr/hyprland.conf;
+  xdg.configFile."hypr/hyprpaper.conf".source  = ../dotfiles/hypr/hyprpaper.conf;
 
   # Mako
-  xdg.configFile."mako/config".source          = ../mako/config;
+  xdg.configFile."mako/config".source          = ../dotfiles/mako/config;
 
   # Waybar scripts
   home.file.".config/waybar/scripts/net-upload.sh" = {
-    source = ../waybar/scripts/net-upload.sh;
+    source = ../dotfiles/waybar/scripts/net-upload.sh;
     executable = true;
   };
   home.file.".config/waybar/scripts/speedtest-download.sh" = {
-    source = ../waybar/scripts/speedtest-download.sh;
+    source = ../dotfiles/waybar/scripts/speedtest-download.sh;
     executable = true;
   };
   home.file.".config/waybar/scripts/ws.sh" = {
-    source = ../waybar/scripts/ws.sh;
+    source = ../dotfiles/waybar/scripts/ws.sh;
     executable = true;
   };
 }
