@@ -1,0 +1,26 @@
+{ pkgs, ... }:
+{
+  home.packages = with pkgs; [
+    kitty
+    libnotify
+    wl-clipboard
+    cliphist
+    wofi
+    mako
+    pamixer
+    pavucontrol
+    waybar
+    hyprpaper
+    firefox
+    blueman
+    networkmanagerapplet
+    speedtest-cli
+    grim
+    slurp
+    swappy
+    spotify
+    kdePackages.okular
+    kdePackages.kimageformats
+    kdePackages.kio-extras
+  ];
+}
