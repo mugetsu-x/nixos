@@ -4,7 +4,7 @@ let
   lazyvimStarter = pkgs.fetchFromGitHub {
     owner = "LazyVim";
     repo  = "starter";
-    rev   = "HEAD";  # replace with a commit later for long-term pinning
+    rev   = "HEAD";  # pin to a commit later for long-term reproducibility
     sha256 = "sha256-QrpnlDD4r1X4C8PqBhQ+S3ar5C+qDrU1Jm/lPqyMIFM=";
   };
 in
@@ -20,7 +20,6 @@ in
       # essentials
       ripgrep
       fd
-
       # TS / web stack
       nodejs_22
       typescript
@@ -28,17 +27,23 @@ in
       vtsls
       vscode-langservers-extracted   # html, cssls, jsonls, eslint
       prettierd
-
-      # Nix formatting (attr renamed in 25.05)
-      nixfmt-classic                 # provides the "nixfmt" binary
+      # Nix formatting
+      nixfmt-classic                  # provides the "nixfmt" binary
     ];
   };
 
-  # Put the LazyVim starter in ~/.config/nvim
-  xdg.configFile."nvim".source = lazyvimStarter;
+  # Put LazyVim starter into ~/.config/nvim
+  home.file.".config/nvim" = {
+    source = lazyvimStarter;
+    recursive = true;  # copy/link the whole tree
+    force = true;      # overwrite existing directory if needed
+  };
 
-  # Use Nix-installed LSPs (no Mason)
-  xdg.configFile."nvim/lua/plugins/lsp-nix.lua".text = ''
+
+  # --- Plugin customizations (explicitly under $HOME using home.file) ---
+
+  # LSP: use Nix-installed binaries (no Mason)
+  home.file.".config/nvim/lua/plugins/lsp-nix.lua".text = ''
     return {
       {
         "neovim/nvim-lspconfig",
@@ -56,7 +61,7 @@ in
   '';
 
   # Formatting via conform.nvim: TS/JS + Nix
-  xdg.configFile."nvim/lua/plugins/formatters.lua".text = ''
+  home.file.".config/nvim/lua/plugins/formatters.lua".text = ''
     return {
       {
         "stevearc/conform.nvim",
