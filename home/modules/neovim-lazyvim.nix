@@ -1,13 +1,13 @@
 { config, lib, pkgs, ... }:
 
 let
-  # Pin the official LazyVim starter (fetch once, reproducible)
+  # Pin the official LazyVim starter (reproducible)
   lazyvimStarter = pkgs.fetchFromGitHub {
     owner = "LazyVim";
     repo  = "starter";
-    # Pick a recent commit from https://github.com/LazyVim/starter
-    # First build will suggest the correct sha256; replace lib.fakeSha256 then.
+    # For long-term reproducibility, replace HEAD with a commit hash when you want.
     rev = "HEAD";
+    # Use the hash your build printed ("got: ..."):
     sha256 = "sha256-QrpnlDD4r1X4C8PqBhQ+S3ar5C+qDrU1Jm/lPqyMIFM=";
   };
 in
@@ -19,70 +19,76 @@ in
     vimAlias = true;
     vimdiffAlias = true;
 
-    # Put dev tools / LSPs on $PATH inside nvim (and for :!cmd)
+    # Make dev tools/LSPs available inside nvim
     extraPackages = with pkgs; [
-      # general cli helpers used by plugins
-      ripgrep fd jq git
-      # JS/TS toolchain
+      # handy CLIs
+      ripgrep fd jq
+
+      # Nix formatting (attr renamed in 25.05)
+      nixfmt-classic
+      shfmt
+
+      # TS/JS
       nodejs_22 typescript typescript-language-server vtsls
-      vscode-langservers-extracted  # html/css/json/eslint LSPs
-      prettierd                      # faster Prettier daemon
+      vscode-langservers-extracted   # html, css, json, eslint LSPs
+      prettierd                       # fast prettier daemon
+
       # Lua
       lua-language-server stylua
+
       # Python
-      python312         # interpreter for lint/format if needed
-      basedpyright      # or pkgs.pyright if you prefer
-      ruff              # linter
-      shfmt nixfmt
-      black             # formatter (optional)
-      # Nix
-      nixd              # or nil, pick one
-      # Shell / YAML / Markdown
+      python312
+      basedpyright  # or pyright
+      ruff          # linter (diagnostics via nvim-lint)
+      black         # optional formatter
+
+      # Nix LSP
+      nixd          # or nil
+
+      # Shell / YAML / Markdown LSPs
       bash-language-server yaml-language-server marksman
+
       # C#
       omnisharp-roslyn netcoredbg
     ];
-
-    # You can also pin some plugins from nixpkgs if you want to avoid network,
-    # but LazyVim starter will let lazy.nvim resolve plugin pins itself.
-    # Example to add a plugin from nixpkgs:
-    # plugins = with pkgs.vimPlugins; [ nvim-web-devicons ];
   };
 
-  # Provide LazyVim starter as your ~/.config/nvim (managed by HM)
+  # Provide the LazyVim starter as your ~/.config/nvim/
   xdg.configFile."nvim".source = lazyvimStarter;
 
-  # ---- LazyVim customization: prefer Nix-installed tools over Mason ----
-  # 1) LSP: tell LazyVim that servers are provided by the system (mason=false)
+  # --- Plugin customizations (all paths are INSIDE $HOME):
+  # 1) LSP: tell LazyVim to use system binaries (mason = false)
   xdg.configFile."nvim/lua/plugins/lsp-nix.lua".text = ''
     return {
-      -- Adjust default LSPs to use system binaries (nix) instead of Mason
       {
         "neovim/nvim-lspconfig",
         opts = {
           servers = {
+            -- Lua
             lua_ls = { mason = false },
-            -- LazyVim’s TS extra uses vtsls by default (since v11+).
-            -- Ensure we don’t try to install via Mason:
+            -- TypeScript / Web
             vtsls = { mason = false },
             html  = { mason = false },
             cssls = { mason = false },
             jsonls = { mason = false },
             eslint = { mason = false },
+            -- Python
+            basedpyright = { mason = false }, -- or pyright = { mason = false }
+            -- Shell / YAML / Markdown
             bashls = { mason = false },
             yamlls = { mason = false },
             marksman = { mason = false },
+            -- Nix
             nixd = { mason = false }, -- or nil = { mason = false }
+            -- C#
             omnisharp = { mason = false },
-            basedpyright = { mason = false }, -- or pyright = { mason = false }
           },
         },
       },
     }
   '';
 
-  # 2) Formatting: map formatters to the binaries we installed with nix
-  #    LazyVim uses conform.nvim by default; we only tweak which executables to prefer.
+  # 2) Formatting via conform.nvim — map to Nix-installed executables
   xdg.configFile."nvim/lua/plugins/formatters.lua".text = ''
     return {
       {
@@ -97,8 +103,9 @@ in
             json = { "prettierd", "prettier" },
             yaml = { "prettierd", "prettier" },
             markdown = { "prettierd", "prettier" },
-            nix = { "nixfmt" }, -- or "alejandra"
-            python = { "ruff_format", "black" }, -- choose your fav
+            -- nixfmt-classic provides the "nixfmt" binary on PATH; if your PATH exposes "nixfmt-classic" instead, replace below accordingly.
+            nix = { "nixfmt" },
+            python = { "ruff_format", "black" }, -- choose your favorite
             sh = { "shfmt" },
           })
         end,
@@ -106,32 +113,18 @@ in
     }
   '';
 
-  # 3) Optional: enable some curated LazyVim extras declaratively.
-  #    (You can also toggle at runtime with :LazyExtras)
-  #    See https://lazyvim.github.io/news (vtsls switch) and docs
-  xdg.configFile."nvim/lua/plugins/extras.lua".text = ''
-    return {
-      -- Examples:
-      -- { import = "lazyvim.plugins.extras.lang.typescript" },
-      -- { import = "lazyvim.plugins.extras.lang.python" },
-      -- { import = "lazyvim.plugins.extras.lang.json" },
-      -- { import = "lazyvim.plugins.extras.ui.mini-animate" },
-      -- Add/remove as you like; leaving empty is fine.
-    }
-  '';
-    xdg.configFile."nvim/lua/plugins/linting.lua".text = ''
+  # 3) Linting via nvim-lint — run ruff for Python; lint on save
+  xdg.configFile."nvim/lua/plugins/linting.lua".text = ''
     return {
       {
         "mfussenegger/nvim-lint",
         optional = true,
         opts = function(_, opts)
-          -- add ruff as the linter for Python
           opts.linters_by_ft = vim.tbl_extend("force", opts.linters_by_ft or {}, {
             python = { "ruff" },
           })
-
-          -- optional: lint automatically on save
-          vim.api.nvim_create_autocmd({"BufWritePost"}, {
+          -- Lint on save
+          vim.api.nvim_create_autocmd({ "BufWritePost" }, {
             callback = function()
               require("lint").try_lint()
             end,
@@ -141,4 +134,15 @@ in
     }
   '';
 
+  # 4) Optional: place to declare LazyVim extras declaratively
+  #    (You can also toggle at runtime via :LazyExtras)
+  xdg.configFile."nvim/lua/plugins/extras.lua".text = ''
+    return {
+      -- Examples to enable:
+      -- { import = "lazyvim.plugins.extras.lang.typescript" },
+      -- { import = "lazyvim.plugins.extras.lang.python" },
+      -- { import = "lazyvim.plugins.extras.lang.json" },
+      -- { import = "lazyvim.plugins.extras.ui.mini-animate" },
+    }
+  '';
 }

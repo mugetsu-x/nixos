@@ -22,5 +22,8 @@
     kdePackages.okular
     kdePackages.kimageformats
     kdePackages.kio-extras
+    ripgrep
+    fd
+    jq
   ];
 }
