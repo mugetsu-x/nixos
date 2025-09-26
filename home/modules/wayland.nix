@@ -18,17 +18,4 @@
   # Mako
   xdg.configFile."mako/config".source          = ../dotfiles/mako/config;
 
-  # Waybar scripts
-  home.file.".config/waybar/scripts/net-upload.sh" = {
-    source = ../dotfiles/waybar/scripts/net-upload.sh;
-    executable = true;
-  };
-  home.file.".config/waybar/scripts/speedtest-download.sh" = {
-    source = ../dotfiles/waybar/scripts/speedtest-download.sh;
-    executable = true;
-  };
-  home.file.".config/waybar/scripts/ws.sh" = {
-    source = ../dotfiles/waybar/scripts/ws.sh;
-    executable = true;
-  };
 }

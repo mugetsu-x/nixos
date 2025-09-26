@@ -8,7 +8,7 @@ let
     # Pick a recent commit from https://github.com/LazyVim/starter
     # First build will suggest the correct sha256; replace lib.fakeSha256 then.
     rev = "HEAD";
-    sha256 = lib.fakeSha256;
+    sha256 = "sha256-QrpnlDD4r1X4C8PqBhQ+S3ar5C+qDrU1Jm/lPqyMIFM=";
   };
 in
 {
@@ -32,7 +32,8 @@ in
       # Python
       python312         # interpreter for lint/format if needed
       basedpyright      # or pkgs.pyright if you prefer
-      ruff ruff-lsp     # linter / LSP
+      ruff              # linter
+      shfmt nixfmt
       black             # formatter (optional)
       # Nix
       nixd              # or nil, pick one
@@ -118,4 +119,26 @@ in
       -- Add/remove as you like; leaving empty is fine.
     }
   '';
+    xdg.configFile."nvim/lua/plugins/linting.lua".text = ''
+    return {
+      {
+        "mfussenegger/nvim-lint",
+        optional = true,
+        opts = function(_, opts)
+          -- add ruff as the linter for Python
+          opts.linters_by_ft = vim.tbl_extend("force", opts.linters_by_ft or {}, {
+            python = { "ruff" },
+          })
+
+          -- optional: lint automatically on save
+          vim.api.nvim_create_autocmd({"BufWritePost"}, {
+            callback = function()
+              require("lint").try_lint()
+            end,
+          })
+        end,
+      },
+    }
+  '';
+
 }
