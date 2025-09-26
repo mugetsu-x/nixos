@@ -4,7 +4,7 @@ let
   lazyvimStarter = pkgs.fetchFromGitHub {
     owner = "LazyVim";
     repo  = "starter";
-    rev   = "HEAD";  # replace with a commit later if you want
+    rev   = "HEAD";  # replace with a commit later for long-term pinning
     sha256 = "sha256-QrpnlDD4r1X4C8PqBhQ+S3ar5C+qDrU1Jm/lPqyMIFM=";
   };
 in
@@ -34,7 +34,7 @@ in
     ];
   };
 
-  # Provide LazyVim starter as ~/.config/nvim
+  # Put the LazyVim starter in ~/.config/nvim
   xdg.configFile."nvim".source = lazyvimStarter;
 
   # Use Nix-installed LSPs (no Mason)
@@ -70,8 +70,7 @@ in
             json              = { "prettierd", "prettier" },
             yaml              = { "prettierd", "prettier" },
             markdown          = { "prettierd", "prettier" },
-            -- Nix
-            -- nixfmt-classic package supplies the "nixfmt" binary on PATH.
+            -- Nix (nixfmt-classic package supplies the "nixfmt" binary)
             nix               = { "nixfmt" },
           })
         end,
