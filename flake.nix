@@ -13,14 +13,9 @@
     nixosConfigurations.main-pc = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
 
-      modules = [
-        ./hosts/main-pc.nix
-        home-manager.nixosModules.home-manager
-      ];
+      modules = [ ./hosts/main-pc.nix home-manager.nixosModules.home-manager ];
 
-      specialArgs = {
-        inherit home-manager;
-      };
+      specialArgs = { inherit home-manager; };
     };
   };
 }
