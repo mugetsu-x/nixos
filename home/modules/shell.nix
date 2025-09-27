@@ -4,14 +4,18 @@
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
     history.size = 10000;
+
     shellAliases = {
       nixre = "sudo nixos-rebuild switch --flake ~/nixos-config#main-pc";
       nixhome = "cd ~/nixos-config";
-      vi = "nvim";
+      vi = "sudo -e"; # sudoedit → uses $EDITOR (nvim)
+      vim = "sudo -e"; # same behavior as vi
       pdf = "okular";
       lgit = "lazygit";
       ldocker = "lazydocker";
     };
+
+    # initExtra is deprecated → use initContent
     initContent = ''
       export EDITOR=nvim
     '';
@@ -50,3 +54,4 @@
     };
   };
 }
+
