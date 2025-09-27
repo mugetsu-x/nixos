@@ -1,13 +1,16 @@
-{ pkgs, ... }:
-{
+{ pkgs, ... }: {
   programs.zsh = {
     enable = true;
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
     history.size = 10000;
     shellAliases = {
-      nixre   = "sudo nixos-rebuild switch --flake ~/nixos-config#main-pc";
+      nixre = "sudo nixos-rebuild switch --flake ~/nixos-config#main-pc";
       nixhome = "cd ~/nixos-config";
+      vi = "nvim";
+      pdf = "okular";
+      lgit = "lazygit";
+      ldocker = "lazydocker";
     };
     initContent = ''
       export EDITOR=nvim
@@ -31,12 +34,18 @@
         read_only = " ";
         format = "[$path]($style)";
       };
-      git_branch = { symbol = " "; style = "blue"; };
-      git_status = { format = "([$all_status$ahead_behind]($style)) "; style = "yellow"; };
+      git_branch = {
+        symbol = " ";
+        style = "blue";
+      };
+      git_status = {
+        format = "([$all_status$ahead_behind]($style)) ";
+        style = "yellow";
+      };
       character = {
         success_symbol = "[❯](green)";
-        error_symbol   = "[❯](red)";
-        vicmd_symbol   = "[❮](blue)";
+        error_symbol = "[❯](red)";
+        vicmd_symbol = "[❮](blue)";
       };
     };
   };

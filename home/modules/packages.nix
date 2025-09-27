@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{ pkgs, ... }: {
   home.packages = with pkgs; [
     kitty
     libnotify
@@ -26,5 +25,7 @@
     fd
     jq
     lazygit
+    lazydocker
+    fastfetch
   ];
 }
