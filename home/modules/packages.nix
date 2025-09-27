@@ -10,7 +10,6 @@
     pavucontrol
     waybar
     hyprpaper
-    firefox
     blueman
     networkmanagerapplet
     speedtest-cli

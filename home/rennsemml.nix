@@ -13,5 +13,6 @@
     ./modules/wayland.nix
     ./modules/services.nix
     ./modules/neovim-lazyvim.nix
+    ./modules/chrome.nix
   ];
 }

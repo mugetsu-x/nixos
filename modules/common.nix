@@ -18,11 +18,7 @@
     useXkbConfig = true;
   };
 
-  environment.systemPackages = with pkgs; [
-    kitty
-    git
-    firefox
-  ];
+  environment.systemPackages = with pkgs; [ kitty git ];
 
   fonts.packages = with pkgs; [
     nerd-fonts.fira-code
@@ -41,20 +37,16 @@
 
   # Bluetooth stack
   hardware.enableRedistributableFirmware = true;
-  hardware.firmware = [ pkgs.linux-firmware ];  
+  hardware.firmware = [ pkgs.linux-firmware ];
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
     settings = {
-      General = {
-        Experimental = true;
-      };
-      Policy = {
-        AutoEnable = true;
-      };
+      General = { Experimental = true; };
+      Policy = { AutoEnable = true; };
     };
   };
-  
+
   services.xserver.xkb.layout = "us";
   services.xserver.xkb.variant = "altgr-intl";
 
