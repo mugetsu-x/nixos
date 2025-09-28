@@ -4,7 +4,6 @@
     ../modules/nvidia.nix
     ../modules/common.nix
     ../modules/login.nix
-    home-manager.nixosModules.home-manager
   ];
   services.printing.enable = true;
 
@@ -25,12 +24,18 @@
   programs.hyprland.enable = true;
 
   # Plasma 6 setup (kept)
-  services.xserver.enable = true;
-  services.displayManager.sddm.enable = true;
-  services.desktopManager.plasma6.enable = true;
+  services.xserver.enable = false;
+  services.displayManager.sddm.enable = false;
+  services.desktopManager.plasma6.enable = false;
 
-  xdg.portal.enable = true;
-  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+  xdg.portal = {
+    enable = true;
+    xdgOpenUsePortal = true;
+    extraPortals =
+      [ pkgs.xdg-desktop-portal-hyprland pkgs.xdg-desktop-portal-gtk ];
+    config.common.default = [ "hyprland" "gtk" ];
+  };
+
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
   virtualisation.docker.enable = true;
