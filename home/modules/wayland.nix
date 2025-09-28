@@ -19,6 +19,7 @@
   xdg.configFile."mako/config".source = ../dotfiles/mako/config;
 
   programs.hyprlock.enable = true;
-  programs.hypridle.enable = true;
+  programs.hyprlock.settings = { };
+  services.hypridle.enable = true;
 
 }

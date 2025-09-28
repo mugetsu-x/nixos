@@ -27,11 +27,19 @@
     lazydocker
     fastfetch
     udiskie
+
+    # Dolhin
     kdePackages.dolphin
     kdePackages.kio-extras
     kdePackages.kio-fuse
     kdePackages.qtsvg
     kdePackages.ffmpegthumbs
     kdePackages.kimageformats
+    kdePackages.kfilemetadata
+    kdePackages.kdegraphics-thumbnailers
+    kdePackages.ark
+    p7zip
+    unzip
+    unrar
   ];
 }
