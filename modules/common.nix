@@ -10,8 +10,11 @@
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   time.timeZone = "Europe/Vienna";
   i18n.defaultLocale = "en_US.UTF-8";
-
   nixpkgs.config.allowUnfree = true;
+
+  environment.variables = {
+    QT_QPA_PLATFORMTHEME = "qt6ct"; # let qt6ct control look
+  };
 
   console = {
     font = "Lat2-Terminus16";

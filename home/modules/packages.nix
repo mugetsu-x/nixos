@@ -27,6 +27,7 @@
     lazydocker
     fastfetch
     udiskie
+    discord
 
     # Dolhin
     kdePackages.dolphin
@@ -37,6 +38,7 @@
     kdePackages.kimageformats
     kdePackages.kfilemetadata
     kdePackages.kdegraphics-thumbnailers
+    qt6ct
     kdePackages.ark
     p7zip
     unzip
