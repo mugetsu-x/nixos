@@ -14,5 +14,6 @@
     ./modules/services.nix
     ./modules/neovim-lazyvim.nix
     ./modules/chrome.nix
+    ./modules/theme.nix
   ];
 }
