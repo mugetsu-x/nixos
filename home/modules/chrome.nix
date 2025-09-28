@@ -27,13 +27,5 @@
     "x-scheme-handler/https" = [ "google-chrome.desktop" ];
     "x-scheme-handler/mailto" = [ "google-chrome.desktop" ];
   };
-
-  # Optional: GTK theme so Chrome blends with your setup
-  gtk.enable = true;
-  gtk.theme = {
-    # Catppuccin Macchiato to match your other apps
-    name = "Catppuccin-Macchiato-Standard-Blue-Dark";
-    package = pkgs.catppuccin-gtk;
-  };
 }
 

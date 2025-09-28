@@ -6,10 +6,15 @@
     history.size = 10000;
 
     shellAliases = {
+      # NicOs worflow
       nixre = "sudo nixos-rebuild switch --flake ~/nixos-config#main-pc";
       nixhome = "cd ~/nixos-config";
-      vi = "sudo -e"; # sudoedit → uses $EDITOR (nvim)
-      vim = "sudo -e"; # same behavior as vi
+
+      # Editors
+      svi = "sudo -e"; # sudoedit → uses $EDITOR (nvim)
+      nvi = "nvim"; # same behavior as vi
+
+      # Tools
       pdf = "okular";
       lgit = "lazygit";
       ldocker = "lazydocker";
