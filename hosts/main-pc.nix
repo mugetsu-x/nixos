@@ -39,6 +39,7 @@
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
   virtualisation.docker.enable = true;
+  hardware.nvidia-container-toolkit.enable = true;
   users.users.rennsemml.extraGroups = [ "docker" ];
 
   # Home Manager user config

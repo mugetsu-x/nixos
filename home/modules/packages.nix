@@ -28,8 +28,10 @@
     fastfetch
     udiskie
     discord
+    vscode
+    code-cursor
 
-    # Dolhin
+    # Dolphin
     kdePackages.dolphin
     kdePackages.kio-extras
     kdePackages.kio-fuse
