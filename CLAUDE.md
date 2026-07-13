@@ -6,6 +6,9 @@ Flake-based NixOS config for a single machine. One host (`main-pc`), one user
 Remote: `git@github.com:mugetsu-x/nixos.git`. CI runs `nix flake check --no-build`
 on every push (`.github/workflows/check.yml`).
 
+Planned work lives in [TODO.md](TODO.md) — read it before starting something new,
+and keep it updated as items land.
+
 ## Rebuild
 
 ```
