@@ -5,6 +5,7 @@
     ../modules/common.nix
     ../modules/login.nix
     ../modules/gaming.nix
+    ../modules/nix-tools.nix
   ];
   services.printing.enable = true;
 
