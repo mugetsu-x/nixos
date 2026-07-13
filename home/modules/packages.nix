@@ -33,7 +33,6 @@
 
     # Dolphin
     kdePackages.dolphin
-    kdePackages.kio-extras
     kdePackages.kio-fuse
     kdePackages.qtsvg
     kdePackages.ffmpegthumbs

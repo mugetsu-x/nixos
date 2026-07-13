@@ -7,11 +7,14 @@
       url = "github:nix-community/home-manager/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nix-claude-code.url = "github:ryoppippi/nix-claude-code";
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }: {
+  outputs = { self, nixpkgs, home-manager, nix-claude-code, ... }: {
     nixosConfigurations.main-pc = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
+      # Add this line to pass the input to your modules
+      specialArgs = { inherit nix-claude-code; };
       modules = [ ./hosts/main-pc.nix home-manager.nixosModules.home-manager ];
     };
   };
