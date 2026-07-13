@@ -3,12 +3,10 @@
     kitty
     libnotify
     wl-clipboard
-    cliphist
     wofi
-    mako
     pamixer
     pavucontrol
-    waybar
+    # waybar, mako and cliphist come from their home-manager modules.
     hyprpaper
     blueman
     networkmanagerapplet

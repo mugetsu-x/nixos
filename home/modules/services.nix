@@ -16,20 +16,16 @@ let
   '';
 in {
   # Clipboard history daemon
-  systemd.user.services.cliphist-store = {
-    Unit = {
-      Description = "Wayland clipboard history daemon";
-      After = [ "graphical-session.target" ];
-    };
-    Service = {
-      ExecStart =
-        "${pkgs.wl-clipboard}/bin/wl-paste --watch ${pkgs.cliphist}/bin/cliphist store";
-      Restart = "on-failure";
-    };
-    Install = { WantedBy = [ "default.target" ]; };
-  };
+  services.cliphist.enable = true;
 
-  # Auto-connect Bluetooth trusted devices
+  # Tray automounter for removable media
+  services.udiskie.enable = true;
+
+  # Bluetooth tray applet
+  services.blueman-applet.enable = true;
+
+  # Auto-connect Bluetooth trusted devices. No home-manager module for this one,
+  # so it stays a hand-written unit.
   systemd.user.services.bt-autoconnect = {
     Unit = {
       Description = "Auto-connect trusted Bluetooth devices";
@@ -40,16 +36,6 @@ in {
       ExecStart = btAutoconnect;
     };
     Install = { WantedBy = [ "default.target" ]; };
-  };
-
-  # Tray automounter for removable media
-  systemd.user.services.udiskie = {
-    Unit.Description = "udiskie automounter";
-    Service = {
-      ExecStart = "${pkgs.udiskie}/bin/udiskie --tray";
-      Restart = "on-failure";
-    };
-    Install.WantedBy = [ "graphical-session.target" ];
   };
 
 }
