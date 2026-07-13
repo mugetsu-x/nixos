@@ -59,6 +59,10 @@
 
   services.blueman.enable = true;
 
+  # udiskie (home/modules/services.nix) talks to the UDisks2 D-Bus service, which
+  # nothing else pulls in since we are not running a full desktop environment.
+  services.udisks2.enable = true;
+
   services.pulseaudio.enable = false;
 
   services.pipewire = {
