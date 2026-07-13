@@ -4,6 +4,7 @@
     ../modules/nvidia.nix
     ../modules/common.nix
     ../modules/login.nix
+    ../modules/gaming.nix
   ];
   services.printing.enable = true;
 

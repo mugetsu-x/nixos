@@ -14,5 +14,6 @@
     ./modules/chrome.nix
     ./modules/theme.nix
     ./modules/pwas.nix
+    ./modules/gaming.nix
   ];
 }

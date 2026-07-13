@@ -29,6 +29,7 @@ modules/               system-level (NixOS options)
   nvidia.nix           nvidia open driver + Wayland env vars
   common.nix           bootloader, networking, locale, audio, bluetooth, fonts, user
   login.nix            greetd + regreet greeter, UWSM-managed Hyprland session
+  gaming.nix           steam (+ GE-Proton), gamemode, gamescope
 home/
   rennsemml.nix        home-manager entrypoint: imports home/modules/
   modules/             user-level (home-manager options)
@@ -42,6 +43,7 @@ home/
     chrome.nix         google-chrome + Wayland .desktop override + default browser
     theme.nix          GTK/Qt theming, cursor, qt6ct palette
     pwas.nix           Chrome --app= desktop entries (Teams, Outlook, Notion, ...)
+    gaming.nix         mangohud, vulkan-tools (system half is modules/gaming.nix)
   dotfiles/            raw config files, sourced verbatim by wayland.nix
     hypr/ kitty/ mako/ waybar/ wofi/
 ```
