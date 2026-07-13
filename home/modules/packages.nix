@@ -18,7 +18,6 @@
     swappy
     spotify
     kdePackages.okular
-    kdePackages.kimageformats
     kdePackages.kio-extras
     ripgrep
     fd
@@ -39,7 +38,6 @@
     kdePackages.kimageformats
     kdePackages.kfilemetadata
     kdePackages.kdegraphics-thumbnailers
-    qt6ct
     kdePackages.ark
     p7zip
     unzip

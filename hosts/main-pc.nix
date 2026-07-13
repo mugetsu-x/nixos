@@ -1,4 +1,4 @@
-{ config, pkgs, home-manager, nix-claude-code, ... }: {
+{ config, pkgs, nix-claude-code, ... }: {
   imports = [
     ../modules/hardware.nix
     ../modules/nvidia.nix
@@ -24,11 +24,6 @@
 
   # Hyprland
   programs.hyprland.enable = true;
-
-  # Plasma 6 setup (kept)
-  services.xserver.enable = false;
-  services.displayManager.sddm.enable = false;
-  services.desktopManager.plasma6.enable = false;
 
   xdg.portal = {
     enable = true;

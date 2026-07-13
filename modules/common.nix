@@ -19,16 +19,13 @@
   i18n.defaultLocale = "en_US.UTF-8";
   nixpkgs.config.allowUnfree = true;
 
-  environment.variables = {
-    QT_QPA_PLATFORMTHEME = "qt6ct"; # let qt6ct control look
-  };
-
   console = {
     font = "Lat2-Terminus16";
     useXkbConfig = true;
   };
 
-  environment.systemPackages = with pkgs; [ kitty git ];
+  # kitty lives in home/modules/packages.nix; git stays system-wide so it works as root.
+  environment.systemPackages = with pkgs; [ git ];
 
   fonts.packages = with pkgs; [
     nerd-fonts.fira-code
