@@ -29,10 +29,20 @@
       size = 11;
     };
 
-    # Catppuccin GTK (Macchiato, Blue, Dark variant)
+    # Catppuccin GTK (Macchiato, Blue).
+    #
+    # `name` must match a directory the package actually installs, and the
+    # package only builds the variants it is overridden with — the default
+    # build is frappe. The directory is named catppuccin-<variant>-<accent>-
+    # <size>; there is no "-Dark" suffix and no capitals. Get the name wrong and
+    # GTK silently falls back to Adwaita light, with no error anywhere.
     theme = {
-      name = "Catppuccin-Macchiato-Standard-Blue-Dark";
-      package = pkgs.catppuccin-gtk;
+      name = "catppuccin-macchiato-blue-standard";
+      package = pkgs.catppuccin-gtk.override {
+        variant = "macchiato";
+        accents = [ "blue" ];
+        size = "standard";
+      };
     };
 
     # Catppuccin recolor of Papirus folders (Macchiato Blue)
@@ -44,7 +54,15 @@
         accent = "blue"; # blue / rosewater / lavender / ...
       };
     };
+
+    # Apps that ignore the theme and pick a light/dark variant themselves
+    # (libadwaita, and GTK3 apps that check this hint) need to be told.
+    gtk3.extraConfig.gtk-application-prefer-dark-theme = 1;
+    gtk4.extraConfig.gtk-application-prefer-dark-theme = 1;
   };
+
+  # The libadwaita-era equivalent of the hint above; read over D-Bus.
+  dconf.settings."org/gnome/desktop/interface".color-scheme = "prefer-dark";
 
   # Catppuccin Macchiato Blue palette for Qt via qt6ct (Fusion style)
   xdg.dataFile."color-schemes/CatppuccinMacchiatoBlue.colors".text = ''

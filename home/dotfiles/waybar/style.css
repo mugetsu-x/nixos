@@ -1,38 +1,184 @@
+/* Catppuccin Macchiato, Blue accent.
+ *
+ * Floating-island bar: the window itself is transparent and each of the three
+ * module groups is drawn as its own rounded pill. GTK CSS, not web CSS — no
+ * blur, no custom properties, and only the subset of properties GTK3 knows. */
+
 * {
   font-family: "JetBrainsMono Nerd Font";
   font-size: 13px;
+  font-weight: 600;
   color: #cad3f5;
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+  /* GTK draws a 1px "shadow" under every widget by default; kill it. */
+  box-shadow: none;
+  text-shadow: none;
 }
 
 window#waybar {
-  background-color: #24273a;
-  border-bottom: 2px solid #181926;
+  background: transparent;
+}
+
+/* The three islands. */
+.modules-left,
+.modules-center,
+.modules-right {
+  background: rgba(36, 39, 58, 0.88); /* base @ 88% */
+  border: 1px solid rgba(73, 77, 100, 0.6); /* surface1 */
+  border-radius: 14px;
+  padding: 0 6px;
+  margin: 0;
+}
+
+/* ── Workspaces ───────────────────────────────────────────────────────────── */
+
+#workspaces {
+  padding: 0 2px;
 }
 
 #workspaces button {
-  padding: 0 8px;
-  margin: 0 4px;
-  border-radius: 6px;
+  padding: 0 6px;
+  margin: 4px 2px;
+  min-width: 12px;
+  border-radius: 8px;
   background: transparent;
-  color: #cad3f5;
-  box-shadow: none;
+  color: #494d64; /* surface1 — empty workspace dot */
+  font-size: 11px;
+  transition: all 200ms ease;
 }
+
+#workspaces button.empty {
+  color: #494d64;
+}
+
+/* A workspace with windows but not focused. */
+#workspaces button:not(.empty):not(.active) {
+  color: #8aadf4;
+}
+
 #workspaces button.active {
-  background: #8aadf4;
-  color: #181926;
-  font-weight: 600;
+  color: #24273a;
+  background: linear-gradient(90deg, #8aadf4, #b7bdf8); /* blue → lavender */
+  padding: 0 12px;
 }
-#workspaces button:hover { background: #1e2030; }
 
+#workspaces button.urgent {
+  color: #24273a;
+  background: #ed8796;
+}
 
-#cpu, #memory, #network, #pulseaudio, #bluetooth, #clock, #tray {
+#workspaces button:hover {
+  background: rgba(138, 173, 244, 0.2);
+  color: #b7bdf8;
+}
+
+/* ── Window title ─────────────────────────────────────────────────────────── */
+
+#window {
+  color: #a5adcb; /* subtext0 — quieter than the workspace pills */
+  font-weight: 500;
   padding: 0 10px;
+  margin: 4px 2px;
+}
+
+/* Waybar puts .empty on the whole window when nothing is focused. */
+window#waybar.empty .modules-left #window {
+  color: #6e738d;
+}
+
+/* ── Clock ────────────────────────────────────────────────────────────────── */
+
+#clock {
+  color: #b7bdf8; /* lavender */
+  font-weight: 700;
+  padding: 0 16px;
+  margin: 4px 0;
+}
+
+/* ── Right-hand modules ───────────────────────────────────────────────────── */
+
+#pulseaudio,
+#cpu,
+#memory,
+#network,
+#bluetooth,
+#tray,
+#custom-power {
+  padding: 0 9px;
+  margin: 4px 2px;
+  border-radius: 8px;
+  background: transparent;
+  transition: background 200ms ease;
+}
+
+#pulseaudio {
+  color: #f5bde6;
+} /* pink  */
+#cpu {
+  color: #a6da95;
+} /* green */
+#memory {
+  color: #eed49f;
+} /* yellow */
+#network {
+  color: #8bd5ca;
+} /* teal  */
+#bluetooth {
+  color: #8aadf4;
+} /* blue  */
+
+#pulseaudio:hover,
+#cpu:hover,
+#memory:hover,
+#network:hover,
+#bluetooth:hover {
+  background: rgba(73, 77, 100, 0.5);
 }
 
 #pulseaudio.muted {
-  color: #939ab7;
+  color: #6e738d;
 }
 
 #network.disconnected {
   color: #ed8796;
+}
+
+#bluetooth.off,
+#bluetooth.disabled {
+  color: #6e738d;
+}
+
+#custom-power {
+  color: #ed8796; /* red */
+  font-size: 14px;
+  padding: 0 10px 0 8px;
+}
+
+#custom-power:hover {
+  background: #ed8796;
+  color: #24273a;
+}
+
+#tray {
+  padding: 0 6px;
+}
+
+#tray > .needs-attention {
+  background: #ed8796;
+  border-radius: 8px;
+}
+
+/* ── Tooltips ─────────────────────────────────────────────────────────────── */
+
+tooltip {
+  background: rgba(30, 32, 48, 0.96); /* mantle */
+  border: 1px solid #8aadf4;
+  border-radius: 10px;
+}
+
+tooltip label {
+  color: #cad3f5;
+  padding: 2px;
 }

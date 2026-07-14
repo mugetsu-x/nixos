@@ -97,6 +97,13 @@ home/
 
 ## Non-obvious bits
 
+- **Two monitors, stacked vertically.** DP-2 is a 3440x1440 ultrawide at `0x0`;
+  DP-4 is a 1920x1080 panel *below* it at `760x1440` (centred under it), **not**
+  to its right. Waybar is pinned to DP-4 alone via `"output"` in
+  `waybar/config.jsonc` — drop that key and you get a bar on every output.
+- Monitor **refresh rates are pinned explicitly** (165 Hz / 120 Hz). Do not
+  "simplify" these back to `preferred`: the EDID-preferred mode is 60 Hz on both
+  panels, so `preferred` silently costs you the high refresh rate.
 - Chrome and all PWAs are launched with `--ozone-platform-hint=wayland`. The
   Gemini PWA additionally uses a separate `--user-data-dir` so it has its own
   Google login, isolated from the main Chrome profile.

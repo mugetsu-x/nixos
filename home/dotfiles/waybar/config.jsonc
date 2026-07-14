@@ -1,25 +1,121 @@
 {
   "layer": "top",
   "position": "top",
+  // Bar only on the small 1080p screen (below the ultrawide). Without this,
+  // waybar spawns one bar per output.
+  "output": "DP-4",
+  "height": 38,
+  "margin-top": 8,
+  "margin-left": 12,
+  "margin-right": 12,
+  "spacing": 0,
 
-  "modules-left": [],
+  "modules-left": ["hyprland/workspaces", "hyprland/window"],
   "modules-center": ["clock"],
-  "modules-right": ["pulseaudio", "cpu", "memory"],
+  "modules-right": [
+    "tray",
+    "pulseaudio",
+    "cpu",
+    "memory",
+    "network",
+    "bluetooth",
+    "custom/power"
+  ],
+
+  "hyprland/workspaces": {
+    "format": "{icon}",
+    "on-click": "activate",
+    "format-icons": {
+      "default": "",
+      "active": "",
+      "urgent": ""
+    },
+    "persistent-workspaces": { "*": 5 }
+  },
+
+  "hyprland/window": {
+    "format": "{title}",
+    "max-length": 48,
+    "separate-outputs": true,
+    "rewrite": {
+      "(.*) — Mozilla Firefox": "󰈹  $1",
+      "(.*) - Google Chrome": "  $1",
+      "(.*) - NVIM": "  $1",
+      "": "  Desktop"
+    }
+  },
 
   "clock": {
-    "format": "{:%a %d %b  %H:%M}",
-    "tooltip-format": "{:%Y-%m-%d %H:%M:%S}"
+    "format": "  {:%a %d %b  %H:%M}",
+    "tooltip-format": "<tt><small>{calendar}</small></tt>",
+    // No `format-alt`: the click-to-toggle it adds is not wanted, and it also
+    // hijacks the click handler the calendar actions below rely on.
+    "actions": {
+      "on-click-right": "mode",
+      "on-scroll-up": "shift_up",
+      "on-scroll-down": "shift_down"
+    },
+    "calendar": {
+      "mode": "month",
+      "format": {
+        "months": "<span color='#f5bde6'><b>{}</b></span>",
+        "days": "<span color='#cad3f5'>{}</span>",
+        "weekdays": "<span color='#8aadf4'><b>{}</b></span>",
+        "today": "<span color='#f5a97f'><b><u>{}</u></b></span>"
+      }
+    }
   },
 
   "pulseaudio": {
-    "format": "{icon} {volume}%",
-    "format-muted": " muted",
-    "format-icons": { "default": ["", "", ""] },
-    "scroll-step": 3
+    "format": "{icon}  {volume}%",
+    "format-muted": "  muted",
+    "format-icons": { "default": ["", "", ""] },
+    "scroll-step": 3,
+    "on-click": "pavucontrol",
+    "tooltip-format": "{desc} — {volume}%"
   },
 
-  "cpu": { "interval": 2, "format": " {usage}%", "tooltip": true },
-  "memory": { "interval": 5, "format": " {used:0.1f}G", "tooltip": true },
+  "cpu": {
+    "interval": 2,
+    "format": "  {usage}%",
+    "tooltip": true
+  },
 
-  "tray": { "icon-size": 16, "spacing": 6 }
+  "memory": {
+    "interval": 5,
+    "format": "  {used:0.1f}G",
+    "tooltip-format": "{used:0.1f}G / {total:0.1f}G  ({percentage}%)"
+  },
+
+  "network": {
+    "format-wifi": "  {signalStrength}%",
+    "format-ethernet": "󰈀",
+    "format-disconnected": "󰤭",
+    "tooltip-format-wifi": "{essid}  ({signalStrength}%)\n{ipaddr}",
+    "tooltip-format-ethernet": "{ifname}\n{ipaddr}",
+    "tooltip-format-disconnected": "Disconnected",
+    "on-click": "nm-connection-editor"
+  },
+
+  "bluetooth": {
+    "format": "",
+    "format-disabled": "󰂲",
+    "format-connected": "  {num_connections}",
+    "tooltip-format": "{controller_alias}",
+    "tooltip-format-connected": "{device_enumerate}",
+    "on-click": "blueman-manager"
+  },
+
+  "tray": {
+    "icon-size": 16,
+    "spacing": 8
+  },
+
+  "custom/power": {
+    "format": "⏻",
+    "tooltip": false,
+    // Dispatched through Hyprland rather than spawned directly, so the lock is
+    // not a child of waybar — otherwise restarting waybar kills the lock screen.
+    "on-click": "hyprctl dispatch exec hyprlock"
+  }
 }
