@@ -20,7 +20,23 @@
   };
 
   outputs =
-    { self, nixpkgs, home-manager, nix-claude-code, nix-index-database, ... }: {
+    {
+      self,
+      nixpkgs,
+      home-manager,
+      nix-claude-code,
+      nix-index-database,
+      ...
+    }:
+    {
+      # Project scaffolding: `nix flake init -t ~/nixos-config#nextjs` in an empty
+      # directory, then `direnv allow`.
+      templates.nextjs = {
+        path = ./templates/nextjs;
+        description = "Next.js + Postgres dev environment (flake devShell, direnv, docker compose)";
+      };
+      templates.default = self.templates.nextjs;
+
       nixosConfigurations.main-pc = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         # Add this line to pass the input to your modules

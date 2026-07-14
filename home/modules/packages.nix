@@ -1,4 +1,5 @@
-{ pkgs, ... }: {
+{ pkgs, ... }:
+{
   home.packages = with pkgs; [
     kitty
     libnotify
@@ -25,8 +26,7 @@
     fastfetch
     udiskie
     discord
-    vscode
-    code-cursor
+    # Editors: Zed (home/modules/zed.nix) and Neovim (home/modules/neovim-lazyvim.nix).
 
     # Dolphin
     kdePackages.dolphin

@@ -16,5 +16,7 @@
     ./modules/pwas.nix
     ./modules/gaming.nix
     ./modules/cli.nix
+    ./modules/dev.nix
+    ./modules/zed.nix
   ];
 }

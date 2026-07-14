@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   lazyvimStarter = pkgs.fetchFromGitHub {
@@ -7,7 +12,11 @@ let
     rev = "803bc181d7c0d6d5eeba9274d9be49b287294d99";
     sha256 = "sha256-QrpnlDD4r1X4C8PqBhQ+S3ar5C+qDrU1Jm/lPqyMIFM=";
   };
-in {
+
+  # Shared with Zed — add a language server there, not here.
+  tsPackages = import ../lib/ts-packages.nix pkgs;
+in
+{
   programs.neovim = {
     enable = true;
     defaultEditor = true;
@@ -15,26 +24,14 @@ in {
     vimAlias = true;
     vimdiffAlias = true;
 
-    extraPackages = with pkgs; [
-      # essentials
-      ripgrep
-      fd
-
-      # TS / web stack
-      nodejs_22
-      typescript
-      typescript-language-server
-      vtsls
-      vscode-langservers-extracted # html, cssls, jsonls, eslint
-      prettierd
-
-      # Nix formatting (official RFC 166 formatter, provides the "nixfmt" binary)
-      nixfmt-rfc-style
-
-      # Markdown
-      marksman # Markdown LSP
-      glow # optional: terminal preview
-    ];
+    # The LSPs/formatters live in home/lib/ts-packages.nix, shared with Zed.
+    extraPackages =
+      tsPackages
+      ++ (with pkgs; [
+        ripgrep
+        fd
+        glow # terminal markdown preview
+      ]);
   };
 
   # Put LazyVim starter into ~/.config/nvim (and merge our tweaks)
@@ -66,6 +63,9 @@ in {
             cssls = { mason = false },
             jsonls = { mason = false },
             eslint = { mason = false },
+            tailwindcss = { mason = false },
+            -- Nix
+            nixd = { mason = false },
             -- Markdown
             marksman = { mason = false },
           },
@@ -97,4 +97,3 @@ in {
     }
   '';
 }
-

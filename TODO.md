@@ -44,14 +44,21 @@ Still open:
   (mangohud can) rather than turning VRR off — the flicker comes from the swing,
   not from VRR itself.
 
-## 5. Development setup for the people-management-app
+## 5. Development setup — DONE
 
-Not started. Need the stack before planning. Likely relevant to what is already
-here: Neovim is LazyVim with Mason disabled, and the TypeScript/web toolchain
-(nodejs_22, typescript, vtsls, eslint, prettierd) is in
-`home/modules/neovim-lazyvim.nix`. Docker is enabled system-wide.
+The environment is in place; see the "Development" section of CLAUDE.md.
 
-`direnv` + `nix-direnv` are now set up, so the intended shape is a per-project
-`flake.nix` plus an `.envrc` containing `use flake` — project deps stay out of
-the global profile. Adding a language server means adding the package to
-`programs.neovim.extraPackages` *and* a `mason = false` entry (see CLAUDE.md).
+Shape that landed: **Zed** as the primary editor (declarative, in
+`home/modules/zed.nix`), VSCode and Cursor removed. The LSP/formatter list moved
+out of the Neovim module into `home/lib/ts-packages.nix`, shared by both editors.
+`home/modules/dev.nix` puts node/pnpm/tsc/psql/httpie in the profile as a
+baseline; per-project versions come from a flake devShell via direnv.
+`templates/nextjs` scaffolds a project (devShell + `.envrc` + Postgres in Docker).
+
+The people-management-app itself is still to be created — the environment is
+ready for it, the app is not written.
+
+Still open:
+
+- Zed's agent needs an interactive sign-in on first launch (provider + model).
+- No ORM picked yet. Drizzle is the assumed default; decide when the app starts.

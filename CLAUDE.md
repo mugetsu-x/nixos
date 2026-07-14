@@ -43,12 +43,17 @@ home/
     services.nix       cliphist, udiskie, blueman-applet + the hand-written
                        bt-autoconnect unit
     neovim-lazyvim.nix LazyVim starter pinned by commit + LSP/formatter overrides
+    zed.nix            Zed — the primary editor. Nix-pinned node + LSP binaries
+    dev.nix            baseline dev toolchain (node, pnpm, tsc, psql, httpie)
     chrome.nix         google-chrome + Wayland .desktop override + default browser
     theme.nix          GTK/Qt theming, cursor, qt6ct palette
     pwas.nix           Chrome --app= desktop entries (Teams, Outlook, Notion, ...)
     gaming.nix         mangohud, vulkan-tools (system half is modules/gaming.nix)
+  lib/
+    ts-packages.nix    the shared LSP/formatter list (Neovim + Zed both import it)
   dotfiles/            raw config files, sourced verbatim by wayland.nix
     hypr/ kitty/ mako/ waybar/ wofi/
+templates/nextjs/      `nix flake init -t ~/nixos-config#nextjs` — project scaffold
 ```
 
 ## Where things go
@@ -75,9 +80,10 @@ home/
 - `allowUnfree = true` is set once in `modules/common.nix` and inherited by
   home-manager via `useGlobalPkgs`. Don't re-declare it in `home/`.
 - Nix files are formatted with **nixfmt-rfc-style** (the `nixfmt` binary).
-- Neovim is LazyVim, **Mason is disabled** — every LSP and formatter is installed
-  through `programs.neovim.extraPackages` and marked `mason = false`. Adding a
-  language server means adding the package there *and* the `mason = false` entry.
+- **No editor is allowed to download its own language servers.** Both Neovim's
+  Mason and Zed's built-in downloader fetch dynamically linked binaries that have
+  no `ld.so` to link against on NixOS: they fail, sometimes silently, and you get
+  an editor with no types. Every LSP comes from Nix. See "Development" below.
 - The LazyVim starter is pinned by `rev` + `sha256`. Bumping it requires updating
   both.
 - Theming is Catppuccin **Macchiato, Blue accent**, dark. Palette hexes are
@@ -94,6 +100,66 @@ home/
   non-empty. We deliberately leave `settings` unset so the raw files in
   `home/dotfiles/` remain the source of truth. If you ever set `settings`, it
   will collide with the `xdg.configFile` link in `wayland.nix`.
+
+## Development
+
+TypeScript, fullstack. **Zed** is the primary editor; Neovim stays as `$EDITOR`
+and for quick edits. VSCode and Cursor were deliberately removed.
+
+**Adding a language server** — one place: `home/lib/ts-packages.nix`. Both
+`zed.nix` and `neovim-lazyvim.nix` import that list, so the package lands on both
+editors' PATH. Then wire it up in each editor that should use it:
+
+- Zed → an `lsp.<name>.binary` entry in `zed.nix` with **both `path` and
+  `arguments`**.
+- Neovim → a `mason = false` entry in the `lsp-nix.lua` block.
+
+**Setting `binary.path` in Zed discards the adapter's default arguments.** You
+must supply them yourself. Anything built on `vscode-languageserver` (vtsls,
+eslint, tailwind) needs `--stdio`; marksman needs `server`; nixd defaults to
+stdio. Get this wrong and the server launches and dies on the spot —
+
+```
+Error: Connection input stream is not set ... set '--stdio'
+ERROR [lsp] cannot read LSP message headers
+```
+
+— which presents as an editor with no hover types and no diagnostics, with the
+real cause buried in `~/.local/share/zed/logs/Zed.log`. **That log is the first
+place to look whenever Zed "works but has no types".**
+
+Zed will otherwise download its own server (and its own Node) and it will not run.
+`node.path`/`node.npm_path` in `zed.nix` exist for exactly this reason — do not
+remove them "because Zed bundles Node".
+
+`load_direnv = "direct"` in `zed.nix` is what makes Zed's language servers see a
+project's devShell. Without it, a project pinning its own Node version is ignored
+by the editor even though the terminal has it right.
+
+**Toolchain layering.** `home/modules/dev.nix` puts `node`, `pnpm`, `tsc`, `psql`
+and `httpie` in the user profile as a baseline, so a bare shell — and any AI agent
+spawned into one — is never toolchain-less. Per-project versions come from a flake
+devShell loaded by direnv and shadow the global ones.
+
+**Starting a project.** Order matters: `create-next-app` refuses to run in a
+non-empty directory, so scaffold the app *first* and layer the Nix template on
+top. Step 1 runs on the global toolchain from `dev.nix`, which is the whole
+reason it exists.
+
+```
+mkdir ~/workspace/foo && cd ~/workspace/foo
+pnpm create next-app .                    # global pnpm — no devShell yet
+nix flake init -t ~/nixos-config#nextjs   # adds flake.nix, .envrc, compose.yaml, .env.example
+echo ".direnv/" >> .gitignore
+direnv allow                              # once; afterwards `cd` is enough
+cp .env.example .env && docker compose up -d   # Postgres 16 on :5432
+```
+
+The template deliberately ships **no** `.gitignore` — `create-next-app` writes
+one, and `nix flake init` refuses to overwrite an existing file.
+
+`docker compose down -v` wipes the database. The volume is project-scoped, so
+resetting is free.
 
 ## Non-obvious bits
 
@@ -113,6 +179,14 @@ home/
   nixos-unstable nixpkgs. Keep the `follows`.
 - The bluetooth auto-connect user service is a shell script built inline with
   `pkgs.writeShellScript` in `home/modules/services.nix`.
+- **Zed's agent needs a Secret Service, and bare Hyprland has none.** Zed keeps
+  API keys in the `org.freedesktop.secrets` D-Bus service. Without a provider it
+  logs `Failed to authenticate provider: Anthropic: DBus error ... The name is
+  not activatable` and silently cannot store credentials. `modules/keyring.nix`
+  enables gnome-keyring for this, unlocked by PAM on the **greetd** service (not
+  `login` — greetd is what actually authenticates you). `kwalletd6` being present
+  is a red herring: it does not claim the freedesktop name.
+- Zed's binary is **`zeditor`**, not `zed` (nixpkgs names it that way).
 - **Hyprland keybind keys are XKB keysym names, and a bad one fails silently.**
   Hyprland registers the bind and shows it in `hyprctl binds`, but it can never
   fire — `ESC` is not a keysym (`Escape`/`escape` is), so `bind = SUPER, ESC`
