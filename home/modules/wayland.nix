@@ -37,7 +37,38 @@
     "${../dotfiles/waybar/config.jsonc}"
     "${../dotfiles/waybar/style.css}"
   ];
+  # Static wallpaper. hyprpaper.conf names DP-2 explicitly; DP-4's background
+  # layer belongs to mpvpaper below.
   services.hyprpaper.enable = true;
+
+  # Video wallpaper on DP-4 only. No home-manager module exists for mpvpaper, so
+  # this is hand-written — but it is still a systemd user unit, not an
+  # `exec-once`. mpvpaper is referenced by store path rather than added to
+  # home.packages: nothing else needs it on PATH.
+  #
+  # ConditionPathExists keeps the unit inert (not failed, not looping) until a
+  # video is actually in place, so a fresh checkout switches cleanly.
+  systemd.user.services.mpvpaper = {
+    Unit = {
+      Description = "Video wallpaper on DP-4";
+      ConditionPathExists = "%h/Videos/wallpapers/live.mp4";
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session.target" ];
+    };
+    Service = {
+      # --auto-pause stops decoding whenever the wallpaper is covered, which on
+      # this machine is most of the time. hwdec=auto picks nvdec on the NVIDIA
+      # open driver.
+      ExecStart = ''
+        ${pkgs.mpvpaper}/bin/mpvpaper --auto-pause -o "no-audio loop-file=inf hwdec=auto panscan=1.0" DP-4 %h/Videos/wallpapers/live.mp4
+      '';
+      # mpvpaper is prone to dying on DPMS/mode changes; heal instead of going
+      # black until it is noticed.
+      Restart = "always";
+      RestartSec = 5;
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
 
   # No systemd unit: home-manager wires mako up for D-Bus activation, so it
   # starts on the first notification.
