@@ -3,17 +3,30 @@
 Planned work on this config. Newest context at the top of each item so we do not
 have to rediscover it.
 
-## 1. E-book library and download flow
+## 1. NAS media pipeline
+
+Planned in detail, nothing executed yet. Full plan in [nas/PLAN.md](nas/PLAN.md)
+— read that, not this summary.
+
+Shape: usenet (SABnzbd) + Prowlarr + Radarr in Container Manager on the DS420+,
+importing by hardlink into a single new `/volume1/data` shared folder. Plex stays
+as the player for now; Jellyfin + Jellyseerr + Sonarr land in phase 2, which is
+blocked on a €20 4 GB SODIMM (the NAS has 2 GB and it does not fit).
+
+The compose file will live in `nas/` in this repo and be deployed to the NAS over
+SSH, so it stays version-controlled even though it does not run on this machine.
+
+## 2. E-book library and download flow
 
 Not started. Wants a library plus a way to get books into it. Open questions:
 which reader (Calibre? Foliate?), whether a Kobo/Kindle is in the picture, and
 where the library lives on disk.
 
-## 2. Manga downloader
+## 3. Manga downloader
 
 Not started. Candidates to evaluate in nixpkgs.
 
-## 3. Monitors and Hyprland behaviour
+## 4. Monitors and Hyprland behaviour
 
 Not started. Today `hyprland.conf` is single-monitor and auto-detected:
 
@@ -26,7 +39,7 @@ arrangement) plus whatever behaviour changes go with it — workspace-to-monitor
 pinning, gaps/animations, focus behaviour. Note `input { follow_mouse = 0 }` is
 click-to-focus today; confirm that is deliberate.
 
-## 4. Development setup for the people-management-app
+## 5. Development setup for the people-management-app
 
 Not started. Need the stack before planning. Likely relevant to what is already
 here: Neovim is LazyVim with Mason disabled, and the TypeScript/web toolchain
