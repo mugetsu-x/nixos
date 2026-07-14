@@ -106,3 +106,8 @@ home/
   nixos-unstable nixpkgs. Keep the `follows`.
 - The bluetooth auto-connect user service is a shell script built inline with
   `pkgs.writeShellScript` in `home/modules/services.nix`.
+- **Hyprland keybind keys are XKB keysym names, and a bad one fails silently.**
+  Hyprland registers the bind and shows it in `hyprctl binds`, but it can never
+  fire — `ESC` is not a keysym (`Escape`/`escape` is), so `bind = SUPER, ESC`
+  looks correct and does nothing. If a bind is listed but dead, check the keysym
+  name first.
