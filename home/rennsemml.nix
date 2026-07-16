@@ -18,5 +18,6 @@
     ./modules/cli.nix
     ./modules/dev.nix
     ./modules/zed.nix
+    ./modules/claude.nix
   ];
 }

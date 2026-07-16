@@ -44,6 +44,7 @@ home/
                        bt-autoconnect unit
     neovim-lazyvim.nix LazyVim starter pinned by commit + LSP/formatter overrides
     zed.nix            Zed — the primary editor. Nix-pinned node + LSP binaries
+    claude.nix         symlinks claude/ (skills, settings, workspace rules) into place
     dev.nix            baseline dev toolchain (node, pnpm, tsc, psql, httpie)
     chrome.nix         google-chrome + Wayland .desktop override + default browser
     theme.nix          GTK/Qt theming, cursor, qt6ct palette
@@ -53,6 +54,10 @@ home/
     ts-packages.nix    the shared LSP/formatter list (Neovim + Zed both import it)
   dotfiles/            raw config files, sourced verbatim by wayland.nix
     hypr/ kitty/ mako/ waybar/ wofi/
+claude/                Claude Code config, symlinked live by home/modules/claude.nix
+  skills/              user-level skills (grill-me + Matt Pocock's engineering set)
+  settings.json        global Claude Code settings
+  workspace-CLAUDE.md  house rules for every project under ~/workspace
 templates/nextjs/      `nix flake init -t ~/nixos-config#nextjs` — project scaffold
 ```
 
@@ -68,6 +73,9 @@ templates/nextjs/      `nix flake init -t ~/nixos-config#nextjs` — project sca
   (`services.foo.enable`) over `exec-once` in `hyprland.conf` or a hand-written
   `systemd.user.services` block. See below.
 - **Shell alias** → `shellAliases` in `home/modules/shell.nix`.
+- **Claude Code skill / settings / workspace rules** → edit the file in
+  `claude/` directly. It is symlinked live into `~/.claude` and `~/workspace`
+  (see `home/modules/claude.nix`), so changes are picked up with no rebuild.
 
 ## Conventions that matter
 
@@ -177,6 +185,14 @@ resetting is free.
   in `hosts/main-pc.nix` and passed through `specialArgs`. It is pinned with
   `inputs.nixpkgs.follows = "nixpkgs"` — without that it drags in a second, full
   nixos-unstable nixpkgs. Keep the `follows`.
+- **Claude Code config is symlinked *out of store*** (`mkOutOfStoreSymlink` in
+  `home/modules/claude.nix`), pointing at `~/nixos-config/claude/` in the live
+  working tree, not a `/nix/store` copy. This is deliberate: a store copy is
+  read-only and Claude Code writes back to `settings.json` (e.g. `/config`),
+  which would fail. The trade-off is the symlink resolves to a fixed path, so
+  the repo must stay at `~/nixos-config`. Only `skills/`, `settings.json` and
+  the workspace rules are managed; credentials/sessions/memory under `~/.claude`
+  are left alone.
 - The bluetooth auto-connect user service is a shell script built inline with
   `pkgs.writeShellScript` in `home/modules/services.nix`.
 - **Zed's agent needs a Secret Service, and bare Hyprland has none.** Zed keeps
