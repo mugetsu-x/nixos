@@ -26,7 +26,7 @@
     fastfetch
     udiskie
     discord
-    # Editors: Zed (home/modules/zed.nix) and Neovim (home/modules/neovim-lazyvim.nix).
+    # Editors: Zed (home/modules/zed.nix) and Neovim (home/modules/neovim.nix).
 
     # Dolphin
     kdePackages.dolphin

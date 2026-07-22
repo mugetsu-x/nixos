@@ -42,7 +42,7 @@ home/
                        hyprlock, hypridle
     services.nix       cliphist, udiskie, blueman-applet + the hand-written
                        bt-autoconnect unit
-    neovim-lazyvim.nix LazyVim starter pinned by commit + LSP/formatter overrides
+    neovim.nix         lean hand-rolled Neovim: quick editor + Markdown (no IDE)
     zed.nix            Zed — the primary editor. Nix-pinned node + LSP binaries
     claude.nix         symlinks claude/ (skills, settings, workspace rules) into place
     dev.nix            baseline dev toolchain (node, pnpm, tsc, psql, httpie)
@@ -51,7 +51,7 @@ home/
     pwas.nix           Chrome --app= desktop entries (Teams, Outlook, Notion, ...)
     gaming.nix         mangohud, vulkan-tools (system half is modules/gaming.nix)
   lib/
-    ts-packages.nix    the shared LSP/formatter list (Neovim + Zed both import it)
+    ts-packages.nix    the shared LSP/formatter list (Zed; see zed.nix)
   dotfiles/            raw config files, sourced verbatim by wayland.nix
     hypr/ kitty/ mako/ waybar/ wofi/
 claude/                Claude Code config, symlinked live by home/modules/claude.nix
@@ -88,12 +88,17 @@ templates/nextjs/      `nix flake init -t ~/nixos-config#nextjs` — project sca
 - `allowUnfree = true` is set once in `modules/common.nix` and inherited by
   home-manager via `useGlobalPkgs`. Don't re-declare it in `home/`.
 - Nix files are formatted with **nixfmt-rfc-style** (the `nixfmt` binary).
-- **No editor is allowed to download its own language servers.** Both Neovim's
-  Mason and Zed's built-in downloader fetch dynamically linked binaries that have
-  no `ld.so` to link against on NixOS: they fail, sometimes silently, and you get
-  an editor with no types. Every LSP comes from Nix. See "Development" below.
-- The LazyVim starter is pinned by `rev` + `sha256`. Bumping it requires updating
-  both.
+- **No editor is allowed to download its own language servers.** Zed's built-in
+  downloader fetches dynamically linked binaries that have no `ld.so` to link
+  against on NixOS: they fail, sometimes silently, and you get an editor with no
+  types. Every LSP comes from Nix. See "Development" below.
+- **Neovim is deliberately minimal** — no distribution (LazyVim is gone), no
+  completion engine, no coding LSPs, no plugin manager. It is a fast quick-editor
+  and a Markdown editor, nothing more. All plugins come from `pkgs.vimPlugins`
+  and Treesitter grammars are compiled by Nix, so there is no lazy.nvim, no Mason,
+  and no lock file. Its one LSP is `marksman` for Markdown; completion is on
+  demand (`<C-x><C-o>`), never as-you-type. Config is a single `extraLuaConfig`
+  in `neovim.nix`.
 - Theming is Catppuccin **Macchiato, Blue accent**, dark. Palette hexes are
   duplicated in `theme.nix` (Qt colors), `shell.nix` (starship), and the waybar/
   kitty/wofi dotfiles — a color change touches several files.
@@ -114,13 +119,14 @@ templates/nextjs/      `nix flake init -t ~/nixos-config#nextjs` — project sca
 TypeScript, fullstack. **Zed** is the primary editor; Neovim stays as `$EDITOR`
 and for quick edits. VSCode and Cursor were deliberately removed.
 
-**Adding a language server** — one place: `home/lib/ts-packages.nix`. Both
-`zed.nix` and `neovim-lazyvim.nix` import that list, so the package lands on both
-editors' PATH. Then wire it up in each editor that should use it:
+**Adding a language server** — one place: `home/lib/ts-packages.nix`. `zed.nix`
+imports that list, so the package lands on Zed's PATH. Then wire it up:
 
 - Zed → an `lsp.<name>.binary` entry in `zed.nix` with **both `path` and
   `arguments`**.
-- Neovim → a `mason = false` entry in the `lsp-nix.lua` block.
+
+Neovim intentionally does not consume this list — it carries only `marksman`
+(declared directly in `neovim.nix`). Coding language servers live in Zed.
 
 **Setting `binary.path` in Zed discards the adapter's default arguments.** You
 must supply them yourself. Anything built on `vscode-languageserver` (vtsls,

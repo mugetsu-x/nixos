@@ -10,7 +10,7 @@
     ./modules/shell.nix
     ./modules/wayland.nix
     ./modules/services.nix
-    ./modules/neovim-lazyvim.nix
+    ./modules/neovim.nix
     ./modules/chrome.nix
     ./modules/theme.nix
     ./modules/pwas.nix
