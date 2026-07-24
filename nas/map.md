@@ -56,9 +56,14 @@ decide.
 - **File sync / personal cloud: solution + placement.** Nextcloud vs Syncthing
   vs other, and which machine hosts it. Hangs on the keystone (03).
 - **Does the media stack relocate?** Whether the *arr stack and/or Jellyfin
-  transcoding move from the NAS to the laptop, revising `nas/PLAN.md`. GPU facts
-  now in (02: Ada NVENC ≫ Celeron QuickSync, but Shield direct-plays so transcode
+  transcoding move from the NAS to the laptop, revising `PLAN.md`. GPU facts now
+  in (02: Ada NVENC ≫ Celeron QuickSync, but Shield direct-plays so transcode
   rarely fires). Now hangs only on the keystone (03).
+  **Consolidation plan:** once 03 resolves, fold `PLAN.md` into this map as its
+  *media* section — merging the *final* (laptop-aware) media decision, not the
+  current laptop-blind one. Until then `PLAN.md` stays standalone, since its
+  media-pipeline detail (usenet, hardlink layout, phase-0 hardware, shopping
+  list, access notes) lives nowhere else.
 - **On-site backup copy placement.** Whether the laptop (or its disks) serves as
   the local second copy in the 3-2-1 scheme. Hangs on both keystone (03) and the
   backup-topology decision (05).

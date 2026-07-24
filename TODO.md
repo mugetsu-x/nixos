@@ -10,8 +10,12 @@ Planned in detail, nothing executed yet. Full plan in [nas/PLAN.md](nas/PLAN.md)
 
 Shape: usenet (SABnzbd) + Prowlarr + Radarr in Container Manager on the DS420+,
 importing by hardlink into a single new `/volume1/data` shared folder. Plex stays
-as the player for now; Jellyfin + Jellyseerr + Sonarr land in phase 2, which is
-blocked on a €20 4 GB SODIMM (the NAS has 2 GB and it does not fit).
+as the player for now; Jellyfin + Jellyseerr + Sonarr land in phase 2. The 4 GB
+SODIMM and a fourth (4 TB) drive have both arrived but are not yet installed —
+fitting them is now **phase 0**, ahead of the software (after backing the photos
+up, since the array expands online and degraded). Phase 2 is no longer blocked on
+hardware; the remaining critical-path item is the usenet accounts (Eweka +
+NZBGeek), which need a card.
 
 The compose file will live in `nas/` in this repo and be deployed to the NAS over
 SSH, so it stays version-controlled even though it does not run on this machine.
