@@ -37,6 +37,12 @@ decide.
 
 <!-- one line per closed ticket: gist + link -->
 
+- [Research: ThinkPad 16p Gen 2 as an always-on home server](issues/02-thinkpad-home-server-research.md)
+  — it's a **ThinkPad P16 Gen 2** (HX + RTX Ada); GPU categorically beats the NAS
+  Celeron (AV1 NVENC, unlimited sessions, CUDA/VRAM for Immich ML), NixOS as a 2nd
+  flake host is low-risk. Downsides: ~15–25 W idle (200 W+ chassis), **no built-in
+  Ethernet**, headless-idle EDID quirk. Full note in `research/`.
+
 ## Not yet specified
 
 <!-- in-scope fog; graduates as the frontier advances. Most of this hangs on the
@@ -49,8 +55,9 @@ decide.
 - **File sync / personal cloud: solution + placement.** Nextcloud vs Syncthing
   vs other, and which machine hosts it. Hangs on the keystone (03).
 - **Does the media stack relocate?** Whether the *arr stack and/or Jellyfin
-  transcoding move from the NAS to the laptop, revising `nas/PLAN.md`. Hangs on
-  the keystone (03) and the ThinkPad's GPU/QuickSync story (02).
+  transcoding move from the NAS to the laptop, revising `nas/PLAN.md`. GPU facts
+  now in (02: Ada NVENC ≫ Celeron QuickSync, but Shield direct-plays so transcode
+  rarely fires). Now hangs only on the keystone (03).
 - **On-site backup copy placement.** Whether the laptop (or its disks) serves as
   the local second copy in the 3-2-1 scheme. Hangs on both keystone (03) and the
   backup-topology decision (05).
