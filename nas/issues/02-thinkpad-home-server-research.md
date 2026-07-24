@@ -22,8 +22,8 @@ workstation — confirm the exact marketing name):
   server context) is supported on NixOS; known gotchas; whether it can slot in as
   a second `nixosConfigurations.*` host in this flake.
 
-Findings → `.scratch/home-infra/research/thinkpad-p16g2-home-server.md`, resolved
-by a `/research` subagent.
+Findings → `nas/research/thinkpad-p16g2-home-server.md`, resolved by a
+`/research` subagent.
 
 ## Answer
 

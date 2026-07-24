@@ -1,7 +1,8 @@
 # Map: Home infrastructure — NAS + repurposed ThinkPad
 
 Label: `wayfinder:map`
-Tracker: local-markdown. Tickets live in `./issues/`, research in `./research/`.
+Tracker: local-markdown. This map lives in `nas/` next to `PLAN.md`; tickets in
+`./issues/`, research in `./research/`.
 Charted: 2026-07-24.
 
 ## Destination
@@ -69,4 +70,4 @@ decide.
 
 - **Media pipeline internals** — usenet provider/indexer, SABnzbd/Prowlarr/Radarr
   choice, the single-shared-folder hardlink layout, phase-0 RAM+drive fit. Settled
-  in [`nas/PLAN.md`](../../nas/PLAN.md); this effort only revisits *where* they run.
+  in [`PLAN.md`](PLAN.md); this effort only revisits *where* they run.
