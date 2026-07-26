@@ -3,9 +3,20 @@
 Goal: request a film on the phone, have it appear on the projector, correctly
 named and with artwork, without ever touching a file.
 
+> **This is the media *execution runbook*.** The whole-home architecture (which
+> machine runs what, backups, remote access) lives in
+> [`ARCHITECTURE.md`](ARCHITECTURE.md); the decision trail is in
+> [`map.md`](map.md) + [`issues/`](issues/). This doc is the build steps.
+
 Status: **planned, nothing executed yet.** Written 2026-07-14. Update 2026-07-22:
 the 4 GB RAM stick and the fourth drive have both arrived (not yet installed).
-Installing them is now **phase 0**, ahead of the software.
+Installing them is now **phase 0**, ahead of the software. **Update 2026-07-26
+(laptop-aware):** the wayfinder effort added an always-on ThinkBook
+(`home-server`) as the compute host and settled the media decisions against it —
+the whole media pipeline **stays on the NAS** (arr for hardlink locality, media
+server because playback is same-network / direct-play). Quality is now **4K for
+films and TV**, and photos are handled by **Immich on the laptop** (not "a later
+project"). Changes are folded into the sections below.
 
 ## The hardware we are building on
 
@@ -30,21 +41,42 @@ transcoding will rarely fire regardless of what server we run.
 
 - **Usenet, not torrents.** ~€7/mo provider + ~$20/yr indexer. Saturates the
   line, no seeding, no ratios, no VPN layer to maintain.
-- **1080p is the default; 4K is a per-film exception.** 2.1 TB free is ~40 films
-  at 4K but 200+ at 1080p. Not a one-way door — see [Growing the pool](#growing-the-pool).
+- **4K is the default, for films *and* TV** (updated 2026-07-26 — the home theater
+  is 4K). This is safe *only* because media is re-downloadable and is excluded from
+  backup ([ticket 05](issues/05-backup-topology.md)): the array is a **rotating
+  pool, not an archive.** When it fills you **curate/delete first** (it re-downloads
+  on demand); disk upgrades are for growing the genuine keep-set, not to avoid
+  deleting. Set two Radarr/Sonarr quality profiles to 4K/Ultra-HD. See
+  [Growing the pool](#growing-the-pool) for the capacity path.
 - **Jellyfin eventually replaces Plex, but not on day one.** Home-only playback
   and no Plex Pass means Plex gives us nothing we would miss, while Jellyfin
   gives free hardware transcoding and no account. But Plex already runs and
-  already works, and RAM is scarce — so it stays until phase 2.
-- **The stack runs on the NAS, not the NixOS box.** Radarr grabbing a release at
-  03:00 only works on a machine that is awake. The compose file still lives in
-  *this repo* and is deployed to the NAS over SSH, so it stays version-controlled.
+  already works, and RAM is scarce — so it stays until phase 2. **Both stay on the
+  NAS** (updated 2026-07-26): playback is designed for the **home LAN**, where the
+  Shield and capable devices direct-play 4K HEVC, so the server wants to sit next
+  to its data. Remote/away-from-home viewing is *best-effort* over Tailscale
+  ([04](issues/04-remote-access-method.md)), not a design driver. **Escape hatch:**
+  if remote transcode ever becomes routine, the *only* fix is to move Jellyfin onto
+  the laptop's RTX 3060 — the GPU is held in reserve for exactly that. The rare
+  same-network browser transcode runs on the Celeron QuickSync.
+- **The stack runs on the NAS, not the laptop.** Updated 2026-07-26: an always-on
+  laptop (`home-server`) now exists, so "must be awake at 03:00" no longer uniquely
+  favours the NAS. The load-bearing reason is now **hardlink locality** — Radarr
+  imports by hardlinking within the single btrfs share (see
+  [The storage layout](#the-storage-layout-and-why-it-matters)); run over NFS from
+  the laptop and the arr apps fall back to full copies. The compose file still lives
+  in *this repo* and is deployed to the NAS over SSH, so it stays version-controlled.
 - **We are not wiping the NAS.** Considered and rejected: btrfs is already in
   place (the only thing a rebuild would have bought), and the photos are the one
   irreplaceable thing on the box. The clean slate we want is media-only, and
   costs nothing to get without a wipe.
-- **Photos are a separate project.** ~950 GB across `homes`, `Walter` and `Anja`.
-  Organising them (Immich is the likely answer) comes *after* this. Not scoped here.
+- **Photos: decided — Immich on the laptop.** (Updated 2026-07-26; was "a separate
+  project.") ~950 GB across `homes`, `Walter` and `Anja` are migrated into **Immich
+  running on `home-server`**, with originals kept on the NAS array over NFS and the
+  Postgres/thumbnail/ML cache on the laptop's NVMe. Full plan:
+  [ticket 06](issues/06-immich-placement-migration.md). It shares the array with
+  media but is a distinct workload — not part of this runbook beyond the storage it
+  occupies.
 
 ### The RAM constraint
 
@@ -99,7 +131,10 @@ not a wasted purchase.
 **Before any expansion or disk replacement: back the photos up off the NAS.** The
 rebuild runs online but takes a day or more on the Celeron, and the array is
 degraded throughout. It is the most dangerous hour this box will ever have, and
-~950 GB of irreplaceable photos is what is riding on it.
+~950 GB of irreplaceable photos is what is riding on it. Updated 2026-07-26: this
+off-array copy is now the **immediate `restic init` + first snapshot from
+`main-pc`** that [ticket 05](issues/05-backup-topology.md) calls for — do that
+(it doubles as Immich 06's hard gate), don't invent a one-off copy here.
 
 ## The storage layout, and why it matters
 
@@ -136,11 +171,13 @@ Both parts — the 4 GB SODIMM and the IronWolf 4 TB — are physically on hand.
 phase turns them into 6 GB of RAM and a bigger pool *before* any software is
 deployed, so phase 1 runs on 6 GB from the start and phase 2 is unblocked.
 
-1. **Back up the photos off the NAS first.** ~950 GB across `homes`, `Walter` and
-   `Anja`. Step 3 expands the array online and it runs *degraded* the whole time —
-   a day or more on the Celeron, the most dangerous hour this box will ever have.
-   Do not skip this. Btrfs snapshots (phase 1, step 4) are **not** a substitute:
-   they live on the same array that is at risk.
+1. **Back up the photos off the NAS first** — via the restic path in
+   [ticket 05](issues/05-backup-topology.md) (`restic init` + first snapshot from
+   `main-pc`), not a one-off copy. ~950 GB across `homes`, `Walter` and `Anja`.
+   Step 3 expands the array online and it runs *degraded* the whole time — a day or
+   more on the Celeron, the most dangerous hour this box will ever have. Do not skip
+   this. Btrfs snapshots (phase 1, step 4) are **not** a substitute: they live on
+   the same array that is at risk.
 2. **Power down and fit both parts in one bay-out session.** The SODIMM slot is
    only reachable with the drive bays out, so do the RAM and the drive together:
    seat the 4 GB stick in the empty slot, and the IronWolf in the empty bay 4.

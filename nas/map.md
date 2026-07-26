@@ -3,7 +3,9 @@
 Label: `wayfinder:map`
 Tracker: local-markdown. This map lives in `nas/` next to `PLAN.md`; tickets in
 `./issues/`, research in `./research/`.
-Charted: 2026-07-24.
+Charted: 2026-07-24. **Complete: 2026-07-26** — all 8 tickets resolved, no open
+frontier, destination reached. Deliverable: [`ARCHITECTURE.md`](ARCHITECTURE.md)
+(+ the updated execution runbook [`PLAN.md`](PLAN.md)).
 
 ## Destination
 
@@ -92,17 +94,30 @@ decide.
   conditional (no file-sync source-of-record to back up). Revisit as a *fresh* ticket only
   if a real need appears (large files unfit for Drive, de-Googling, family web surface).
 
+- [Media stack: what relocates, and fold PLAN.md into the map](issues/08-media-relocation-and-plan-consolidation.md)
+  — **Nothing relocates: the whole media pipeline stays on the NAS.** arr stack stays
+  for **hardlink locality** (old "must be awake" reason retired); Jellyfin stays because
+  playback is **restricted to same-network** ⇒ direct-play dominates ⇒ data-locality wins.
+  Remote = best-effort over Tailscale; **RTX 3060 = documented escape hatch** if remote
+  transcode ever becomes routine. Quality flipped **1080p → 4K for films *and* TV** (safe
+  because 05 makes media re-downloadable), so the array is a **rotating pool, not an
+  archive** — curate/delete first, upgrade disks (2→4→8 TB) for real growth.
+  **Consolidation:** PLAN.md kept standalone + updated laptop-aware; whole-home capstone
+  **[`ARCHITECTURE.md`](ARCHITECTURE.md)** assembled from all 8 tickets. **Map complete.**
+
 ## Not yet specified
 
-<!-- in-scope fog; graduates as the frontier advances. The keystone (03) is now
-     resolved — placement is fixed at "laptop = compute", so the Immich, file-sync
-     and media-relocation patches graduated into tickets 06/07/08. What remains
-     here is still too coarse to ticket. -->
+<!-- Empty — the frontier reached the destination. The last fog patch below
+     resolved by *pattern* rather than by ticket: there was no architectural
+     decision left in it. -->
 
-- **Other self-hosted apps.** Ebooks/manga (TODO items 2–3), a dashboard, maybe
-  home automation. Trivial to place once a compute home (03 ✓) and remote access
-  (04 ✓) exist; still fog because the specific set isn't pinned. Now waiting only
-  on you naming which apps you actually want — remote access (04) has landed.
+- ~~**Other self-hosted apps** (ebooks/manga, dashboard, home automation).~~
+  **Resolved by pattern, not by ticket** (08). The placement rule is fully
+  determined — a new light app runs on `home-server` as an oci-container mounting
+  NAS storage, reached over Tailscale, following the Immich pattern (see
+  [`ARCHITECTURE.md`](ARCHITECTURE.md) → "Future self-hosted apps"). Naming and
+  deploying specific apps is **execution**, not an architectural decision — so no
+  ticket is owed and the map is done.
 
 ## Out of scope
 
