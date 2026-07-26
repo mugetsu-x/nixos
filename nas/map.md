@@ -39,10 +39,16 @@ decide.
 <!-- one line per closed ticket: gist + link -->
 
 - [Research: ThinkPad 16p Gen 2 as an always-on home server](issues/02-thinkpad-home-server-research.md)
-  — it's a **ThinkPad P16 Gen 2** (HX + RTX Ada); GPU categorically beats the NAS
-  Celeron (AV1 NVENC, unlimited sessions, CUDA/VRAM for Immich ML), NixOS as a 2nd
-  flake host is low-risk. Downsides: ~15–25 W idle (200 W+ chassis), **no built-in
-  Ethernet**, headless-idle EDID quirk. Full note in `research/`.
+  — general viability of a laptop-as-server: NixOS 2nd flake host low-risk; ~15–25 W
+  idle (measure), **no built-in Ethernet**, headless-idle EDID quirk, battery = mini-UPS.
+  ⚠️ **Its GPU/CPU premise was wrong** — corrected by 01 below (real unit is a
+  ThinkBook, not a P16; consumer RTX 3060, not pro Ada). Full note in `research/`.
+- [Establish the ThinkPad's real specs and 24/7 acceptability](issues/01-thinkpad-unit-and-always-on.md)
+  — it's a **Lenovo ThinkBook 16p Gen 2 (20YM)**: Ryzen 9 5900HX (8c/16t), GeForce
+  **RTX 3060 6 GB** (CUDA ✓, HEVC/H.264 ✓, **no AV1 encode**, GeForce session cap),
+  32 GB (both slots full), 1 TB NVMe + likely-free 2nd M.2, Wi‑Fi only. Immich-ML
+  value case survives; Ada/AV1/pro-card case does not. **Always-on = YES**, lid
+  closed + out of living space, ~**€62–93/yr** at €0.355/kWh. Unblocks keystone 03.
 
 ## Not yet specified
 
@@ -57,8 +63,10 @@ decide.
   vs other, and which machine hosts it. Hangs on the keystone (03).
 - **Does the media stack relocate?** Whether the *arr stack and/or Jellyfin
   transcoding move from the NAS to the laptop, revising `PLAN.md`. GPU facts now
-  in (02: Ada NVENC ≫ Celeron QuickSync, but Shield direct-plays so transcode
-  rarely fires). Now hangs only on the keystone (03).
+  corrected (01: RTX 3060 does HEVC/H.264 but **no AV1 encode** vs the Celeron's
+  QuickSync — still better, not the leap 02 implied; and the Shield direct-plays
+  so transcode rarely fires). *arr stack is light enough for the NAS regardless;
+  the real laptop pull is Immich ML + container headroom. Hangs on keystone (03).
   **Consolidation plan:** once 03 resolves, fold `PLAN.md` into this map as its
   *media* section — merging the *final* (laptop-aware) media decision, not the
   current laptop-blind one. Until then `PLAN.md` stays standalone, since its

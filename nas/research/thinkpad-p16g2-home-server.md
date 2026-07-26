@@ -1,5 +1,18 @@
 # ThinkPad "16p Gen 2" as an always-on home server
 
+> ⚠️ **CORRECTION (2026-07-26, from ticket 01 — specs read off the unit).**
+> This note guessed the wrong machine. The actual hardware is a **Lenovo
+> ThinkBook 16p Gen 2 (type 20YM)** — a consumer creator/gaming laptop — with an
+> **AMD Ryzen 9 5900HX** and a **consumer GeForce RTX 3060 Laptop 6 GB**, *not*
+> the Intel-HX + professional-RTX-Ada "P16 Gen 2" assumed below. Consequences:
+> **no AV1 encode** (Ada-only; the 3060 does H.264/HEVC encode + AV1 decode),
+> the **GeForce NVENC session cap applies** (3, raised to 8 by driver; patchable),
+> and VRAM is **6 GB**, not 8–16 GB. The Immich-ML value case still holds (6 GB
+> CUDA Ampere runs Immich's models fine); the AV1/pro-card/unlimited-sessions
+> case does **not**. The always-on caveats below (idle power, headless-idle EDID
+> penalty, no built-in Ethernet, battery-as-UPS) all still apply. See ticket 01
+> for the verified spec sheet and always-on verdict.
+
 Research note, written 2026-07-24. Feeds the decision: should the spare Lenovo
 laptop become the 24/7 home server alongside the Synology **DS420+**
 ("Alexandria"), and should the media / *arr / Immich workload relocate to it
