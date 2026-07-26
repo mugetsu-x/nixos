@@ -3,22 +3,34 @@
 Planned work on this config. Newest context at the top of each item so we do not
 have to rediscover it.
 
-## 1. NAS media pipeline
+## 1. Home infrastructure — NAS + `home-server`
 
-Planned in detail, nothing executed yet. Full plan in [nas/PLAN.md](nas/PLAN.md)
-— read that, not this summary.
+Planned in detail, nothing executed yet. Architecture in
+[nas/ARCHITECTURE.md](nas/ARCHITECTURE.md), build detail in
+[nas/PLAN.md](nas/PLAN.md), ordered queue in [nas/build/](nas/build/README.md) —
+read those, not this summary.
 
-Shape: usenet (SABnzbd) + Prowlarr + Radarr in Container Manager on the DS420+,
-importing by hardlink into a single new `/volume1/data` shared folder. Plex stays
-as the player for now; Jellyfin + Jellyseerr + Sonarr land in phase 2. The 4 GB
-SODIMM and a fourth (4 TB) drive have both arrived but are not yet installed —
-fitting them is now **phase 0**, ahead of the software (after backing the photos
-up, since the array expands online and degraded). Phase 2 is no longer blocked on
-hardware; the remaining critical-path item is the usenet accounts (Eweka +
-NZBGeek), which need a card.
+**Shape (revised 2026-07-26, second pass).** Two machines: the DS420+ is **pure
+storage** — btrfs SHR-1, NFS exports, Tailscale, **zero containers** — and the
+repurposed ThinkBook 16p Gen 2 (`home-server`, a second host in this flake) runs
+**everything**: SABnzbd + Prowlarr + Radarr + Sonarr, Jellyfin + Jellyseerr,
+Immich on the RTX 3060, and the restic 3-2-1. All `oci-containers`, declarative,
+secrets via sops-nix.
 
-The compose file will live in `nas/` in this repo and be deployed to the NAS over
-SSH, so it stays version-controlled even though it does not run on this machine.
+An earlier version of this plan kept the media stack on the NAS. That rested on
+two claims that turned out to be false — hardlinks *do* work over NFS, and the
+Celeron *cannot* actually handle the "rare transcode" case (no Plex Pass ⇒ no
+hardware transcode at all, and UHD 600 can't tone-map 4K HDR). Both are written up
+in [ticket 08](nas/issues/08-media-relocation-and-plan-consolidation.md).
+
+**The array is wiped and rebuilt, not expanded.** The 4 GB SODIMM and the 4 TB
+IronWolf are in hand and get fitted during the rebuild. This replaces the old
+online-expansion phase 0 and removes the day-long degraded reshape.
+
+**Critical path:** evacuate the photos to USB → seed Google Drive (copy #3, before
+the wipe) → wipe. Nothing destructive starts until three copies exist. The usenet
+accounts (Eweka + NZBGeek, need a card) block only the arr stack, and secrets
+(sops-nix) block the laptop host.
 
 ## 2. E-book library and download flow
 

@@ -5,7 +5,16 @@ Tracker: local-markdown. This map lives in `nas/` next to `PLAN.md`; tickets in
 `./issues/`, research in `./research/`.
 Charted: 2026-07-24. **Complete: 2026-07-26** — all 8 tickets resolved, no open
 frontier, destination reached. Deliverable: [`ARCHITECTURE.md`](ARCHITECTURE.md)
-(+ the updated execution runbook [`PLAN.md`](PLAN.md)).
+(+ the execution runbook [`PLAN.md`](PLAN.md) and the queue in
+[`build/`](build/README.md)).
+
+> **Second pass, 2026-07-26.** A review pass re-checked the load-bearing technical
+> claims and found two of ticket 08's premises factually false. 08 was re-grilled
+> and the corrections cascaded into 03, 05 and 06 — all four now carry amendments
+> that **supersede** parts of their original answers. The map itself is still
+> complete: no new fog, no new tickets, no unresolved frontier. What changed is
+> *what was decided*, not *what remained to decide*. Summary table:
+> [`ARCHITECTURE.md` → What changed in the second pass](ARCHITECTURE.md#what-changed-in-the-second-pass).
 
 ## Destination
 
@@ -59,6 +68,11 @@ decide.
   flake** (`home-server`), NixOS modules + oci-containers. **Principle:** NAS =
   storage/durability layer; laptop = compute/application layer, mounting NAS bulk
   storage over LAN. Graduates the fog into 06/07/08.
+  ⚠️ **Amended (2nd pass):** role + NixOS management stand, but the principle is
+  rewritten to **"the NAS stores bytes, the laptop runs everything"** — NAS runs
+  **zero containers**. oci-containers is now the primary mechanism, not the
+  fallback. Adds three cross-cutting requirements the original missed: **sops-nix
+  secrets, dead-man alerting, NFS mount robustness**.
 - [Remote-access method for reaching home services](issues/04-remote-access-method.md)
   — **Tailscale-only overlay VPN, single-user, no public exposure.** VPN-only (just
   you) rules out the whole public reverse-proxy/domain/TLS branch; ISP/CGNAT moot
@@ -75,6 +89,12 @@ decide.
   on 05's off-array copy** (no formal block). ML: **CUDA image**, English smart search
   `ViT-B-16-SigLIP2__webli`, `buffalo_l` faces, concurrency ≈2 — 6 GB VRAM ample. Host
   prereq: `nvidia-container-toolkit` on the `home-server` host.
+  ⚠️ **Amended (2nd pass):** deploy as **`oci-containers`, not `services.immich`** —
+  the module in pinned nixpkgs has **no CUDA** and only a single `mediaLocation`.
+  Source inventory was incomplete: **`/volume1/photo`** (Synology Photos *shared*
+  space) was in no ticket, and **`@eaDir`** must be excluded. Migration collapses —
+  import **from the USB copy into an empty library**, so no double copy and **no
+  reclaim step**.
 - [Backup strategy: 3-2-1 topology and offsite target for the photos](issues/05-backup-topology.md)
   — tiered scope: **photos full 3-2-1**, media excluded (re-downloadable), laptop app-state
   lighter tier. **Laptop-orchestrated:** copy #1 = NAS array (post-Immich = the managed
@@ -86,6 +106,13 @@ decide.
   raw shares from `main-pc` *now* — clears PLAN.md phase-0 **and** is 06's off-array hard
   gate; Hetzner upload runs off the critical path. Restore test: monthly `restic check`
   + sample restore, one real offsite drill, keys stored off the laptop.
+  ⚠️ **Amended (2nd pass):** offsite copy #3 is **Google Drive** (Workspace Business
+  Plus, 5 TB pooled, already paid), not Hetzner — the original comparison never
+  considered storage already owned (~€143/yr saved). Scope becomes a **denylist**
+  after `/volume1/photo` was found missing. The immediate step grows into a full
+  **evacuation** (restic on USB #1 + independent copy on USB #2 + Drive seed
+  **before** the wipe). Adds a mandatory **mount guard** — restic snapshotting an
+  unmounted path then pruning is the one silent data-destroying failure mode here.
 - [File-sync / personal-cloud solution](issues/07-file-sync-solution.md)
   — **Build nothing.** No self-hosted file-sync on either machine. Documents stay on
   **Google Drive** (+ physical copies; no de-Googling intent), Immich (06) covers photos,
@@ -104,6 +131,18 @@ decide.
   archive** — curate/delete first, upgrade disks (2→4→8 TB) for real growth.
   **Consolidation:** PLAN.md kept standalone + updated laptop-aware; whole-home capstone
   **[`ARCHITECTURE.md`](ARCHITECTURE.md)** assembled from all 8 tickets. **Map complete.**
+  ⚠️ **RE-RESOLVED (2nd pass) — the above is superseded.** Both load-bearing premises
+  were false: **hardlinks work fine over NFS** (server-side `LINK` on btrfs), and the
+  "QuickSync handles rare transcodes" case collapsed (**no Plex Pass ⇒ no HW transcode
+  at all**, and the J4025 cannot tone-map 4K HDR in real time). So **everything moved
+  to the laptop** — Jellyfin, Jellyseerr, SABnzbd and the whole arr stack — **Plex is
+  retired outright**, and the **NAS becomes pure storage with zero containers**.
+  Cascade: the array is **wiped and rebuilt as SHR-1** instead of expanded live
+  (removes the day-long degraded reshape; SHR is the only layout where the next disk
+  bought gains space), and quality profiles must be **custom** (stock *Ultra-HD* is
+  2160p-only, so Sonarr would silently wait forever). Recorded explicitly: the arr
+  move is justified by the **clean boundary, not speed** — at 170–250 Mbps the Celeron
+  only cost ~20 min per film.
 
 ## Not yet specified
 

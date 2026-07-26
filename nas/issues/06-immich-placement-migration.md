@@ -112,3 +112,87 @@ from 05; only its *execution* is gated on 05's first step.
 - **Host prerequisite:** `hardware.nvidia-container-toolkit.enable = true` (plus the
   container getting GPU access) on the new `home-server` NixOS flake host from the
   keystone — not this repo's `main-pc`.
+
+---
+
+## Amendment — second pass (2026-07-26)
+
+Placement, storage split, library mode, user model and ML configuration all
+**stand**. Three corrections, one of which is load-bearing.
+
+### 1. Deploy as `oci-containers`, NOT `services.immich`
+
+**The NixOS module cannot do what this ticket requires.** Verified against the
+pinned `nixos-25.05` (Immich 2.3.1):
+
+- **No CUDA.** `pkgs/by-name/im/immich-machine-learning/package.nix` carries
+  `insightface`, `opencv-python-headless`, `rapidocr` and friends — and **no
+  `onnxruntime-gpu`, no CUDA anywhere.** ML would run on CPU, which defeats the
+  entire reason Immich is on this machine rather than the NAS.
+- **`mediaLocation` is a single path.** The originals-on-NFS /
+  thumbnails-and-DB-on-NVMe split decided in §1 above cannot be expressed through
+  the module without hand-rolled bind mounts underneath it.
+
+So Immich runs from the **official upstream images** —
+`immich-machine-learning:release-cuda` for ML — under
+`virtualisation.oci-containers`, with separate bind mounts per subfolder
+(`upload/` and `library/` on NFS; `thumbs/`, `encoded-video/`, model cache and the
+Postgres volume on local NVMe). This is upstream's supported configuration for a
+split layout.
+
+**Pin the image tag explicitly.** Immich ships breaking DB migrations regularly and
+occasionally requires stepped upgrades — never track `:release` unpinned.
+
+This inverts the keystone's stated preference for first-class NixOS modules over
+containers; see the amendment in
+[03](03-keystone-server-or-not.md#amendment--second-pass-2026-07-26).
+
+### 2. The source inventory was incomplete
+
+The migration mapping named `Walter/*`, `Anja/*` and `homes`. The user's photos are
+all in **Synology Photos**, which stores:
+
+- **personal space** → `/volume1/homes/<user>/Photo` ✅ covered by `homes`
+- **shared space** → **`/volume1/photo`** ❌ **named in no ticket in this repo**
+
+`/volume1/photo` joins the import mapping and the backup scope. Confirmed *not*
+photos: `PlexMediaServer/Photos` is Plex artwork.
+
+**Exclude `@eaDir` from the import.** Every Synology Photos folder is littered with
+these DSM thumbnail directories; imported blindly they add hundreds of thousands of
+junk assets to the library.
+
+### 3. The migration sequence collapses
+
+The original sequence was: off-array copy → CLI import *on the array* → verify →
+**reclaim** (delete the old shares), with two copies of ~950 GB coexisting on the
+array and a delete step that had to be gotten exactly right.
+
+Because the NAS is now **wiped and rebuilt** rather than expanded
+([08](08-media-relocation-and-plan-consolidation.md#answer--second-pass-2026-07-26)),
+the photos are already evacuated to USB before anything else happens. So:
+
+1. Photos evacuated to USB #1 (restic) + USB #2 (plain copy), Drive seeded.
+2. NAS wiped, fresh SHR-1 array, clean share layout, NFS exports.
+3. Immich deployed against an **empty** managed library on the fresh array.
+4. **Immich CLI imports directly from the USB copy** into that empty library.
+
+**No double copy on the array. No space pressure. No reclaim step at all.** The
+riskiest part of the original migration — deleting the source after verification —
+simply ceases to exist, because the source is a USB drive that stays untouched and
+becomes backup copy #2.
+
+The old "soft execution gate on 05's off-array copy" is now a **hard structural
+dependency**: the import's source *is* the evacuation copy.
+
+### 4. Sizing note
+
+Immich's thumbnails and previews land on the laptop's 1 TB NVMe alongside
+Postgres, the ML cache, Jellyfin's cache and SABnzbd's `incomplete/`. For a library
+this size expect roughly **50–150 GB of thumbnails** depending on final asset
+count. It fits, but the NVMe is now the tightest resource on the box — confirm the
+free second M.2 slot from [01](01-thinkpad-unit-and-always-on.md).
+
+Also, **6 GB of VRAM is now shared with Jellyfin's NVENC transcodes.** Set
+`MACHINE_LEARNING_MODEL_TTL` so idle models unload, and expect GPU contention
+during the initial ML backlog run over the whole library.

@@ -131,3 +131,121 @@ both are planning tickets whose *decisions* need nothing from each other; only t
 *execution* is sequenced. No new tickets or fog surfaced; the "laptop app-state"
 scope tier will be finalised by 07's data-location choice but needs no separate
 ticket (05 covers it generically).
+
+---
+
+## Amendment — second pass (2026-07-26)
+
+The **topology** (laptop-orchestrated 3-2-1), the **tool** (restic via
+`services.restic.backups`), the **cadence and retention** (nightly,
+7d/8w/12m/5y, weekly prune) and the **restore-test regime** all stand. Four things
+change, one of which is a genuine gap in the original answer.
+
+### 1. Offsite copy #3: Google Drive, not Hetzner
+
+**The original comparison had a blind spot.** It weighed Hetzner Storage Box
+against Backblaze B2 and physical-disk rotation, and **never considered storage
+already owned.** The user has Google Workspace **Business Plus — 5 TB pooled, free
+and unused.** Hetzner was a genuine new €143/yr for capability already paid for.
+
+| | Hetzner Storage Box | **Google Drive (chosen)** |
+|---|---|---|
+| Cost | €143/yr | already paid |
+| restic support | native sftp | via the **rclone** backend — works, second-class |
+| Seeding ~950 GB | uplink-bound | uplink-bound **and** capped at **750 GB/day per user** |
+| `check` / `prune` | fine | slow: lists ~60k objects through a paginated, rate-limited API |
+| Immutability | server-side snapshots the client can't delete | 30-day trash **+ Google Vault** retention (included in Business Plus) |
+| Quota | dedicated | **pooled with Gmail and Drive** |
+
+**Mandatory conditions** — the decision is only sound with all of these:
+
+- **Own OAuth client ID for rclone.** The shared default is rate-limited into
+  uselessness. Non-negotiable.
+- **`--pack-size 64`** (restic default is 16 MiB), cutting object count ~4×. This
+  is what makes `check` and `prune` tolerable against Drive's API.
+- **Hard retention ceiling + an alert on Workspace pool usage.** This is the one
+  failure mode Hetzner did not have: if the repo's history grows into the pool,
+  **Gmail stops receiving mail.** Coupling the thing that protects the photos to
+  the thing that runs the email is the sharpest trade-off in this switch.
+- **Drive proper, not Google Photos** — that API is no longer usable for this.
+- **Verify Google Vault's Drive retention behaviour before relying on it** as the
+  immutability backstop.
+
+**Why the weaker immutability is acceptable here:** the original answer chose
+Hetzner snapshots as a *ransomware* backstop. The realistic threats to this estate
+are `rm -rf`, a mistaken `prune`, hardware failure, fire and theft — not ransomware
+on a headless NixOS box with no inbound ports behind a Tailscale-only overlay.
+Drive's 30-day trash covers the accident cases, and Vault covers the rest.
+**It is copy #3**: copies #1 and #2 exist independently, so the blast radius of
+Drive underperforming is bounded, and restic repos are portable — moving to Hetzner
+later is an `rclone` job, not a redesign. Hetzner stays documented as the fallback.
+
+### 2. Scope becomes a denylist, not an allowlist
+
+The original scope named three shares: `homes`, `Walter`, `Anja`. Review found a
+fourth photo location that appears in **no ticket in this repo** —
+**`/volume1/photo`**, Synology Photos' *shared space* (personal space lives under
+`homes/<user>/Photo`, which was covered).
+
+**Snapshot everything under `/volume1` except confirmed-disposable media**
+(`PlexMediaServer/*`). restic dedups and compresses, so over-including costs
+almost nothing — while an enumerated allowlist is *precisely* how `/volume1/photo`
+came to be missing. Run `du -sh /volume1/*` before anything is deleted.
+
+Confirmed disposable by the user: all Plex data including `PlexMediaServer/Photos`
+(artwork, not family pictures). There is no music on the NAS.
+
+### 3. The immediate step is now an evacuation, and it is bigger
+
+The NAS is being **wiped and rebuilt** (see
+[08](08-media-relocation-and-plan-consolidation.md#answer--second-pass-2026-07-26)),
+not expanded in place. So the "get one copy off the box" step becomes a full
+evacuation, and the sequencing gets stricter:
+
+1. **restic repo on USB #1** from `main-pc` — this repo *is* backup copy #2 later,
+   exactly as originally intended.
+2. **An independent plain-file copy on USB #2** — deliberately a *different tool*,
+   so a restic-format problem cannot cost you both copies. Both drives ≥2 TB and
+   wipeable; **SMART-check both first** — for the duration of the wipe they *are*
+   the data.
+3. **Seed Google Drive before the wipe, not after.** At 750 GB/day this is ≥2 days
+   unattended. It is what keeps you at **three copies during the one window where
+   both on-site copies are unplugged USB disks in the same room.** This is the
+   condition to hold firmest.
+4. **Only then** wipe and rebuild the array.
+
+The old sequence's "reclaim after verification" step **disappears** — Immich
+imports from USB into a clean empty library, so there is never a double copy on the
+array and nothing to reclaim.
+
+### 4. The tiered scope shifts with the services
+
+- **NAS application state is no longer a concern** — the NAS runs zero containers
+  after the rebuild, so there is no arr/Jellyfin/Plex state on it to protect. (This
+  was a real gap in the first-pass architecture, where those apps lived on the NAS
+  and fell into no tier; the relocation resolved it by accident.)
+- **Laptop app-state grows correspondingly** and is now the whole application
+  layer: Immich Postgres, Jellyfin metadata + watch history + users, and the arr
+  databases (quality profiles, indexer config, monitored series). None of it
+  rebuilds from the flake, and it represents real accumulated curation. `pg_dump`
+  first, then restic — same lighter tier, more in it.
+- **Media stays excluded.** Re-downloadable, and the array is a rotating pool.
+
+### 5. Mandatory: a mount guard
+
+With every service on the laptop and all bulk data behind one NFS mount, the
+destructive failure mode is **restic snapshotting an unmounted mountpoint** —
+writing a near-empty snapshot, after which `forget --prune` ages out the real
+history on schedule. That is how people delete their own backups.
+
+The backup job must verify the mount is live and **abort loudly** rather than
+snapshot an empty tree. Paired with `hard` NFS mounts, `x-systemd.automount`, and
+`RequiresMountsFor=` ordering on the containers.
+
+### 6. Restic hygiene carried over from the one-shot
+
+The evacuation snapshot is taken from `main-pc`; the ongoing service runs on
+`home-server` against the same repo. restic's `forget` groups snapshots by
+**host + paths**, so a differing hostname or mount path would silently place your
+first and most precious snapshot in a *separate retention lineage* from the policy
+meant to protect it. **Pin `--host` and use an identical mount path in both.**

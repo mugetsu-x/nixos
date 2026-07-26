@@ -71,3 +71,74 @@ normally counts against NixOS is already paid here.)*
 **Graduates the fog into:** Immich placement + migration (06), file-sync
 solution (07), media-relocation + `PLAN.md` consolidation (08). On-site backup
 copy placement is now answerable within the existing backup ticket (05).
+
+---
+
+## Amendment — second pass (2026-07-26)
+
+The **role** and **management** decisions above stand unchanged: the ThinkBook is
+the always-on server, running NixOS as a second host in this flake. The
+**division-of-labour principle is materially rewritten** by the re-grill of
+[08](08-media-relocation-and-plan-consolidation.md).
+
+### What changed
+
+The original principle parked "light storage-adjacent services" on the NAS — the
+arr/media pipeline, SMB/NFS, Synology backup tooling — and ticket 01 recorded
+*"NAS is enough for the light stuff (arr suite)."* Every service that principle
+placed on the NAS has since been moved off it, because each placement rested on a
+premise that failed on checking:
+
+| Service | Reason it stayed on the NAS | Why that failed |
+|---|---|---|
+| arr stack | hardlink locality | **Hardlinks work over NFS** — the link is created server-side on btrfs |
+| Jellyfin | direct-play dominates ⇒ data-locality wins | Only true for the Shield; every other client needs tone mapping the J4025 can't do |
+| Plex | working safety net during proving | No Plex Pass ⇒ no hardware transcode ever, and its library was scheduled for deletion anyway |
+
+With nothing left, the honest principle is simpler.
+
+### The revised principle
+
+> **The NAS stores bytes. The laptop runs everything.**
+
+- **NAS = storage layer, and nothing else.** RAID + btrfs snapshots + scrub, NFS
+  exports, and the native DSM Tailscale package so it stays independently
+  reachable. **Zero containers** — Container Manager is uninstalled during the
+  rebuild.
+- **ThinkBook = every service.** Media pipeline, media server, photos, backups,
+  and anything added later — all `oci-containers` declared in this flake, mounting
+  NAS bulk storage over NFS, with secrets from sops-nix.
+
+The user chose the container-free NAS over an unbroken principle, explicitly and
+with the trade-off stated. The practical argument that carried it: *"the NAS runs
+no containers at all"* is a materially simpler durability layer to reason about
+and to recover after a DSM upgrade, and it is the only version of this plan
+consistent with how the rest of this repo is run.
+
+### What this does not change
+
+- **Proxmox and Debian+Docker stay rejected** for the reasons given above.
+- **Wake-on-demand (Model B) stays rejected** — and is now further out of reach,
+  since the laptop hosts playback and would have to be awake continuously anyway.
+- **`virtualisation.oci-containers` is now the primary deployment mechanism, not
+  the fallback.** The original text preferred first-class NixOS modules for big
+  services, naming Immich as an example. That specific case inverted: the nixpkgs
+  Immich module cannot do CUDA (see
+  [06](06-immich-placement-migration.md#amendment--second-pass-2026-07-26)), which
+  is the whole reason Immich is on this machine. Prefer a NixOS module where one
+  exists *and* covers the requirement; otherwise containers.
+
+### New cross-cutting requirements this creates
+
+Concentrating every service on one host makes three things load-bearing that the
+original answer did not address:
+
+- **Secrets management (sops-nix).** The repo has a public GitHub remote and CI on
+  every push. restic passwords, rclone/Drive OAuth, the Tailscale auth key, usenet
+  credentials and the Immich DB password all need it. This gates the host coming
+  up at all.
+- **Dead-man alerting.** An unattended box that silently stops backing up looks
+  identical to one that works. Alert on the *absence* of success.
+- **NFS mount robustness.** Every service now depends on one mount. `hard` mounts,
+  `x-systemd.automount`, containers ordered on the mount unit, and a mount guard in
+  the backup job so restic can never snapshot an empty tree and prune real history.
