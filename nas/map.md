@@ -57,6 +57,40 @@ decide.
   flake** (`home-server`), NixOS modules + oci-containers. **Principle:** NAS =
   storage/durability layer; laptop = compute/application layer, mounting NAS bulk
   storage over LAN. Graduates the fog into 06/07/08.
+- [Remote-access method for reaching home services](issues/04-remote-access-method.md)
+  — **Tailscale-only overlay VPN, single-user, no public exposure.** VPN-only (just
+  you) rules out the whole public reverse-proxy/domain/TLS branch; ISP/CGNAT moot
+  (relay NAT traversal). Direct clients on **both ThinkBook + NAS** (no subnet router)
+  so the NAS stays reachable independently; MagicDNS names. **Key expiry disabled on
+  both server nodes** to avoid lock-out while away. `services.tailscale.enable` on the
+  `home-server` host; DSM Tailscale package on the NAS.
+- [Immich: storage layout and migrating ~950 GB off the NAS](issues/06-immich-placement-migration.md)
+  — **originals on NAS/NFS** (storage-of-record); **Postgres + thumbnail + ML cache on
+  local NVMe** (DB never on NFS). **Managed library**, one-time **Immich CLI import**
+  (dedups by hash) — not external/index-in-place. **Two accounts** (Walter admin +
+  Anja) with partner sharing; import `Walter/*`→Walter, `Anja/*`→Anja, `homes`→Walter.
+  Migration is a non-destructive copy → verify → reclaim, under a **soft execution gate
+  on 05's off-array copy** (no formal block). ML: **CUDA image**, English smart search
+  `ViT-B-16-SigLIP2__webli`, `buffalo_l` faces, concurrency ≈2 — 6 GB VRAM ample. Host
+  prereq: `nvidia-container-toolkit` on the `home-server` host.
+- [Backup strategy: 3-2-1 topology and offsite target for the photos](issues/05-backup-topology.md)
+  — tiered scope: **photos full 3-2-1**, media excluded (re-downloadable), laptop app-state
+  lighter tier. **Laptop-orchestrated:** copy #1 = NAS array (post-Immich = the managed
+  library); copy #2 = **dedicated 4 TB USB HDD on the ThinkBook** (in hand), nightly **pull**
+  from NAS; copy #3 = **Hetzner Storage Box** (5 TB BX21 ~€143/yr, client-side encrypted).
+  Tool = **restic** via `services.restic.backups` on `home-server` (DBs `pg_dump`'d first).
+  Nightly, retention 7d/8w/12m/5y, weekly prune; **immutability via Hetzner Storage Box
+  snapshots** the client can't delete. **Immediate:** `restic init` + first snapshot of the
+  raw shares from `main-pc` *now* — clears PLAN.md phase-0 **and** is 06's off-array hard
+  gate; Hetzner upload runs off the critical path. Restore test: monthly `restic check`
+  + sample restore, one real offsite drill, keys stored off the laptop.
+- [File-sync / personal-cloud solution](issues/07-file-sync-solution.md)
+  — **Build nothing.** No self-hosted file-sync on either machine. Documents stay on
+  **Google Drive** (+ physical copies; no de-Googling intent), Immich (06) covers photos,
+  the media stack covers media — nothing falls through the cracks. Rejected Syncthing +
+  Nextcloud (permanent maintenance to re-solve a solved problem). Closes 05's dangling
+  conditional (no file-sync source-of-record to back up). Revisit as a *fresh* ticket only
+  if a real need appears (large files unfit for Drive, de-Googling, family web surface).
 
 ## Not yet specified
 
@@ -67,8 +101,8 @@ decide.
 
 - **Other self-hosted apps.** Ebooks/manga (TODO items 2–3), a dashboard, maybe
   home automation. Trivial to place once a compute home (03 ✓) and remote access
-  (04) exist; still fog because the specific set isn't pinned. Graduates once 04
-  lands and you name which apps you actually want.
+  (04 ✓) exist; still fog because the specific set isn't pinned. Now waiting only
+  on you naming which apps you actually want — remote access (04) has landed.
 
 ## Out of scope
 
