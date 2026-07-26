@@ -49,35 +49,26 @@ decide.
   32 GB (both slots full), 1 TB NVMe + likely-free 2nd M.2, Wi‑Fi only. Immich-ML
   value case survives; Ada/AV1/pro-card case does not. **Always-on = YES**, lid
   closed + out of living space, ~**€62–93/yr** at €0.355/kWh. Unblocks keystone 03.
+- [Keystone: does the ThinkPad become the always-on server, and how is it managed?](issues/03-keystone-server-or-not.md)
+  — **YES, always-on services host (Model A):** laptop is the "brain", NAS demoted
+  to storage-of-record + light storage-adjacent services. Ethernet via owned
+  USB-C→RJ45 (Wi-Fi-only caveat resolved); wake-on-demand rejected (doesn't fix
+  the weak NAS; WoL dead over USB Ethernet). **OS = NixOS second host in this
+  flake** (`home-server`), NixOS modules + oci-containers. **Principle:** NAS =
+  storage/durability layer; laptop = compute/application layer, mounting NAS bulk
+  storage over LAN. Graduates the fog into 06/07/08.
 
 ## Not yet specified
 
-<!-- in-scope fog; graduates as the frontier advances. Most of this hangs on the
-     keystone (ticket 03) — once the laptop's role is fixed, these sharpen into
-     placement tickets. -->
+<!-- in-scope fog; graduates as the frontier advances. The keystone (03) is now
+     resolved — placement is fixed at "laptop = compute", so the Immich, file-sync
+     and media-relocation patches graduated into tickets 06/07/08. What remains
+     here is still too coarse to ticket. -->
 
-- **Immich (photos): placement + migration.** Where Immich runs (GPU for ML
-  favours the laptop) and how the ~950 GB is migrated off the current NAS shares
-  (`homes`/`Walter`/`Anja`). Hangs on the keystone (03).
-- **File sync / personal cloud: solution + placement.** Nextcloud vs Syncthing
-  vs other, and which machine hosts it. Hangs on the keystone (03).
-- **Does the media stack relocate?** Whether the *arr stack and/or Jellyfin
-  transcoding move from the NAS to the laptop, revising `PLAN.md`. GPU facts now
-  corrected (01: RTX 3060 does HEVC/H.264 but **no AV1 encode** vs the Celeron's
-  QuickSync — still better, not the leap 02 implied; and the Shield direct-plays
-  so transcode rarely fires). *arr stack is light enough for the NAS regardless;
-  the real laptop pull is Immich ML + container headroom. Hangs on keystone (03).
-  **Consolidation plan:** once 03 resolves, fold `PLAN.md` into this map as its
-  *media* section — merging the *final* (laptop-aware) media decision, not the
-  current laptop-blind one. Until then `PLAN.md` stays standalone, since its
-  media-pipeline detail (usenet, hardlink layout, phase-0 hardware, shopping
-  list, access notes) lives nowhere else.
-- **On-site backup copy placement.** Whether the laptop (or its disks) serves as
-  the local second copy in the 3-2-1 scheme. Hangs on both keystone (03) and the
-  backup-topology decision (05).
 - **Other self-hosted apps.** Ebooks/manga (TODO items 2–3), a dashboard, maybe
-  home automation. Trivial to place once a compute home and remote access exist;
-  fog until then.
+  home automation. Trivial to place once a compute home (03 ✓) and remote access
+  (04) exist; still fog because the specific set isn't pinned. Graduates once 04
+  lands and you name which apps you actually want.
 
 ## Out of scope
 
