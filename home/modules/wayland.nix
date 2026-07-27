@@ -1,7 +1,7 @@
-{ config, pkgs, ... }: {
+{ config, pkgs, ... }:
+{
   # Kitty
-  xdg.configFile."kitty/macchiato.conf".source =
-    ../dotfiles/kitty/macchiato.conf;
+  xdg.configFile."kitty/macchiato.conf".source = ../dotfiles/kitty/macchiato.conf;
   xdg.configFile."kitty/kitty.conf".source = ../dotfiles/kitty/kitty.conf;
 
   # Wofi
@@ -56,9 +56,9 @@
       After = [ "graphical-session.target" ];
     };
     Service = {
-      # --auto-pause stops decoding whenever the wallpaper is covered, which on
-      # this machine is most of the time. hwdec=auto picks nvdec on the NVIDIA
-      # open driver.
+      # --auto-pause is supposed to stop decoding whenever the wallpaper is
+      # covered, but measured on this machine it keeps decoding regardless.
+      # hwdec=auto picks nvdec on the NVIDIA open driver.
       ExecStart = ''
         ${pkgs.mpvpaper}/bin/mpvpaper --auto-pause -o "no-audio loop-file=inf hwdec=auto panscan=1.0" DP-4 %h/Videos/wallpapers/live.mp4
       '';
@@ -66,6 +66,13 @@
       # black until it is noticed.
       Restart = "always";
       RestartSec = 5;
+      # mpvpaper leaks ~1.13 GB/h — linearly, ~5 KB per decoded frame, forever.
+      # Left alone it reached 10.7 GB after 9 hours. Measured A/B: the leak is
+      # identical with hwdec=no (1.12 GB/h at 7x the CPU), so it is mpvpaper's
+      # render loop, not the decoder, and no -o option fixes it. Recycling the
+      # process is the only lever; a restart drops RSS straight back to ~335 MB.
+      # Costs a ~5s black wallpaper on DP-4 every 2h (RestartSec above).
+      RuntimeMaxSec = 7200;
     };
     Install.WantedBy = [ "graphical-session.target" ];
   };
