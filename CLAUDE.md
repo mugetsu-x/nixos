@@ -59,6 +59,7 @@ claude/                Claude Code config, symlinked live by home/modules/claude
   settings.json        global Claude Code settings
   workspace-CLAUDE.md  house rules for every project under ~/workspace
 templates/nextjs/      `nix flake init -t ~/nixos-config#nextjs` — project scaffold
+keyboards/             QMK keymap backups — not applied by Nix, see below
 ```
 
 ## Where things go
@@ -177,6 +178,23 @@ resetting is free.
 
 ## Non-obvious bits
 
+- **Umlauts and ß live in the keyboard's firmware, not in this repo.** The layout
+  is `us(altgr-intl)`, which puts `ä ö ü ß` on the third level of `q p y s`,
+  reached by holding **Right Alt**. The Keychron Q8 Pro (Alice) has no right Alt,
+  so **Fn2 is remapped to `KC_RALT` in QMK** — that remap is the *only* reason
+  umlauts work, and it lives in the board's EEPROM. Windows additionally accepts
+  `Ctrl+Alt` as an AltGr stand-in; **xkb does not** — every `lv3:` option in
+  xkeyboard-config is a single key, so there is nothing to configure here for it.
+  `hardware.keyboard.qmk.enable` in `modules/common.nix` only installs the udev
+  rules that let the Keychron Launcher reach the board over WebHID from Chrome;
+  it does not carry the mapping. A firmware update or factory reset wipes the
+  EEPROM and umlauts stop working — restore by importing
+  `keyboards/q8-pro-knob.json` in the Launcher (cable mode only; Bluetooth and
+  the 2.4 GHz dongle cannot flash). That file is a byte-exact export, deliberately
+  not reformatted. Note `wev` reports Fn2 as `ISO_Level3_Shift`, not `Alt_R` —
+  that is correct, `altgr-intl` converts right Alt into the level-3 chooser, and
+  it is also why right Alt sets Mod5 and cannot collide with the `ALT` binds in
+  `hyprland.conf`.
 - **Two monitors, stacked vertically.** DP-2 is a 3440x1440 ultrawide at `0x0`;
   DP-4 is a 1920x1080 panel *below* it at `760x1440` (centred under it), **not**
   to its right. Waybar is pinned to DP-4 alone via `"output"` in
