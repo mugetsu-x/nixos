@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, pkgs-unstable, ... }:
 
 let
   # Shared with Neovim — add a language server there, not here.
@@ -23,6 +23,12 @@ in
   programs.zed-editor = {
     enable = true;
 
+    # The *only* thing in this config that comes from nixpkgs-unstable. Zed ships
+    # a release a week; nixos-25.05 froze it at 0.189.5 and will never move. The
+    # language servers below stay on stable on purpose — this is not a general
+    # licence to pull packages from unstable.
+    package = pkgs-unstable.zed-editor;
+
     # Puts the language servers on Zed's PATH. `vtsls` and the tailwind server
     # are Node scripts, so nodejs_22 (in this list) has to be there too.
     extraPackages = tsPackages;
@@ -40,13 +46,12 @@ in
         toml = true;
         env = true;
 
-        # Zed pulls the *latest* extension from a rolling registry, but our Zed is
-        # pinned by nixpkgs (0.189.5). The current html extension (0.2.2) uses a
-        # newer manifest syntax and fails to parse:
+        # Zed pulls the *latest* extension from a rolling registry. Under 0.189.5
+        # the html extension (0.2.2) used a newer manifest syntax and failed:
         #   TOML parse error ... block_comment ... invalid type: map
-        # Zed auto-installs it on sight of an HTML file, so it has to be pinned off
-        # explicitly. Costs nothing here: TSX/JSX/CSS/Tailwind are built into Zed.
-        # Revisit when Zed is next bumped.
+        # Zed auto-installs it on sight of an HTML file, so it was pinned off.
+        # Left off after the 1.12 bump because it was never needed — TSX/JSX/CSS/
+        # Tailwind are built into Zed. Drop this line to try it again.
         html = false;
       };
 

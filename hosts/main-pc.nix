@@ -2,6 +2,7 @@
   config,
   pkgs,
   nix-claude-code,
+  pkgs-unstable,
   ...
 }:
 {
@@ -19,6 +20,9 @@
   home-manager.backupFileExtension = "hm-bak";
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
+  # `useGlobalPkgs` means home-manager modules get the stable `pkgs`. Zed needs a
+  # newer one than 25.05 carries, so hand the unstable set through separately.
+  home-manager.extraSpecialArgs = { inherit pkgs-unstable; };
   hardware.printers = {
     ensurePrinters = [
       {
