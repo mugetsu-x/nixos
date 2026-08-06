@@ -17,6 +17,7 @@
     ./modules/gaming.nix
     ./modules/cli.nix
     ./modules/dev.nix
+    ./modules/azure.nix
     ./modules/zed.nix
     ./modules/claude.nix
   ];
