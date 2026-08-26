@@ -41,7 +41,7 @@
       directory = {
         style = "bold green";
         read_only = " ";
-        format = "[$path]($style)";
+        format = "[$path]($style) ";
       };
       git_branch = {
         symbol = " ";
