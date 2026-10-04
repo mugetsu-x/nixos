@@ -1,7 +1,7 @@
 # 01 — Inventory `/volume1` and evacuate it (two USB HDDs + `main-pc`)
 
 **What to build:** Every irreplaceable file on the NAS copied **off** it, as plain
-file trees, onto **HDD A, HDD B** and (photos at minimum) **`main-pc`'s NVMe** —
+file trees, onto **HDD A, HDD B** and **`main-pc`'s NVMe** —
 each copy verified file-by-file against a SHA-256 manifest **computed on the NAS
 itself**. This is the hard gate for the entire plan:
 [05](05-wipe-and-rebuild-nas.md) destroys the array.
@@ -31,9 +31,9 @@ itself**. This is the hard gate for the entire plan:
 
 | Copy | Medium | Contents | Role |
 |---|---|---|---|
-| **A** | USB HDD, 2 TB, **ext4**, label `evac-a` | everything irreplaceable | cold copy; source for the Drive upload ([02](02-seed-google-drive-offsite.md)) |
-| **B** | USB HDD, 2 TB, **NTFS**, label `evac-b` | everything irreplaceable | cold copy, **unplugged and stored in another room** once verified |
-| **C** | `main-pc` NVMe, `~/evac/` (~726 GB free) | all photo sources; everything if it fits with ≥100 GB to spare | warm copy on a different medium (SSD, not USB HDD); fast source for [10](10-import-photos.md) |
+| **A** | WD My Passport 2 TB (`WD-WXH1E93CDLC9`), **ext4**, label `evac-a` | everything irreplaceable | cold copy; later reusable as [13](13-restic-321-service.md)'s USB target |
+| **B** | Seagate Expansion 1 TB (`NA8C56DC`), **NTFS**, label `evac-b` | everything irreplaceable | cold copy, **unplugged and stored in another room** once verified |
+| **C** | `main-pc` NVMe, `~/evac/` (~726 GB free) | everything irreplaceable | warm copy on a different medium (SSD, not USB HDD); source for the Drive upload and for [10](10-import-photos.md) |
 | **D** | Google Drive, `rclone crypt` | everything irreplaceable | offsite — [02](02-seed-google-drive-offsite.md) |
 
 Four copies on three media types, one offsite, before a byte is destroyed.
@@ -66,20 +66,39 @@ root, which are yours (marked **you**). Total hands-on time ≈ 30 min.
    sudo sh -c 'echo "Walter ALL=(root) NOPASSWD: /usr/bin/rsync, /usr/bin/sha256sum, /usr/bin/find, /usr/bin/du" > /etc/sudoers.d/evac && chmod 440 /etc/sudoers.d/evac'
    ```
    Harmless to leave: [05](05-wipe-and-rebuild-nas.md) wipes it with the rest of DSM.
-3. **Confirm both USB HDDs hold nothing you need**, then format them (destroys
-   their contents):
+3. **Empty both USB HDDs** (done from Windows, 2026-10-04) — anything on them that
+   matters goes elsewhere first.
+4. **SMART long test on both USB HDDs, before formatting** — for the wipe window
+   they *are* the data, and a disk with pending or reallocated sectors doesn't get
+   used. ~4–5 h (the 1 TB is quicker); both can run at once:
    ```
-   sudo mkfs.ext4 -L evac-a -m 0 /dev/sdX1                      # disk A — check with lsblk first
-   nix shell nixpkgs#ntfs3g
-   sudo "$(command -v mkntfs)" -Q -L evac-b /dev/sdY1            # disk B
+   nix shell nixpkgs#smartmontools
+   sudo "$(command -v smartctl)" -d sat -t long /dev/disk/by-id/usb-<id>   # once per disk
+   sudo "$(command -v smartctl)" -d sat -a /dev/disk/by-id/usb-<id>        # result
    ```
-   A: `udisksctl mount -b /dev/disk/by-label/evac-a`, then
-   `sudo chown rennsemml: /run/media/rennsemml/evac-a`.
-   B: `sudo mkdir -p /mnt/evac-b && sudo "$(command -v ntfs-3g)" -o windows_names,uid=1000,gid=100 /dev/disk/by-label/evac-b /mnt/evac-b`.
-4. **SMART long test on both USB HDDs** —
-   `sudo nix run nixpkgs#smartmontools -- -t long -d sat /dev/sdX` (~4–5 h, both can
-   run at once). For the wipe window they *are* the data; a disk with pending or
-   reallocated sectors doesn't get used.
+   Pass = `PASSED`, `Reallocated_Sector_Ct` / `Current_Pending_Sector` /
+   `Offline_Uncorrectable` all 0, self-test log *Completed without error*.
+5. **Format.**
+   - **B (Seagate, NTFS):** formatted **in Windows** — Explorer → right-click →
+     Format → NTFS, *Quick Format*, volume label `evac-b`. Windows' own formatter is
+     the most trustworthy NTFS writer there is.
+   - **A (WD, ext4):** on `main-pc` with the guard script, which refuses anything
+     that isn't a ≤2.2 TB USB disk and asks for the serial:
+     `sudo nas/evac/format-evac-disk.sh a /dev/disk/by-id/usb-…-part1`
+6. **Mount.**
+   - A: `udisksctl mount -b /dev/disk/by-label/evac-a`, then
+     `sudo chown rennsemml: /run/media/rennsemml/evac-a`.
+   - B, **always via ntfs-3g, never by clicking it** (that picks the kernel `ntfs3` driver):
+     ```
+     sudo mkdir -p /mnt/evac-b
+     sudo "$(nix build --no-link --print-out-paths 'nixpkgs#ntfs3g.out')/bin/ntfs-3g" \
+       -o windows_names,uid=1000,gid=100 /dev/disk/by-label/evac-b /mnt/evac-b
+     ```
+
+**B and Windows (dual boot).** Windows *Fast Startup* leaves a connected NTFS disk
+half-hibernated, and Linux must not write to it then — ntfs-3g refuses, so it
+fails safe, but the copy stalls. In Windows, only read from B and **eject it before
+shutting down** (or turn Fast Startup off).
 
 ### Step 1 — Inventory (agent)
 
@@ -96,8 +115,9 @@ came to be missing from every ticket in this repo.
 - Confirmed disposable: `PlexMediaServer/*` (including `Photos`, which is artwork).
   No music on the NAS.
 
-**Gate:** if the irreplaceable total exceeds **~1.7 TB**, it doesn't fit on one
-2 TB disk with headroom. Stop and re-plan before copying anything.
+**Gate:** the smallest copy target is B at 1 TB (~930 G usable). If the
+irreplaceable total exceeds **~850 G**, it doesn't fit there with headroom. Stop
+and re-plan before copying anything.
 
 ### Step 2 — Manifest on the NAS (agent, ~1–2 h unattended)
 
@@ -167,12 +187,12 @@ them go.
 
 - [ ] NAS data scrub clean; SMART quick test passes on all three NAS disks
 - [ ] SSH key + `/etc/sudoers.d/evac` on the NAS; agent can `ssh -o BatchMode=yes alexandria sudo -n du -sh /volume1/*` without a prompt
-- [ ] Both USB HDDs confirmed empty, formatted (`evac-a` ext4, `evac-b` NTFS via ntfs-3g), **SMART long test passes on both**
+- [ ] Both USB HDDs emptied; **SMART long test passes on both**; A formatted ext4 (`evac-a`, guard script), B formatted NTFS in Windows (`evac-b`)
 - [ ] Inventory recorded below; every non-disposable path identified, including `photo`, every user under `homes`, and `#recycle`; total ≤ ~1.7 TB
 - [ ] SHA-256 manifest generated **on the NAS**, stored with every copy
 - [ ] Copy A: `sha256sum -c` clean, per-source file counts match
 - [ ] Copy B: `sha256sum -c` clean, per-source file counts match, any `windows_names` rejects listed and resolved — then **unplugged, other room**
-- [ ] Copy C (`main-pc`): all photo sources at minimum, `sha256sum -c` clean
+- [ ] Copy C (`main-pc`): everything, `sha256sum -c` clean
 - [ ] Random sample opened by a human: renders, umlauts intact, dates sane
 - [ ] Synology Photos albums worth keeping listed — or explicitly let go
 - [ ] **Freeze:** phone backup off, shares read-only; final delta to A/B/C/Drive verified green — *this box is ticked last, immediately before [05](05-wipe-and-rebuild-nas.md)*
@@ -193,7 +213,7 @@ Taken 2026-10-04 over SSH (`du -sh --exclude=@eaDir`, `find -type f | wc -l`).
 | `@docker`, `@appstore`, other `@*`, `*.core.gz` | ~53 G | | ❌ DSM system / crash dumps |
 | `@database` | 1.9 G | | ⬜ Synology Photos' DB — a raw copy of a live DB, only "just in case" for albums |
 
-**Irreplaceable total ≈ 541 G** (after the recycle-bin purge) — fits a 2 TB disk with room. File count
+**Irreplaceable total ≈ 541 G** (after the recycle-bin purge) — fits every target, including the 1 TB disk B. File count
 is low enough that Drive's per-file rate limit is not a concern. For contrast, `@eaDir`
 holds **303,165** thumbnail files — 4× the real data, all excluded.
 
