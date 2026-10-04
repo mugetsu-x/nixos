@@ -7,7 +7,8 @@ layout, NFS exports, btrfs snapshots + scheduled scrub, and the Tailscale packag
 
 **⚠️ This step is destructive and irreversible.** Do not start it until
 [01](01-inventory-and-evacuate.md) *and* [02](02-seed-google-drive-offsite.md) are
-both green — two verified USB copies **and** the offsite copy on Drive. Not one of the three.
+both green — two verified USB copies, the `main-pc` copy **and** the encrypted
+offsite copy on Drive — **and 01's freeze + final delta has verified green.**
 
 **Why a wipe rather than the original online expansion:** the old plan added the 4 TB
 disk to the live RAID 5, an **online reshape running degraded for a day or more** on
@@ -39,7 +40,7 @@ fine over NFS; what breaks them is separate mounts or mismatched container paths
 
 **Status:** ready-for-agent
 
-- [ ] Both prerequisites verified green — three copies exist before a single byte is destroyed
+- [ ] Both prerequisites verified green, **including 01's freeze box** — four copies exist before a single byte is destroyed
 - [ ] 4 GB SODIMM + IronWolf 4 TB fitted in one session; DSM memory test passes; Info Center reads ~6 GB
 - [ ] DSM reinstalled clean; **Container Manager and Plex absent**
 - [ ] Fresh **SHR-1** array across all 4 disks, ~6 TB usable, healthy

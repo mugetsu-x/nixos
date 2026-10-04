@@ -278,3 +278,31 @@ What that changes:
   default; plain zips don't. Recorded as a checkbox in 02.
 - **The archives are retired only after** both fresh restic repos pass a restore
   drill — not when the import finishes.
+
+## Amendment — fourth pass (2026-10-04)
+
+**The TeraCopy/7-Zip evacuation from the third pass is withdrawn** the same day.
+Walter preferred the agent to run the migration rather than doing it by hand. The
+3-2-1 design is still untouched. Build detail:
+[01](../build/issues/01-inventory-and-evacuate.md),
+[02](../build/issues/02-seed-google-drive-offsite.md).
+
+- **Plain file trees, pulled with `rsync` from `main-pc` over SSH.** The NAS is only
+  ever read. No archives means no staging space, no zip filename-encoding risk, no
+  "one corrupt archive" blast radius, and no extraction step in
+  [10](../build/issues/10-import-photos.md).
+- **The manifest is hashed on the NAS**, from btrfs, after a scrub — so every copy
+  is verified end-to-end against the source, not against a read-back of itself.
+  This is what replaces the third pass's MD5-for-Drive manifest.
+- **Copies are pulled independently** (NAS → A, NAS → B), never A → B, so one bad
+  read can't be cloned into both. That partly restores the diversity the third
+  pass lost.
+- **A fourth copy:** `main-pc` has ~726 GB free on NVMe. It holds the photo sources
+  (everything, if it fits) — a different medium from the USB HDDs, and the fast
+  source for the Immich import.
+- **Offsite is encrypted after all:** `rclone crypt` (contents and names), verified
+  with `rclone cryptcheck` plus a restore drill before the wipe.
+- **New: a freeze.** Phones keep backing up to Synology Photos during the days the
+  evacuation takes. Before [05](../build/issues/05-wipe-and-rebuild-nas.md), phone
+  backup is switched off, shares go read-only, and a final delta is pulled into
+  every copy and re-verified. Neither earlier pass had this gap closed.

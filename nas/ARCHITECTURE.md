@@ -129,7 +129,7 @@ Detail and the exact sequence: [`PLAN.md`](PLAN.md).
 
 Runs on `home-server`. **Originals on NAS/NFS** (storage-of-record); **Postgres +
 thumbnails + ML cache on local NVMe** (DB never on NFS). Managed library, one-time
-Immich-CLI import (hash-dedup) **from the evacuation archives** into a clean, empty
+Immich-CLI import (hash-dedup) **from the evacuation copies** into a clean, empty
 library. Two accounts (Walter admin + Anja) with partner sharing. ML on the **CUDA
 image** (`ViT-B-16-SigLIP2__webli` smart search, `buffalo_l` faces, concurrency ≈2).
 
@@ -187,11 +187,11 @@ server-side snapshots provided. Saves ~€143/yr. Mandatory conditions:
 - Uploads are capped at **750 GB/day per user**, so ~950 GB takes ≥2 days.
 
 **The evacuation is separate from this.** Before the wipe, everything is copied off
-the NAS from Windows with TeraCopy (verify on), packed into per-source 7-Zip
-archives, and put on **two USB HDDs + Google Drive**, all checked against one
-hash manifest. Those archives are a one-off; the restic repos above start fresh
-once `home-server` runs, and the archives are retired after both repos pass a
-restore drill.
+the NAS by an agent-run `rsync` from `main-pc` as plain file trees onto **two USB
+HDDs + `main-pc`'s NVMe**, plus an `rclone crypt` upload to **Google Drive** — all
+checked against one SHA-256 manifest hashed on the NAS itself. Those copies are a
+one-off; the restic repos above start fresh once `home-server` runs, and the
+copies are retired after both repos pass a restore drill.
 
 Retention 7d/8w/12m/5y, weekly prune. Monthly `restic check` + sample restore, one
 real offsite drill, keys stored **off** the laptop.

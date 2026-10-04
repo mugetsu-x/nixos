@@ -80,7 +80,7 @@ RTX 3060 Laptop 6 GB, 32 GB DDR4, 1 TB NVMe, Wi-Fi + USB-C→RJ45 dongle.
   which point the wipe is both safer and strictly better. Reasoning and the SHR
   capacity table: [ARCHITECTURE.md](ARCHITECTURE.md) → *The NAS is rebuilt, not
   expanded*.
-- **Photos: Immich on the laptop**, importing from the evacuation archives into a
+- **Photos: Immich on the laptop**, importing from the evacuation copies into a
   clean empty library. Full plan: [ticket 06](issues/06-immich-placement-migration.md).
 
 ### Why QuickSync was not enough
@@ -206,12 +206,14 @@ Each step is a ticket in [`build/issues/`](build/issues/) with acceptance criter
 
 **Before anything touches the NAS**
 
-1. **Inventory + evacuate.** `du -sh /volume1/*`, then copy everything off from
-   Windows with TeraCopy (verify on), pack into per-source **7-Zip** archives,
-   hash-manifest them, and put them on **both USB HDDs**. SMART-check both drives
-   first — for the duration of the wipe, they *are* your data.
-2. **Upload the archives to Google Drive.** ~950 GB at Drive's 750 GB/day cap is ≥2
-   days, unattended; verify Drive's MD5s against the manifest. **This is what keeps you at three copies during the wipe** —
+1. **Inventory + evacuate.** Scrub the NAS, `du -sh /volume1/*`, hash everything
+   **on the NAS** into a SHA-256 manifest, then the agent `rsync`s plain file trees
+   from `main-pc` onto **both USB HDDs** (ext4) and the photos onto `main-pc`'s
+   NVMe, each verified with `sha256sum -c`. SMART-check both drives first — for
+   the duration of the wipe, they *are* your data. Freeze + final delta right
+   before the wipe.
+2. **Upload to Google Drive** with `rclone crypt` from HDD A. ~950 GB at Drive's 750 GB/day cap is ≥2
+   days, unattended; verify with `rclone cryptcheck` and a restore drill. **This is what keeps you at three copies during the wipe** —
    otherwise the only copies are two USB drives in one room.
 3. **Secrets** (sops-nix) — gates the laptop host.
 4. **Usenet accounts** (Eweka + NZBGeek) — needs a card, can run in parallel.
@@ -230,7 +232,7 @@ Each step is a ticket in [`build/issues/`](build/issues/) with acceptance criter
 8. **GPU + NFS foundation** — `nvidia-container-toolkit`, `hard` mounts with
    `x-systemd.automount`, container ordering on the mount unit.
 9. **Immich** (oci-containers, CUDA image) — empty library on the right storage.
-10. **Import photos** from the archives into Immich (extracted to a scratch share).
+10. **Import photos** into Immich straight from the evacuation copy on `main-pc`.
 11. **arr stack + SABnzbd**, with the split `incomplete`/`complete` layout.
 12. **Jellyfin + Jellyseerr**, proven on test files first.
 13. **restic 3-2-1 service** — USB + Google Drive, with a mount guard.

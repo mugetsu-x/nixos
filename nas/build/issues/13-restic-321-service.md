@@ -3,8 +3,8 @@
 **What to build:** The ongoing backup service via `services.restic.backups` on
 `home-server`: a maintained 3-2-1 that takes over from
 [01](01-inventory-and-evacuate.md)/[02](02-seed-google-drive-offsite.md)'s one-off
-evacuation archives. Both repos are **initialised fresh** here — the evacuation was
-zip archives, not restic (revised 2026-10-04).
+evacuation copies. Both repos are **initialised fresh** here — the evacuation was
+a one-off rsync, not restic (revised 2026-10-04).
 
 | Copy | Where | How |
 |---|---|---|
@@ -44,7 +44,7 @@ the mount is live, **abort loudly** otherwise.
 
 **Which USB HDD:** copy #2 needs a disk of its own on the ThinkBook. If it's one
 of 01's evacuation disks, reformat it **only after** both repos below have passed a
-restore drill — until then the archives on it are still a copy.
+restore drill — until then the evacuation tree on it is still a copy.
 
 Retention 7d/8w/12m/5y; **prune weekly as a separate, deliberate, logged operation**
 — it is the one dangerous space-reclaiming step.
@@ -61,7 +61,7 @@ Retention 7d/8w/12m/5y; **prune weekly as a separate, deliberate, logged operati
 - [ ] **Hard retention ceiling + Workspace pool alert** — the repo must never grow into the quota that runs Gmail
 - [ ] Monthly `restic check --read-data-subset=5%` + sample restore with hash comparison, on **both** repos
 - [ ] One real offsite drill completed from Drive to a clean machine
-- [ ] **Only then:** 01/02's evacuation archives retired — deleted from Drive, USB disk reformatted if reused
+- [ ] **Only then:** 01/02's evacuation copies retired — `gdrive:evac-2026-10` deleted, `~/evac/` on `main-pc` deleted, USB disk reformatted if reused
 - [ ] Keys stored off the laptop (password manager + printed)
 
 _Decision detail: [05](../../issues/05-backup-topology.md#amendment--second-pass-2026-07-26)._

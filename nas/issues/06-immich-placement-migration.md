@@ -225,5 +225,5 @@ phone storage meanwhile); browsing, sharing, Jellyfin, downloads and backups sto
 and the dead-man alerts fire. Nothing is lost: originals are on the NAS, the DB dump
 is in `backups/` on the NAS, and the host rebuilds from the flake.
 
-Also: the import source is now **01's 7-Zip archives**, extracted to a temporary
-scratch share on the fresh array — see [10](../build/issues/10-import-photos.md).
+Also: the import source is now **01's evacuation copy on `main-pc`** (a plain file
+tree, no extraction) — see [10](../build/issues/10-import-photos.md).
