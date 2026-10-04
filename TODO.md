@@ -28,11 +28,22 @@ IronWolf are in hand and get fitted during the rebuild. This replaces the old
 online-expansion phase 0 and removes the day-long degraded reshape.
 
 **Critical path:** agent-run evacuation from `main-pc` — SHA-256 manifest hashed
-on the NAS, plain-tree `rsync` onto two ext4 USB HDDs + `main-pc`'s NVMe → `rclone
-crypt` upload of the same tree to Google Drive → freeze + final delta → wipe.
-Nothing destructive starts until four verified copies exist. The usenet
+on the NAS, plain-tree `rsync` onto a USB HDD (A) + `main-pc`'s NVMe (C) → freeze + final
+delta → wipe. Nothing destructive starts until both copies verify against the
+manifest. (Copy C verified 2026-10-04; A in progress.) The usenet
 accounts (Eweka + NZBGeek, need a card) block only the arr stack, and secrets
 (sops-nix) block the laptop host.
+
+### Future improvement: an offsite copy
+
+Deferred 2026-10-04 because the Google account situation is unsettled: the 5 TB
+lives on a personal `@gmail.com` account (made because Health/Gemini refuse the
+`pariggers.com` Workspace account), not on Workspace as the plan assumed. Until
+it's decided which account stays, there is **no offsite copy** — neither the
+one-off evacuation upload ([ticket 02](nas/build/issues/02-seed-google-drive-offsite.md))
+nor the Drive leg of the restic 3-2-1 ([ticket 13](nas/build/issues/13-restic-321-service.md)).
+Revisit once the account is settled; the alternative is a different offsite
+target (e.g. B2/Hetzner Storage Box) or a USB disk kept at someone else's house.
 
 ## 2. E-book library and download flow
 

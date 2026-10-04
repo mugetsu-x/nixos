@@ -12,9 +12,9 @@ Ordered execution tickets for the architecture in
 ## Dependency graph
 
 ```
-01 inventory + evacuate ──┬─> 02 upload to Drive ────┬─> 05 wipe + rebuild NAS ──┐
-                          │                          │                            │
-                          └──────────────────────────┴────> 10 import photos      │
+01 inventory + evacuate ──┬───────────────────────────> 05 wipe + rebuild NAS ──┐
+                          │                                                       │
+                          └─────────────────────────────> 10 import photos        │
                                                               ^                   │
 03 secrets (sops-nix) ──> 06 home-server host ──┬─> 07 tailscale                  │
                                                 │                                 │
@@ -30,6 +30,7 @@ Ordered execution tickets for the architecture in
                                     └──> 13 restic 3-2-1
 
 04 usenet signup ──> 11        (independent, manual, do it whenever)
+02 upload to Drive             (deferred 2026-10-04 — future improvement, not a gate)
 ```
 
 ## The tickets
@@ -37,10 +38,10 @@ Ordered execution tickets for the architecture in
 | # | Ticket | Blocked by |
 |---|---|---|
 | 01 | [Inventory `/volume1` + evacuate to two USB HDDs + `main-pc` (agent-run rsync, NAS-side manifest)](issues/01-inventory-and-evacuate.md) | — |
-| 02 | [Upload the evacuation to Google Drive (`rclone crypt`)](issues/02-seed-google-drive-offsite.md) | 01 |
+| 02 | ~~[Upload the evacuation to Google Drive (`rclone crypt`)](issues/02-seed-google-drive-offsite.md)~~ **deferred** | 01 |
 | 03 | [Secrets management (sops-nix)](issues/03-secrets-management.md) | — |
 | 04 | [Sign up usenet: Eweka + NZBGeek](issues/04-usenet-signup.md) | — |
-| 05 | [**Wipe and rebuild the NAS** as pure SHR-1 storage](issues/05-wipe-and-rebuild-nas.md) | 01, 02 |
+| 05 | [**Wipe and rebuild the NAS** as pure SHR-1 storage](issues/05-wipe-and-rebuild-nas.md) | 01 |
 | 06 | [Stand up the `home-server` NixOS host](issues/06-home-server-host.md) | 03 |
 | 07 | [Tailscale overlay](issues/07-tailscale-overlay.md) | 06 |
 | 08 | [Laptop GPU + NFS foundation](issues/08-gpu-nfs-foundation.md) | 06, 05 |
@@ -54,8 +55,8 @@ Ordered execution tickets for the architecture in
 ## Three things not to get wrong
 
 1. **Ticket 05 is irreversible.** It destroys the array. Do not start it until 01
-   *and* 02 are both green — two verified USB copies, the `main-pc` copy **and** the
-   encrypted offsite copy, all checked against a manifest hashed on the NAS — and
+   is green — the USB copy A and the `main-pc` copy C, both checked against a
+   manifest hashed on the NAS (no offsite copy: 02 is deferred) — and
    01's **freeze + final delta** has run. Otherwise anything the phones uploaded
    during the evacuation is in no copy.
 2. **The mount guard in 08/13.** restic snapshotting an unmounted mountpoint writes
@@ -67,6 +68,6 @@ Ordered execution tickets for the architecture in
 
 ## Parallelism
 
-01 → 02 → 05 (the NAS track) and 03 → 06 (the laptop track) are independent — run
+01 → 05 (the NAS track) and 03 → 06 (the laptop track) are independent — run
 them at the same time. 04 is manual and blocks only 11. The two tracks converge at
 08, which needs both a working host and NAS exports.

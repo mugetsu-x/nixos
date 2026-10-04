@@ -33,10 +33,12 @@ itself**. This is the hard gate for the entire plan:
 |---|---|---|---|
 | **A** | WD My Passport 2 TB (`WD-WXH1E93CDLC9`), **ext4**, label `evac-a` | everything irreplaceable | cold copy; later reusable as [13](13-restic-321-service.md)'s USB target |
 | **B** | Seagate Expansion 1 TB (`NA8C56DC`), **NTFS**, label `evac-b` | everything irreplaceable | cold copy, **unplugged and stored in another room** once verified |
-| **C** | `main-pc` NVMe, `~/evac/` (~726 GB free) | everything irreplaceable | warm copy on a different medium (SSD, not USB HDD); source for the Drive upload and for [10](10-import-photos.md) |
-| **D** | Google Drive, `rclone crypt` | everything irreplaceable | offsite — [02](02-seed-google-drive-offsite.md) |
+| **C** | `main-pc` NVMe, `~/evac/` (~726 GB free) | everything irreplaceable | warm copy on a different medium (SSD, not USB HDD); source for [10](10-import-photos.md) |
+| ~~**D**~~ | ~~Google Drive, `rclone crypt`~~ | — | **deferred 2026-10-04** — [02](02-seed-google-drive-offsite.md) |
 
-Four copies on three media types, one offsite, before a byte is destroyed.
+**As executed (2026-10-04): A + C required, B optional, D deferred.** Two
+verified copies on two media types (USB HDD, NVMe), none offsite — an accepted
+risk for the wipe window, while the Google account question is open.
 
 **A is ext4, B is NTFS — on purpose (decided 2026-10-04).** ext4 is Linux's native
 filesystem with a real `fsck`; NTFS keeps one copy readable by plugging it into any
@@ -78,6 +80,8 @@ root, which are yours (marked **you**). Total hands-on time ≈ 30 min.
    ```
    Pass = `PASSED`, `Reallocated_Sector_Ct` / `Current_Pending_Sector` /
    `Offline_Uncorrectable` all 0, self-test log *Completed without error*.
+   **Skipped for A (Walter's call, 2026-10-04)** — to be run later. Copies C and D
+   are the trusted ones; A's integrity rests on `sha256sum -c` against the manifest.
 5. **Format.**
    - **B (Seagate, NTFS):** formatted **in Windows** — Explorer → right-click →
      Format → NTFS, *Quick Format*, volume label `evac-b`. Windows' own formatter is
@@ -132,12 +136,20 @@ manifest checks every copy with `sha256sum -c`.
 
 ### Step 3 — Pull the copies (agent, ~3 h each at gigabit)
 
+**Run as Walter, not root (found 2026-10-04).** Synology's patched rsync refuses
+root outright (`ERROR: user has disabled/expired`, code 44), and refuses everyone
+until DSM → File Services → **rsync service is enabled** and Walter has the rsync
+application privilege. Walter can read every source except
+`docker/alexandria/config/suwayomi/cache` (disposable, excluded). So: no
+`--rsync-path='sudo rsync'`; add `--exclude='/docker/alexandria/config/suwayomi/cache/'`,
+and drop that path from the manifest before `sha256sum -c`.
+
 Run **one at a time** — parallel pulls just split the same gigabit link and the
 same three spindles.
 
 ```
-rsync -rlt --partial --info=progress2 -s --rsync-path='sudo rsync' \
-  --exclude='@eaDir/' --exclude='#snapshot/' \
+rsync -rlt --partial --info=progress2 -s \
+  --exclude='@eaDir/' --exclude='#snapshot/' --exclude='/docker/alexandria/config/suwayomi/cache/' \
   alexandria:/volume1/<source> /run/media/rennsemml/evac-a/     # B: /mnt/evac-b/
 ```
 
@@ -145,9 +157,7 @@ rsync -rlt --partial --info=progress2 -s --rsync-path='sudo rsync' \
 ACLs are deliberately not carried — Immich assigns ownership by account at import.
 `--partial` plus an idempotent re-run means an interrupted copy just resumes.
 
-Order: **C → A → B.** C first because it is the source for the Drive upload
-([02](02-seed-google-drive-offsite.md)), which can then run for days in parallel
-with the A and B pulls — the upload uses the uplink, the pulls use the LAN.
+Order: **C → A → B.** (C first was chosen to feed the Drive upload, now deferred.)
 
 ### Step 4 — Verify every copy (agent)
 
@@ -171,7 +181,7 @@ window would be in no copy. Immediately before the wipe:
    stay on the phones — don't free phone storage until Immich is live), and set
    every source share to read-only in DSM.
 2. **Agent:** regenerate the manifest, re-run step 3 into A, B and C (rsync only
-   moves the difference), re-run step 4, and push the delta to Drive ([02](02-seed-google-drive-offsite.md)).
+   moves the difference), re-run step 4. (No Drive delta — 02 is deferred.)
 
 [05](05-wipe-and-rebuild-nas.md) starts only from a freeze whose final delta has
 verified green — not from the first pass.
@@ -191,13 +201,13 @@ them go.
 - [ ] SSH key + `/etc/sudoers.d/evac` on the NAS; agent can `ssh -o BatchMode=yes alexandria sudo -n du -sh /volume1/*` without a prompt
 - [ ] Both USB HDDs emptied; **SMART long test passes on both**; A formatted ext4 (`evac-a`, guard script), B formatted NTFS in Windows (`evac-b`)
 - [ ] Inventory recorded below; every non-disposable path identified, including `photo`, every user under `homes`, and `#recycle`; total ≤ ~1.7 TB
-- [ ] SHA-256 manifest generated **on the NAS**, stored with every copy
-- [ ] Copy A: `sha256sum -c` clean, per-source file counts match
+- [x] SHA-256 manifest generated **on the NAS**, stored with every copy — 2026-10-04, 0 read errors; `~/evac-manifest.full.sha256` is the raw one
+- [x] Copy A: `sha256sum -c` clean, per-source file counts match — 2026-10-04, same 64,849 files as C; SMART long test still to run (deferred by choice)
 - [ ] Copy B: `sha256sum -c` clean, per-source file counts match, any `windows_names` rejects listed and resolved — then **unplugged, other room**
-- [ ] Copy C (`main-pc`): everything, `sha256sum -c` clean
+- [x] Copy C (`main-pc`): everything, `sha256sum -c` clean — 2026-10-04, 64,849 files. Manifest (64,877 on NAS) minus 25 suwayomi cache + 3 calibre qtshadercache files Walter can't read; both disposable
 - [ ] Random sample opened by a human: renders, umlauts intact, dates sane
 - [ ] Synology Photos albums worth keeping listed — or explicitly let go
-- [ ] **Freeze:** phone backup off, shares read-only; final delta to A/B/C/Drive verified green — *this box is ticked last, immediately before [05](05-wipe-and-rebuild-nas.md)*
+- [ ] **Freeze:** phone backup off, shares read-only; final delta to A/C (and B, if added) verified green — *this box is ticked last, immediately before [05](05-wipe-and-rebuild-nas.md)*
 
 ## Inventory
 

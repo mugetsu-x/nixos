@@ -1,5 +1,17 @@
 # 02 — Upload the evacuation to Google Drive, encrypted (before the wipe)
 
+> **⏸ Deferred 2026-10-04 — not part of this migration.** Which Google account
+> survives is undecided: the 5 TB lives on a personal `@gmail.com` account (created
+> because Health/Gemini don't work on the `pariggers.com` Workspace account), not on
+> Workspace as this ticket assumed. Rather than build on an account that may go
+> away, the migration proceeds with **copy A (USB HDD) + copy C (`main-pc`)** only,
+> and [05](05-wipe-and-rebuild-nas.md) no longer waits for this ticket. Nothing was
+> configured — no rclone remote, no OAuth client. Picked back up as a future
+> improvement in [TODO.md](../../../TODO.md). If revived on a personal account: the
+> OAuth consent screen can't be *Internal* (no organisation) — use *External*,
+> published to production (*Testing* expires the token after 7 days), and Vault
+> doesn't exist there.
+
 **What to build:** Copy D of [01](01-inventory-and-evacuate.md)'s evacuation living
 offsite in Google Drive, **client-side encrypted with `rclone crypt`**, uploaded
 from **copy C on `main-pc`** and verified **before** [05](05-wipe-and-rebuild-nas.md) touches the
@@ -56,7 +68,7 @@ Gmail.
 
 **Blocked by:** 01 (copy C exists and is verified).
 
-**Status:** ready-for-agent (after you've done the `rclone config`)
+**Status:** deferred — see banner
 
 - [ ] `gdrive:` + `evac:` remotes configured with a dedicated OAuth client ID
 - [ ] Crypt password + salt stored in the password manager **and printed**, before upload

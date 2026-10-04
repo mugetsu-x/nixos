@@ -6,9 +6,11 @@ layout, NFS exports, btrfs snapshots + scheduled scrub, and the Tailscale packag
 **Container Manager and Plex are not reinstalled.**
 
 **⚠️ This step is destructive and irreversible.** Do not start it until
-[01](01-inventory-and-evacuate.md) *and* [02](02-seed-google-drive-offsite.md) are
-both green — two verified USB copies, the `main-pc` copy **and** the encrypted
-offsite copy on Drive — **and 01's freeze + final delta has verified green.**
+[01](01-inventory-and-evacuate.md) is green — copy A (USB HDD) and copy C
+(`main-pc`) both verified against the NAS manifest — **and 01's freeze + final
+delta has verified green.** The offsite copy ([02](02-seed-google-drive-offsite.md))
+was deferred on 2026-10-04: during the wipe window both copies sit in one house,
+an accepted risk. Keep the WD unplugged and in another room once verified.
 
 **Why a wipe rather than the original online expansion:** the old plan added the 4 TB
 disk to the live RAID 5, an **online reshape running degraded for a day or more** on
@@ -36,11 +38,11 @@ containers now. Fit it anyway; it becomes btrfs/NFS page cache.
 that is what lets Radarr hardlink-import instead of full-copying. (Hardlinks work
 fine over NFS; what breaks them is separate mounts or mismatched container paths.)
 
-**Blocked by:** 01 (evacuation) **and** 02 (offsite upload). Hard gate, both.
+**Blocked by:** 01 (evacuation). Hard gate. (02 deferred — not a gate.)
 
 **Status:** ready-for-agent
 
-- [ ] Both prerequisites verified green, **including 01's freeze box** — four copies exist before a single byte is destroyed
+- [ ] 01 verified green, **including its freeze box** — copies A and C (B too, if added) exist before a single byte is destroyed
 - [ ] 4 GB SODIMM + IronWolf 4 TB fitted in one session; DSM memory test passes; Info Center reads ~6 GB
 - [ ] DSM reinstalled clean; **Container Manager and Plex absent**
 - [ ] Fresh **SHR-1** array across all 4 disks, ~6 TB usable, healthy
