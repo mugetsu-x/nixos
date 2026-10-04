@@ -186,25 +186,22 @@ Taken 2026-10-04 over SSH (`du -sh --exclude=@eaDir`, `find -type f | wc -l`).
 | `homes/Walter/Photos` | 134 G | | ✅ Synology Photos personal space |
 | `homes/Anja/Photos` | 278 G | | ✅ Synology Photos personal space |
 | `homes` total | 411 G | 57,065 | ✅ |
-| `Walter` | 410 G | 14,366 | ✅ — **379 G of it is `#recycle`** (`backup` 315 G, `pictures` 65 G) |
+| `Walter` | 32 G | | ✅ — its 379 G `#recycle` was emptied by Walter on 2026-10-04 |
 | `Anja` | 62 G | 5,342 | ✅ — 18 G `#recycle` |
 | `docker` | 271 M | 1,232 | ✅ (`alexandria/books` + config) |
 | `PlexMediaServer` | 471 G | | ❌ disposable |
 | `@docker`, `@appstore`, other `@*`, `*.core.gz` | ~53 G | | ❌ DSM system / crash dumps |
 | `@database` | 1.9 G | | ⬜ Synology Photos' DB — a raw copy of a live DB, only "just in case" for albums |
 
-**Irreplaceable total ≈ 883 G**, ~78k files — fits a 2 TB disk with room. File count
+**Irreplaceable total ≈ 541 G** (after the recycle-bin purge) — fits a 2 TB disk with room. File count
 is low enough that Drive's per-file rate limit is not a concern. For contrast, `@eaDir`
 holds **303,165** thumbnail files — 4× the real data, all excluded.
 
 **There is no `/volume1/photo` share** — the Synology Photos shared space was never
 used. Photos live in `homes/<user>/Photos` (plural).
 
-**Copy C plan:** 726 G free on `main-pc`, keep ≥100 G → ~620 G. Everything except
-`Walter/#recycle/backup` (315 G) is ~568 G and fits.
+**Copy C holds everything:** 541 G of 726 G free on `main-pc`, leaving ~185 G.
 
-**Open:** `Walter/#recycle/backup` (315 G) and `Walter/#recycle/pictures` (65 G) are
-in the recycle bin — Walter to decide whether they are deliberately deleted or
-still wanted. Default: take them (denylist).
+`Anja/#recycle` (18 G) is still there and is taken — it's Anja's to decide.
 
 _Decision detail: [05](../../issues/05-backup-topology.md#amendment--fourth-pass-2026-10-04)._
