@@ -32,17 +32,20 @@ itself**. This is the hard gate for the entire plan:
 | Copy | Medium | Contents | Role |
 |---|---|---|---|
 | **A** | USB HDD, 2 TB, **ext4**, label `evac-a` | everything irreplaceable | cold copy; source for the Drive upload ([02](02-seed-google-drive-offsite.md)) |
-| **B** | USB HDD, 2 TB, **ext4**, label `evac-b` | everything irreplaceable | cold copy, **unplugged and stored in another room** once verified |
+| **B** | USB HDD, 2 TB, **NTFS**, label `evac-b` | everything irreplaceable | cold copy, **unplugged and stored in another room** once verified |
 | **C** | `main-pc` NVMe, `~/evac/` (~726 GB free) | all photo sources; everything if it fits with ≥100 GB to spare | warm copy on a different medium (SSD, not USB HDD); fast source for [10](10-import-photos.md) |
 | **D** | Google Drive, `rclone crypt` | everything irreplaceable | offsite — [02](02-seed-google-drive-offsite.md) |
 
 Four copies on three media types, one offsite, before a byte is destroyed.
 
-**Why ext4 on the HDDs** (they are NTFS today): Linux's NTFS write path is the
-least battle-tested filesystem code that would touch this data, and ext4 has a
-real `fsck`. Cost: Windows can't read them without a driver. Both future readers
-(`main-pc`, `home-server`) are NixOS, and copy D is readable from anywhere with
-rclone. If Windows access matters more than that, keep NTFS and accept it.
+**A is ext4, B is NTFS — on purpose (decided 2026-10-04).** ext4 is Linux's native
+filesystem with a real `fsck`; NTFS keeps one copy readable by plugging it into any
+Windows machine. Different filesystems also means no single filesystem bug can
+reach both disks. B is written with **`ntfs-3g`** (mature FUSE driver), not the
+in-kernel `ntfs3`, and mounted with **`windows_names`**, so a filename Windows can't
+open (`: ? * " < > |`, trailing dot/space) fails loudly in rsync instead of landing
+as an unopenable file. Any such failures are listed and resolved by hand — they
+are still on A, C and D.
 
 ## Who does what
 
@@ -57,19 +60,22 @@ root, which are yours (marked **you**). Total hands-on time ≈ 30 min.
 2. **SSH key + temporary read-only sudo on the NAS**, so the agent can read every
    user's home without a password prompt:
    ```
-   ssh-copy-id Walter@alexandria
-   ssh -t Walter@alexandria
+   ssh-copy-id alexandria       # ~/.ssh/config: alexandria → 192.168.0.70:2288, user Walter
+   ssh alexandria
+   chmod 755 ~ && chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys   # DSM's loose home perms make sshd ignore the key
    sudo sh -c 'echo "Walter ALL=(root) NOPASSWD: /usr/bin/rsync, /usr/bin/sha256sum, /usr/bin/find, /usr/bin/du" > /etc/sudoers.d/evac && chmod 440 /etc/sudoers.d/evac'
    ```
    Harmless to leave: [05](05-wipe-and-rebuild-nas.md) wipes it with the rest of DSM.
 3. **Confirm both USB HDDs hold nothing you need**, then format them (destroys
    their contents):
    ```
-   sudo mkfs.ext4 -L evac-a /dev/sdX1     # disk A — check the device with lsblk first
-   sudo mkfs.ext4 -L evac-b /dev/sdY1     # disk B
+   sudo mkfs.ext4 -L evac-a -m 0 /dev/sdX1                      # disk A — check with lsblk first
+   nix shell nixpkgs#ntfs3g
+   sudo "$(command -v mkntfs)" -Q -L evac-b /dev/sdY1            # disk B
    ```
-   Mount with `udisksctl mount -b /dev/disk/by-label/evac-a` (no root needed), then
-   `sudo chown rennsemml: /run/media/rennsemml/evac-a` once per disk.
+   A: `udisksctl mount -b /dev/disk/by-label/evac-a`, then
+   `sudo chown rennsemml: /run/media/rennsemml/evac-a`.
+   B: `sudo mkdir -p /mnt/evac-b && sudo "$(command -v ntfs-3g)" -o windows_names,uid=1000,gid=100 /dev/disk/by-label/evac-b /mnt/evac-b`.
 4. **SMART long test on both USB HDDs** —
    `sudo nix run nixpkgs#smartmontools -- -t long -d sat /dev/sdX` (~4–5 h, both can
    run at once). For the wipe window they *are* the data; a disk with pending or
@@ -112,7 +118,7 @@ same three spindles.
 ```
 rsync -rlt --partial --info=progress2 -s --rsync-path='sudo rsync' \
   --exclude='@eaDir/' --exclude='#snapshot/' \
-  Walter@alexandria:/volume1/<source> /run/media/rennsemml/evac-a/
+  alexandria:/volume1/<source> /run/media/rennsemml/evac-a/     # B: /mnt/evac-b/
 ```
 
 `-t` keeps mtimes (Immich falls back to them when EXIF is missing). Ownership and
@@ -160,12 +166,12 @@ them go.
 **Status:** ready-for-agent (after step 0)
 
 - [ ] NAS data scrub clean; SMART quick test passes on all three NAS disks
-- [ ] SSH key + `/etc/sudoers.d/evac` on the NAS; agent can `ssh Walter@alexandria sudo du -sh /volume1/*` without a prompt
-- [ ] Both USB HDDs confirmed empty, formatted ext4 (`evac-a`, `evac-b`), **SMART long test passes on both**
+- [ ] SSH key + `/etc/sudoers.d/evac` on the NAS; agent can `ssh -o BatchMode=yes alexandria sudo -n du -sh /volume1/*` without a prompt
+- [ ] Both USB HDDs confirmed empty, formatted (`evac-a` ext4, `evac-b` NTFS via ntfs-3g), **SMART long test passes on both**
 - [ ] Inventory recorded below; every non-disposable path identified, including `photo`, every user under `homes`, and `#recycle`; total ≤ ~1.7 TB
 - [ ] SHA-256 manifest generated **on the NAS**, stored with every copy
 - [ ] Copy A: `sha256sum -c` clean, per-source file counts match
-- [ ] Copy B: `sha256sum -c` clean, per-source file counts match — then **unplugged, other room**
+- [ ] Copy B: `sha256sum -c` clean, per-source file counts match, any `windows_names` rejects listed and resolved — then **unplugged, other room**
 - [ ] Copy C (`main-pc`): all photo sources at minimum, `sha256sum -c` clean
 - [ ] Random sample opened by a human: renders, umlauts intact, dates sane
 - [ ] Synology Photos albums worth keeping listed — or explicitly let go
