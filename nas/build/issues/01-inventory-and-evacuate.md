@@ -194,7 +194,8 @@ Taken 2026-10-04 over SSH (`du -sh --exclude=@eaDir`, `find -type f | wc -l`).
 | `@database` | 1.9 G | | ⬜ Synology Photos' DB — a raw copy of a live DB, only "just in case" for albums |
 
 **Irreplaceable total ≈ 883 G**, ~78k files — fits a 2 TB disk with room. File count
-is low enough that Drive's per-file rate limit is not a concern.
+is low enough that Drive's per-file rate limit is not a concern. For contrast, `@eaDir`
+holds **303,165** thumbnail files — 4× the real data, all excluded.
 
 **There is no `/volume1/photo` share** — the Synology Photos shared space was never
 used. Photos live in `homes/<user>/Photos` (plural).
