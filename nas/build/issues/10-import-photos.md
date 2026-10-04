@@ -12,9 +12,9 @@ with the delete step being the risky part. Because the NAS was wiped
 stays untouched. **No reclaim step on real data at all.**
 
 **No extraction step.** 01 copies plain file trees (not archives), so the CLI reads
-the source directly. Preferred source: **copy C on `main-pc`'s NVMe** (`~/evac/`) —
-fast, and it keeps the USB disks cold. If a source didn't fit on C, read it from
-**HDD A**, mounted read-only (`mount -o ro`). HDD B is never connected for this.
+the source directly — from **copy C on `main-pc`'s NVMe** (`~/evac/`), which holds
+everything. Fast, and the USB disks stay cold. HDD A (mounted `-o ro`) is the
+fallback; HDD B is never connected for this.
 
 **Run the backlog with `main-pc`'s GPU if you set it up** in
 [09](09-deploy-immich.md) — this is the one job where the 3080 is worth its power

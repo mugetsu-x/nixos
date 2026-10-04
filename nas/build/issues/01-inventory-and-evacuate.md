@@ -145,7 +145,9 @@ rsync -rlt --partial --info=progress2 -s --rsync-path='sudo rsync' \
 ACLs are deliberately not carried — Immich assigns ownership by account at import.
 `--partial` plus an idempotent re-run means an interrupted copy just resumes.
 
-Order: **A → B → C**. C is photo sources first, then the rest while space allows.
+Order: **C → A → B.** C first because it is the source for the Drive upload
+([02](02-seed-google-drive-offsite.md)), which can then run for days in parallel
+with the A and B pulls — the upload uses the uplink, the pulls use the LAN.
 
 ### Step 4 — Verify every copy (agent)
 
