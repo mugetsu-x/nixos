@@ -249,3 +249,32 @@ The evacuation snapshot is taken from `main-pc`; the ongoing service runs on
 **host + paths**, so a differing hostname or mount path would silently place your
 first and most precious snapshot in a *separate retention lineage* from the policy
 meant to protect it. **Pin `--host` and use an identical mount path in both.**
+
+---
+
+## Amendment — third pass (2026-10-04)
+
+**The evacuation changed tools; the 3-2-1 design did not.** Walter runs the
+evacuation from the Windows machine with **TeraCopy** (verify on) and packs the
+result into **per-source 7-Zip archives** with a SHA-256 + MD5 manifest. The same
+archives go to **both USB HDDs and Google Drive**. Build detail:
+[01](../build/issues/01-inventory-and-evacuate.md),
+[02](../build/issues/02-seed-google-drive-offsite.md).
+
+What that changes:
+
+- **The evacuation is a one-off archive, not the first restic snapshot.** The
+  ongoing repos (USB on the ThinkBook + Drive) are initialised fresh in
+  [13](../build/issues/13-restic-321-service.md). §6 above — pinning `--host` and the
+  mount path so the first snapshot shares a lineage — **no longer applies**.
+- **"Two copies, two tools" is weaker.** Both USB copies are now the same archives
+  made by the same tool. The mitigation is verification instead of diversity:
+  `7z t` on every archive, the hash manifest checked on each disk and against
+  Drive's MD5s, and one archive extracted on Linux before the wipe.
+- **Two zip-specific risks are handled in 01:** Explorer's built-in zip can mangle
+  umlaut filenames (use 7-Zip), and one giant archive is one point of corruption
+  (one archive per source).
+- **Offsite encryption is now a decision, not a given.** restic encrypted by
+  default; plain zips don't. Recorded as a checkbox in 02.
+- **The archives are retired only after** both fresh restic repos pass a restore
+  drill — not when the import finishes.

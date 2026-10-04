@@ -27,8 +27,9 @@ in [ticket 08](nas/issues/08-media-relocation-and-plan-consolidation.md).
 IronWolf are in hand and get fitted during the rebuild. This replaces the old
 online-expansion phase 0 and removes the day-long degraded reshape.
 
-**Critical path:** evacuate the photos to USB → seed Google Drive (copy #3, before
-the wipe) → wipe. Nothing destructive starts until three copies exist. The usenet
+**Critical path:** evacuate everything from Windows (TeraCopy → 7-Zip archives,
+hash manifest) onto two USB HDDs → upload the same archives to Google Drive
+(copy #3, before the wipe) → wipe. Nothing destructive starts until three copies exist. The usenet
 accounts (Eweka + NZBGeek, need a card) block only the arr stack, and secrets
 (sops-nix) block the laptop host.
 

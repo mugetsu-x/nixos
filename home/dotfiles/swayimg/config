@@ -1,0 +1,40 @@
+# Swayimg — Catppuccin Macchiato, Blue accent.
+# Linked into ~/.config by home/modules/swayimg.nix. Only the keys that differ
+# from swayimg's compiled-in defaults are listed; the full annotated default set
+# lives at $(nix eval nixpkgs#swayimg)/share/swayimg/swayimgrc.
+# vim: filetype=dosini
+
+[viewer]
+# base. The alpha byte is mandatory — a 6-digit value is rejected.
+window = #24273aff
+# Checkerboard behind transparent PNGs; reads better than a flat fill.
+transparency = grid
+scale = optimal
+antialiasing = mks13
+
+[gallery]
+size = 200
+window = #24273aff
+# mantle tiles, surface0 for the selection, blue border as the accent.
+background = #1e2030ff
+select = #363a4fff
+border = #8aadf4ff
+shadow = #181926ff
+
+[list]
+order = alpha
+loop = yes
+# Open the whole directory even when a single file was passed, so arrowing
+# through a folder works after clicking one image in Dolphin.
+all = yes
+
+[font]
+name = JetBrainsMono Nerd Font Mono
+size = 12
+color = #cad3f5ff
+shadow = #181926d0
+background = #1e2030c0
+
+[info]
+# Metadata overlay off by default; `i` toggles it.
+show = no

@@ -12,7 +12,7 @@ Ordered execution tickets for the architecture in
 ## Dependency graph
 
 ```
-01 inventory + evacuate ──┬─> 02 seed Google Drive ──┬─> 05 wipe + rebuild NAS ──┐
+01 inventory + evacuate ──┬─> 02 upload to Drive ────┬─> 05 wipe + rebuild NAS ──┐
                           │                          │                            │
                           └──────────────────────────┴────> 10 import photos      │
                                                               ^                   │
@@ -36,8 +36,8 @@ Ordered execution tickets for the architecture in
 
 | # | Ticket | Blocked by |
 |---|---|---|
-| 01 | [Inventory `/volume1` + evacuate photos to USB](issues/01-inventory-and-evacuate.md) | — |
-| 02 | [Seed the Google Drive offsite copy](issues/02-seed-google-drive-offsite.md) | 01 |
+| 01 | [Inventory `/volume1` + evacuate to two USB HDDs (TeraCopy → 7-Zip)](issues/01-inventory-and-evacuate.md) | — |
+| 02 | [Upload the evacuation archives to Google Drive](issues/02-seed-google-drive-offsite.md) | 01 |
 | 03 | [Secrets management (sops-nix)](issues/03-secrets-management.md) | — |
 | 04 | [Sign up usenet: Eweka + NZBGeek](issues/04-usenet-signup.md) | — |
 | 05 | [**Wipe and rebuild the NAS** as pure SHR-1 storage](issues/05-wipe-and-rebuild-nas.md) | 01, 02 |
@@ -45,7 +45,7 @@ Ordered execution tickets for the architecture in
 | 07 | [Tailscale overlay](issues/07-tailscale-overlay.md) | 06 |
 | 08 | [Laptop GPU + NFS foundation](issues/08-gpu-nfs-foundation.md) | 06, 05 |
 | 09 | [Deploy Immich](issues/09-deploy-immich.md) | 08 |
-| 10 | [Import the photos from USB into Immich](issues/10-import-photos.md) | 09, 01 |
+| 10 | [Import the photos from the archives into Immich](issues/10-import-photos.md) | 09, 01 |
 | 11 | [Deploy SABnzbd + the arr stack](issues/11-arr-stack.md) | 08, 04 |
 | 12 | [Deploy Jellyfin + Jellyseerr](issues/12-jellyfin-jellyseerr.md) | 08 |
 | 13 | [restic 3-2-1 backup service](issues/13-restic-321-service.md) | 09, 06, 03 |
@@ -54,9 +54,9 @@ Ordered execution tickets for the architecture in
 ## Three things not to get wrong
 
 1. **Ticket 05 is irreversible.** It destroys the array. Do not start it until 01
-   *and* 02 are both green — two verified USB copies **and** the offsite seed. The
+   *and* 02 are both green — two verified USB copies **and** the offsite copy. The
    window between wipe and restore is the only time your photos live solely on
-   unplugged disks in one room; the Drive seed is what keeps you at three copies
+   unplugged disks in one room; the Drive upload is what keeps you at three copies
    through it.
 2. **The mount guard in 08/13.** restic snapshotting an unmounted mountpoint writes
    a near-empty snapshot, and the next `prune` ages out the real history. It is the

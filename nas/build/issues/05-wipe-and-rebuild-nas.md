@@ -7,7 +7,7 @@ layout, NFS exports, btrfs snapshots + scheduled scrub, and the Tailscale packag
 
 **⚠️ This step is destructive and irreversible.** Do not start it until
 [01](01-inventory-and-evacuate.md) *and* [02](02-seed-google-drive-offsite.md) are
-both green — two verified USB copies **and** the offsite seed. Not one of the three.
+both green — two verified USB copies **and** the offsite copy on Drive. Not one of the three.
 
 **Why a wipe rather than the original online expansion:** the old plan added the 4 TB
 disk to the live RAID 5, an **online reshape running degraded for a day or more** on
@@ -35,7 +35,7 @@ containers now. Fit it anyway; it becomes btrfs/NFS page cache.
 that is what lets Radarr hardlink-import instead of full-copying. (Hardlinks work
 fine over NFS; what breaks them is separate mounts or mismatched container paths.)
 
-**Blocked by:** 01 (evacuation) **and** 02 (offsite seed). Hard gate, both.
+**Blocked by:** 01 (evacuation) **and** 02 (offsite upload). Hard gate, both.
 
 **Status:** ready-for-agent
 

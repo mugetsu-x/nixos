@@ -196,3 +196,34 @@ free second M.2 slot from [01](01-thinkpad-unit-and-always-on.md).
 Also, **6 GB of VRAM is now shared with Jellyfin's NVENC transcodes.** Set
 `MACHINE_LEARNING_MODEL_TTL` so idle models unload, and expect GPU contention
 during the initial ML backlog run over the whole library.
+
+---
+
+## Amendment — third pass (2026-10-04)
+
+Placement stands. Three additions, from a review of what happens when the laptop
+is down:
+
+1. **`backups/` on NFS.** Immich writes a nightly Postgres dump into `backups/`
+   under the upload location. The DB lives on the laptop's NVMe and is the only
+   copy of albums, faces, names and edits; mapping `backups/` onto the NAS puts a
+   fresh dump on the array every night, independent of restic.
+2. **Storage template enabled before the first upload.** Originals then land in
+   readable `library/<user>/<year>/…` folders instead of UUID paths, so the NAS
+   copy is usable as plain photos if Immich is gone. Enabling it later forces a
+   migration job over every file.
+3. **Optional remote ML on `main-pc` (RTX 3080, 10 GB).** Immich ≥ v1.122 accepts a
+   list of ML URLs and falls back in order: PC first, laptop's 3060 second. Its
+   value is the initial backlog and model swaps; day-to-day load is trivial for the
+   3060. *Running Immich itself* on `main-pc`, powered on only for uploads, was
+   considered and rejected: phone backups are automatic and continuous (Anja's
+   would depend on Walter's PC being on), the laptop must run 24/7 anyway for
+   Jellyfin/arr/restic, and the desktop's idle draw is several times the laptop's.
+
+**Laptop down, consequences:** phones queue uploads and catch up later (don't free
+phone storage meanwhile); browsing, sharing, Jellyfin, downloads and backups stop,
+and the dead-man alerts fire. Nothing is lost: originals are on the NAS, the DB dump
+is in `backups/` on the NAS, and the host rebuilds from the flake.
+
+Also: the import source is now **01's 7-Zip archives**, extracted to a temporary
+scratch share on the fresh array — see [10](../build/issues/10-import-photos.md).

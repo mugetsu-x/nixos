@@ -47,13 +47,14 @@ home/
     claude.nix         symlinks claude/ (skills, settings, workspace rules) into place
     dev.nix            baseline dev toolchain (node, pnpm, tsc, psql, httpie)
     chrome.nix         google-chrome + Wayland .desktop override + default browser
+    swayimg.nix        image viewer + the image/* mime defaults (see below)
     theme.nix          GTK/Qt theming, cursor, qt6ct palette
     pwas.nix           Chrome --app= desktop entries (Teams, Outlook, Notion, ...)
     gaming.nix         mangohud, vulkan-tools (system half is modules/gaming.nix)
   lib/
     ts-packages.nix    the shared LSP/formatter list (Zed; see zed.nix)
   dotfiles/            raw config files, sourced verbatim by wayland.nix
-    hypr/ kitty/ mako/ waybar/ wofi/
+    hypr/ kitty/ mako/ waybar/ wofi/   (swayimg/ is linked by swayimg.nix)
 claude/                Claude Code config, symlinked live by home/modules/claude.nix
   skills/              user-level skills (grill-me + Matt Pocock's engineering set)
   settings.json        global Claude Code settings
@@ -227,6 +228,17 @@ resetting is free.
   `login` — greetd is what actually authenticates you). `kwalletd6` being present
   is a red herring: it does not claim the freedesktop name.
 - Zed's binary is **`zeditor`**, not `zed` (nixpkgs names it that way).
+- **Chrome wins any mime type nothing else claims.** It is the only installed
+  `.desktop` declaring `image/*`, `application/pdf` and friends, so a file type
+  with no explicit default in `xdg.mimeApps.defaultApplications` silently opens
+  in a browser tab. `swayimg.nix` exists partly to take `image/*` back. Check
+  with `xdg-mime query default image/png`, not by reading the .desktop files.
+- **imv is the wrong image viewer here.** nixpkgs builds it without freeimage,
+  and its other backends (libpng/libjpeg/libtiff/librsvg/libheif/libjxl/libnsgif)
+  cover neither **webp** nor **bmp** — so the most common browser-download format
+  simply fails to open. swayimg carries libwebp/libavif/libraw/openexr on top of
+  the same set. Verify a viewer's real coverage with `ldd`/`buildInputs`, not the
+  `MimeType=` line in its desktop entry: imv's advertises bmp it cannot decode.
 - **Hyprland keybind keys are XKB keysym names, and a bad one fails silently.**
   Hyprland registers the bind and shows it in `hyprctl binds`, but it can never
   fire — `ESC` is not a keysym (`Escape`/`escape` is), so `bind = SUPER, ESC`

@@ -129,9 +129,21 @@ Detail and the exact sequence: [`PLAN.md`](PLAN.md).
 
 Runs on `home-server`. **Originals on NAS/NFS** (storage-of-record); **Postgres +
 thumbnails + ML cache on local NVMe** (DB never on NFS). Managed library, one-time
-Immich-CLI import (hash-dedup) **from the USB evacuation copy** into a clean, empty
+Immich-CLI import (hash-dedup) **from the evacuation archives** into a clean, empty
 library. Two accounts (Walter admin + Anja) with partner sharing. ML on the **CUDA
 image** (`ViT-B-16-SigLIP2__webli` smart search, `buffalo_l` faces, concurrency ≈2).
+
+Three additions from the third pass (2026-10-04):
+
+- **Immich's `backups/` folder (its nightly DB dumps) on NFS.** Postgres lives on the
+  laptop; this puts a fresh copy of it on the array every night, so albums, faces
+  and edits survive the laptop dying.
+- **Storage template on from day one**, so originals on the NAS sit in readable
+  `library/<user>/<year>/…` folders and stay usable without Immich.
+- **Optional remote ML on `main-pc`'s RTX 3080.** Immich takes a list of ML URLs and
+  falls back in order — PC first, laptop second. Worth it for the initial backlog;
+  day-to-day load doesn't need it. Not wake-on-demand: the server stays on the
+  laptop.
 
 Two corrections from the second pass:
 
@@ -172,15 +184,21 @@ server-side snapshots provided. Saves ~€143/yr. Mandatory conditions:
   into the quota that also runs Gmail. This is the one failure mode Hetzner did
   not have.
 - Drive proper, **not** Google Photos — that API is no longer usable for this.
-- Seeding is capped at **750 GB/day per user**, so ~950 GB takes ≥2 days. Run it
-  before the wipe, unattended, off the critical path.
+- Uploads are capped at **750 GB/day per user**, so ~950 GB takes ≥2 days.
+
+**The evacuation is separate from this.** Before the wipe, everything is copied off
+the NAS from Windows with TeraCopy (verify on), packed into per-source 7-Zip
+archives, and put on **two USB HDDs + Google Drive**, all checked against one
+hash manifest. Those archives are a one-off; the restic repos above start fresh
+once `home-server` runs, and the archives are retired after both repos pass a
+restore drill.
 
 Retention 7d/8w/12m/5y, weekly prune. Monthly `restic check` + sample restore, one
 real offsite drill, keys stored **off** the laptop.
 
-**Backup scope is a denylist, not an allowlist.** The evacuation snapshot covers
-*everything* under `/volume1` except confirmed-disposable media. restic dedups and
-compresses, so over-including is nearly free — while an enumerated allowlist is
+**Backup scope is a denylist, not an allowlist.** The evacuation covers
+*everything* under `/volume1` except confirmed-disposable media. Over-including is
+cheap — while an enumerated allowlist is
 exactly how `/volume1/photo` came to be missing from every ticket.
 
 ## Remote access — Tailscale ([04](issues/04-remote-access-method.md))

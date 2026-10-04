@@ -80,7 +80,7 @@ RTX 3060 Laptop 6 GB, 32 GB DDR4, 1 TB NVMe, Wi-Fi + USB-C→RJ45 dongle.
   which point the wipe is both safer and strictly better. Reasoning and the SHR
   capacity table: [ARCHITECTURE.md](ARCHITECTURE.md) → *The NAS is rebuilt, not
   expanded*.
-- **Photos: Immich on the laptop**, importing from the USB evacuation copy into a
+- **Photos: Immich on the laptop**, importing from the evacuation archives into a
   clean empty library. Full plan: [ticket 06](issues/06-immich-placement-migration.md).
 
 ### Why QuickSync was not enough
@@ -206,12 +206,12 @@ Each step is a ticket in [`build/issues/`](build/issues/) with acceptance criter
 
 **Before anything touches the NAS**
 
-1. **Inventory + evacuate.** `du -sh /volume1/*`, then restic repo on USB #1 (that
-   repo *is* backup copy #2 later) plus an independent plain-file copy on USB #2,
-   both verified. SMART-check both drives first — for the duration of the wipe,
-   they *are* your data.
-2. **Seed Google Drive** from `main-pc`. ~950 GB at Drive's 750 GB/day cap is ≥2
-   days, unattended. **This is what keeps you at three copies during the wipe** —
+1. **Inventory + evacuate.** `du -sh /volume1/*`, then copy everything off from
+   Windows with TeraCopy (verify on), pack into per-source **7-Zip** archives,
+   hash-manifest them, and put them on **both USB HDDs**. SMART-check both drives
+   first — for the duration of the wipe, they *are* your data.
+2. **Upload the archives to Google Drive.** ~950 GB at Drive's 750 GB/day cap is ≥2
+   days, unattended; verify Drive's MD5s against the manifest. **This is what keeps you at three copies during the wipe** —
    otherwise the only copies are two USB drives in one room.
 3. **Secrets** (sops-nix) — gates the laptop host.
 4. **Usenet accounts** (Eweka + NZBGeek) — needs a card, can run in parallel.
@@ -230,7 +230,7 @@ Each step is a ticket in [`build/issues/`](build/issues/) with acceptance criter
 8. **GPU + NFS foundation** — `nvidia-container-toolkit`, `hard` mounts with
    `x-systemd.automount`, container ordering on the mount unit.
 9. **Immich** (oci-containers, CUDA image) — empty library on the right storage.
-10. **Import photos** from USB into Immich.
+10. **Import photos** from the archives into Immich (extracted to a scratch share).
 11. **arr stack + SABnzbd**, with the split `incomplete`/`complete` layout.
 12. **Jellyfin + Jellyseerr**, proven on test files first.
 13. **restic 3-2-1 service** — USB + Google Drive, with a mount guard.
@@ -242,7 +242,7 @@ Each step is a ticket in [`build/issues/`](build/issues/) with acceptance criter
 |---|---|---|
 | RAM ✅ in hand | Timetec DDR4-2666 4 GB SODIMM | 2 → 6 GB. Now optional; fit it anyway |
 | Disk ✅ in hand | Seagate IronWolf 4 TB `ST4000VNZ06` (CMR) | 4th bay. Pool → ~6 TB SHR-1 |
-| USB HDDs ✅ in hand | 2 × ≥2 TB, wipeable | Evacuation pair; one becomes backup copy #2 |
+| USB HDDs ✅ in hand | 2 × ≥2 TB, wipeable | Evacuation pair; one may become backup copy #2 once 13 is proven |
 | Usenet provider | Eweka, ~€7/mo | Needs a card |
 | Usenet indexer | NZBGeek, ~$20/yr | Needs a card |
 | **UPS for the NAS** ⬜ | small line-interactive | The durability layer is the one without power protection |
