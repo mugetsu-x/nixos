@@ -22,15 +22,15 @@ backups.** The guard rails go in here, before anything depends on them:
 
 **Blocked by:** 06 (home-server host), 05 (NAS NFS exports).
 
-**Status:** ready-for-agent
+**Status:** done 2026-10-05 (one item open: NVMe headroom is measured only when 09/11/12 land). Code: `modules/server/storage.nix` (mounts, podman, toolkit, `nas-mount-guard`). Mounts: `/data` and `/photos`, NFSv4.1 from the NAS LAN address 192.168.0.70 (not the tailnet name), identical paths in every container. A service orders itself with `unitConfig.RequiresMountsFor = [ "/data" ];`. restic (13) calls `nas-mount-guard /data /photos` first; it exits non-zero unless each path is a live nfs4 mount from the NAS.
 
-- [ ] `nvidia-container-toolkit` working; a CUDA container enumerates the 3060
-- [ ] oci-containers backend configured
-- [ ] NAS `data` + `photos` exports mounted, `hard` + `x-systemd.automount`
-- [ ] UID/permission mapping resolved — a container can read *and write* the export
-- [ ] Containers ordered on the mount unit; verified they don't start before it
-- [ ] **Hardlink proven across the mount:** `ln` a file from `usenet/complete` into `media/` and confirm the inode matches and no copy occurred
-- [ ] Mount-guard helper written and unit-tested against a deliberately unmounted path
+- [x] `nvidia-container-toolkit` working — `podman run --device nvidia.com/gpu=all ubuntu nvidia-smi -L` lists the RTX 3060; a CUDA container enumerates the 3060
+- [x] oci-containers (podman) backend configured
+- [x] NAS `data` + `photos` exports mounted, `hard` + `x-systemd.automount`
+- [x] UID/permission — writes land as 1024:100 via root and via container mapping resolved — a container can read *and write* the export
+- [x] Containers ordered — a unit with RequiresMountsFor pulled the stopped mount up before running on the mount unit; verified they don't start before it
+- [x] **Hardlink proven across the mount:** `ln` a file from `usenet/complete` into `media/` and confirm the inode matches and no copy occurred
+- [x] Mount-guard — passes on live mounts, fails on an unmounted /data, a local dir and a missing path helper written and unit-tested against a deliberately unmounted path
 - [ ] NVMe headroom checked against the projected load (Immich thumbs + DB + Jellyfin cache + SAB `incomplete/` ~160 GB transient)
 
 _Decision detail: [06](../../issues/06-immich-placement-migration.md), [08](../../issues/08-media-relocation-and-plan-consolidation.md#answer--second-pass-2026-07-26)._

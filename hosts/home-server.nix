@@ -10,6 +10,7 @@
     ../modules/server/networking.nix
     ../modules/server/nvidia.nix
     ../modules/server/secrets.nix
+    ../modules/server/storage.nix
     ../modules/server/tailscale.nix
   ];
 
