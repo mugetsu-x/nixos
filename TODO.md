@@ -35,8 +35,10 @@ final delta run, SMART long test on A passed — so the wipe (05) is unblocked.
 Usenet accounts (Eweka + NZBGeek) done 2026-10-05, credentials in
 `secrets/home-server.yaml`; secrets (sops-nix) done for main-pc. The
 `home-server` host (06) is **installed and running** 2026-10-05 (`home-server`,
-192.168.0.74, deployed from main-pc). Still to do: idle-draw measurement and
-thermals.
+192.168.0.74, deployed from main-pc). Still to do: idle-draw measurement (plug
+meter ordered 2026-10-05; measure as-is, then with runtime D3) and thermals.
+Tailscale (07) done for home-server 2026-10-05 (tailnet owned by
+walter@pariggers.com); the NAS joins after 05.
 
 **Renewals:** NZBGeek expires **2027-10-08**, Eweka (15-month plan) ~**2028-01-05**.
 Black Friday is the time to look at an NZBGeek lifetime deal and a block account
@@ -52,6 +54,12 @@ one-off evacuation upload ([ticket 02](nas/build/issues/02-seed-google-drive-off
 nor the Drive leg of the restic 3-2-1 ([ticket 13](nas/build/issues/13-restic-321-service.md)).
 Revisit once the account is settled; the alternative is a different offsite
 target (e.g. B2/Hetzner Storage Box) or a USB disk kept at someone else's house.
+
+**Half-settled 2026-10-05:** `walter@pariggers.com` is permanent (Walter: "100%
+not changing away"); the personal `@gmail.com` is the one that may go. So
+anything long-lived belongs to pariggers.com (Tailscale does, ticket 07), and the
+offsite copy should not land on the gmail account's 5 TB unless that account is
+explicitly kept.
 
 ## 2. E-book library and download flow
 

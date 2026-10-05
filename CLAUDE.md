@@ -44,7 +44,8 @@ modules/               system-level (NixOS options)
   gaming.nix           steam (+ GE-Proton), gamemode, gamescope
   secrets.nix          sops-nix: machine age key, declared secrets (see below)
   server/              home-server only: headless (sshd, no sleep), networking
-                       (Ethernet → Wi-Fi failover), nvidia (compute), secrets
+                       (Ethernet → Wi-Fi failover), nvidia (compute), secrets,
+                       tailscale (plain tailnet node, key from sops)
 home/
   rennsemml.nix        home-manager entrypoint: imports home/modules/
   modules/             user-level (home-manager options)

@@ -10,6 +10,7 @@
     ../modules/server/networking.nix
     ../modules/server/nvidia.nix
     ../modules/server/secrets.nix
+    ../modules/server/tailscale.nix
   ];
 
   networking.hostName = "home-server";
