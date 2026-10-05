@@ -9,3 +9,9 @@ creation_rules:
       - age:
           - *walter
           - *main-pc
+  # home-server doesn't exist yet: walter-only until 06 enrols the host key
+  # (ssh-to-age), then `sops updatekeys secrets/home-server.yaml`.
+  - path_regex: ^secrets/home-server\.yaml$
+    key_groups:
+      - age:
+          - *walter
