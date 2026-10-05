@@ -3,6 +3,20 @@
 Planned work on this config. Newest context at the top of each item so we do not
 have to rediscover it.
 
+## 0. Upgrade nixpkgs 25.05 → 25.11
+
+25.05 went end-of-life at the end of 2025 — no more security fixes — and
+upstreams are dropping it: sops-nix needs Go ≥ 1.25 since 2026-02-04, so it is
+pinned to the last compatible commit in `flake.nix` (added 2026-10-05, nas/03).
+Do this **before** nas/06 builds `home-server`, so the new host starts on 25.11.
+
+- Bump `nixpkgs` → `nixos-25.11`, `home-manager` → `release-25.11`.
+- Unpin `sops-nix` (back to plain `github:Mic92/sops-nix`).
+- Re-check whether `nixpkgs-unstable` is still needed for Zed.
+- Leave `system.stateVersion` / `home.stateVersion` at `25.05` (see CLAUDE.md).
+- Expect renamed/removed options; fix the eval warnings, then update CLAUDE.md's
+  channel line.
+
 ## 1. Home infrastructure — NAS + `home-server`
 
 Planned in detail, nothing executed yet. Architecture in

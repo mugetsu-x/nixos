@@ -21,6 +21,8 @@
     ripgrep
     fd
     jq
+    sops # edit secrets/*.yaml — see modules/secrets.nix
+    age
     lazygit
     lazydocker
     fastfetch

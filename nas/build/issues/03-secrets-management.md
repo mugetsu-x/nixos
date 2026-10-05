@@ -22,13 +22,13 @@ first. This was **not in the original plan at all** — the old tickets said
 
 **Blocked by:** None — can start immediately, in parallel with 01/02.
 
-**Status:** ready-for-agent
+**Status:** in progress — main-pc done 2026-10-05; open: key backup (Walter), CI on next push, home-server key (→ [06](06-home-server-host.md))
 
-- [ ] `sops-nix` added as a flake input; `.sops.yaml` defines the key set
-- [ ] age key for the user; host keys for `main-pc` and `home-server` enrolled
-- [ ] At least one secret round-trips: encrypted in git, decrypted at activation, readable only by its service user
-- [ ] `nix flake check --no-build` still passes in CI with encrypted files present
+- [x] `sops-nix` added as a flake input; `.sops.yaml` defines the key set — pinned to the last 25.05-compatible commit (see `flake.nix`, TODO §0)
+- [ ] age key for the user; host keys for `main-pc` and `home-server` enrolled — user + main-pc done (main-pc: dedicated age key, it has no sshd); home-server enrolled in [06](06-home-server-host.md)
+- [x] At least one secret round-trips: encrypted in git, decrypted at activation, readable only by its service user — `canary` → `/run/secrets/canary`, rennsemml 0400, ramfs
+- [ ] `nix flake check --no-build` still passes in CI with encrypted files present — passes locally; tick after the next push
 - [ ] Key backup stored **off** both machines (password manager + printed)
-- [ ] Documented in `CLAUDE.md` so future work doesn't hand-roll a second mechanism
+- [x] Documented in `CLAUDE.md` so future work doesn't hand-roll a second mechanism — "Secrets" section
 
 _Decision detail: [03](../../issues/03-keystone-server-or-not.md#amendment--second-pass-2026-07-26)._

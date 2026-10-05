@@ -1,0 +1,11 @@
+# Who can decrypt what. Public keys only — safe to commit.
+# After changing recipients: `sops updatekeys secrets/<file>.yaml`.
+keys:
+  - &walter age1dpr5yzhxghcr4s6gy5duls6sartslxemwp6j02s447pwuh3eqfuqh9yln6 # ~/.config/sops/age/keys.txt — backed up off-machine
+  - &main-pc age104je5mqhuclyrtept6axazul2ze6pxsg5ugf3h9tf63sevu3mqjs4qnps9 # /var/lib/sops-nix/key.txt
+creation_rules:
+  - path_regex: ^secrets/main-pc\.yaml$
+    key_groups:
+      - age:
+          - *walter
+          - *main-pc

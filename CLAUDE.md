@@ -33,6 +33,7 @@ modules/               system-level (NixOS options)
   common.nix           bootloader, networking, locale, audio, bluetooth, fonts, user
   login.nix            greetd + regreet greeter, UWSM-managed Hyprland session
   gaming.nix           steam (+ GE-Proton), gamemode, gamescope
+  secrets.nix          sops-nix: machine age key, declared secrets (see below)
 home/
   rennsemml.nix        home-manager entrypoint: imports home/modules/
   modules/             user-level (home-manager options)
@@ -59,6 +60,8 @@ claude/                Claude Code config, symlinked live by home/modules/claude
   skills/              user-level skills (grill-me + Matt Pocock's engineering set)
   settings.json        global Claude Code settings
   workspace-CLAUDE.md  house rules for every project under ~/workspace
+.sops.yaml             sops recipients (public age keys) per secrets file
+secrets/               sops-encrypted YAML — ciphertext only, safe in a public repo
 templates/nextjs/      `nix flake init -t ~/nixos-config#nextjs` — project scaffold
 keyboards/             QMK keymap backups — not applied by Nix, see below
 ```
@@ -75,6 +78,9 @@ keyboards/             QMK keymap backups — not applied by Nix, see below
   (`services.foo.enable`) over `exec-once` in `hyprland.conf` or a hand-written
   `systemd.user.services` block. See below.
 - **Shell alias** → `shellAliases` in `home/modules/shell.nix`.
+- **Password, token, API key** → `sops secrets/main-pc.yaml`, then declare it as
+  `sops.secrets.<name>` and point the service at `config.sops.secrets.<name>.path`.
+  **Never** a literal in a `.nix` file — the repo is public. See "Secrets" below.
 - **Claude Code skill / settings / workspace rules** → edit the file in
   `claude/` directly. It is symlinked live into `~/.claude` and `~/workspace`
   (see `home/modules/claude.nix`), so changes are picked up with no rebuild.
@@ -176,6 +182,30 @@ one, and `nix flake init` refuses to overwrite an existing file.
 
 `docker compose down -v` wipes the database. The volume is project-scoped, so
 resetting is free.
+
+## Secrets
+
+sops-nix. Secrets are encrypted in `secrets/*.yaml`, decrypted at activation into
+`/run/secrets/<name>` (ramfs — never on disk, never in the Nix store).
+`.sops.yaml` lists who can decrypt each file:
+
+- **Walter's personal age key**, `~/.config/sops/age/keys.txt` — the master key:
+  editing secrets, and re-encrypting for a new or rebuilt machine. **Must** be
+  backed up off both machines (password manager + paper). Lose it *and* every machine key and
+  the secrets are gone — regenerable, except the restic password, which therefore
+  also lives in the password manager.
+- **main-pc's machine key**, `/var/lib/sops-nix/key.txt` (root-only). main-pc has
+  no sshd and so no SSH host key; this is a plain age key. It was created by hand:
+  sops-nix's `generateKey` only runs once at least one secret is declared, so on
+  a fresh install the first rebuild does it, but not on a config with zero secrets.
+- **home-server** (nas/06) will use its SSH host key, converted with `ssh-to-age`.
+
+Edit: `sops secrets/main-pc.yaml`. New recipient: add it to `.sops.yaml`, then
+`sops updatekeys secrets/<file>.yaml`. Smoke test after any key change:
+`cat /run/secrets/canary` (readable by rennsemml only).
+
+**sops-nix is pinned** to a Feb-2026 commit: upstream dropped 25.05 (its Go helper
+needs Go ≥ 1.25; 25.05 has 1.24). Unpin with the 25.11 upgrade (TODO.md §0).
 
 ## Non-obvious bits
 

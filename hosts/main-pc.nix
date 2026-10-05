@@ -14,6 +14,7 @@
     ../modules/gaming.nix
     ../modules/nix-tools.nix
     ../modules/keyring.nix
+    ../modules/secrets.nix
   ];
   services.printing.enable = true;
 
