@@ -140,7 +140,7 @@ in
             ];
             format_on_save = "on";
             formatter.external = {
-              command = "${pkgs.nixfmt-rfc-style}/bin/nixfmt";
+              command = "${pkgs.nixfmt}/bin/nixfmt";
               arguments = [ ];
             };
           };

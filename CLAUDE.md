@@ -18,7 +18,7 @@ nixhome   # alias for: cd ~/nixos-config
 
 Both aliases are defined in `home/modules/shell.nix`, not in a shell rc file.
 
-Channel: nixpkgs `nixos-25.05`, home-manager `release-25.05` (pinned to follow
+Channel: nixpkgs `nixos-26.05`, home-manager `release-26.05` (pinned to follow
 nixpkgs). `system.stateVersion` and `home.stateVersion` are both `25.05` — do not
 bump these to "update"; they are compatibility markers.
 
@@ -107,7 +107,7 @@ keyboards/             QMK keymap backups — not applied by Nix, see below
   and a Markdown editor, nothing more. All plugins come from `pkgs.vimPlugins`
   and Treesitter grammars are compiled by Nix, so there is no lazy.nvim, no Mason,
   and no lock file. Its one LSP is `marksman` for Markdown; completion is on
-  demand (`<C-x><C-o>`), never as-you-type. Config is a single `extraLuaConfig`
+  demand (`<C-x><C-o>`), never as-you-type. Config is a single `initLua`
   in `neovim.nix`.
 - Theming is Catppuccin **Macchiato, Blue accent**, dark. Palette hexes are
   duplicated in `theme.nix` (Qt colors), `shell.nix` (starship), and the waybar/
@@ -205,9 +205,6 @@ sops-nix. Secrets are encrypted in `secrets/*.yaml`, decrypted at activation int
 Edit: `sops secrets/main-pc.yaml`. New recipient: add it to `.sops.yaml`, then
 `sops updatekeys secrets/<file>.yaml`. Smoke test after any key change:
 `cat /run/secrets/canary` (readable by rennsemml only).
-
-**sops-nix is pinned** to a Feb-2026 commit: upstream dropped 25.05 (its Go helper
-needs Go ≥ 1.25; 25.05 has 1.24). Unpin with the 25.11 upgrade (TODO.md §0).
 
 ## Non-obvious bits
 

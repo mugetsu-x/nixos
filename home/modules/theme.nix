@@ -2,7 +2,11 @@
   fonts.fontconfig.enable = true;
 
   # Only essentials here; avoid adding papirus-icon-theme to prevent collisions.
-  home.packages = with pkgs; [ jetbrains-mono noto-fonts-emoji qt6ct ];
+  home.packages = with pkgs; [
+    jetbrains-mono
+    noto-fonts-color-emoji
+    qt6Packages.qt6ct
+  ];
 
   # Make Qt apps honor qt6ct (no Kvantum)
   home.sessionVariables = {
@@ -23,6 +27,8 @@
 
   gtk = {
     enable = true;
+    # 26.05 stopped applying gtk.theme to GTK4 apps by default; keep them Catppuccin.
+    gtk4.theme = config.gtk.theme;
 
     font = {
       name = "JetBrains Mono";

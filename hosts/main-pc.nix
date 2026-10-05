@@ -62,7 +62,7 @@
 
   # --- CLAUDE CODE INSTALLATION ---
   # Pull the package directly from the flake input
-  environment.systemPackages = [ nix-claude-code.packages.${pkgs.system}.default ];
+  environment.systemPackages = [ nix-claude-code.packages.${pkgs.stdenv.hostPlatform.system}.default ];
 
   # Home Manager user config
   home-manager.users.rennsemml = import ../home/rennsemml.nix;

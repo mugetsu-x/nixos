@@ -51,7 +51,11 @@ in
       nvim-lspconfig # wires up marksman
     ];
 
-    extraLuaConfig = ''
+    # No plugin here needs a Ruby or Python host.
+    withRuby = false;
+    withPython3 = false;
+
+    initLua = ''
       -- ── Options ───────────────────────────────────────────────────────────
       local opt = vim.opt
       opt.number = true

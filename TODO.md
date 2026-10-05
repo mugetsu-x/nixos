@@ -3,19 +3,17 @@
 Planned work on this config. Newest context at the top of each item so we do not
 have to rediscover it.
 
-## 0. Upgrade nixpkgs 25.05 → 25.11
+## 0. In flight (2026-10-05) — remove once verified
 
-25.05 went end-of-life at the end of 2025 — no more security fixes — and
-upstreams are dropping it: sops-nix needs Go ≥ 1.25 since 2026-02-04, so it is
-pinned to the last compatible commit in `flake.nix` (added 2026-10-05, nas/03).
-Do this **before** nas/06 builds `home-server`, so the new host starts on 25.11.
-
-- Bump `nixpkgs` → `nixos-25.11`, `home-manager` → `release-25.11`.
-- Unpin `sops-nix` (back to plain `github:Mic92/sops-nix`).
-- Re-check whether `nixpkgs-unstable` is still needed for Zed.
-- Leave `system.stateVersion` / `home.stateVersion` at `25.05` (see CLAUDE.md).
-- Expect renamed/removed options; fix the eval warnings, then update CLAUDE.md's
-  channel line.
+- **26.05 upgrade committed but not yet booted.** Run
+  `sudo nixos-rebuild boot --flake ~/nixos-config#main-pc && reboot` (not `switch`:
+  kernel 6.12→6.18, NVIDIA 570→595). Check: wallpaper on DP-2 (hyprpaper.conf
+  rewritten for 0.8), pavucontrol/swayimg float, swayimg 1600x900 centred,
+  `Alt+'` toggles split, no Hyprland error bar, hyprlock looks right. Broken →
+  previous generation from the boot menu, fix, retry. Then push.
+- **SMART long test on evac-a (WD)** — wait for it before rebooting (a reboot
+  aborts it). Result `sudo smartctl -d sat -a /dev/sda` → check against nas/01
+  step 0.4 criteria, record in nas/01, then the WD goes to another room.
 
 ## 1. Home infrastructure — NAS + `home-server`
 

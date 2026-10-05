@@ -17,7 +17,10 @@
   };
 
   programs.btop.enable = true;
-  programs.yazi.enable = true;
+  programs.yazi = {
+    enable = true;
+    shellWrapperName = "yy"; # 26.05 default is "y"; kept for muscle memory
+  };
 
   # Per-project dev shells that activate on cd. nix-direnv adds caching, so a
   # shell.nix / flake.nix does not get re-evaluated on every directory change.
@@ -28,7 +31,7 @@
   };
 
   home.packages = with pkgs; [
-    du-dust # `dust` — disk usage, largest first
+    dust # disk usage, largest first
     playerctl # drives the media keys bound in hyprland.conf
   ];
 }

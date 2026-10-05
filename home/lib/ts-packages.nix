@@ -21,7 +21,7 @@ pkgs: with pkgs; [
 
   # Nix
   nixd # language server
-  nixfmt-rfc-style # the "nixfmt" binary — repo formatter, see CLAUDE.md
+  nixfmt # the "nixfmt" binary (RFC style; was nixfmt-rfc-style) — repo formatter, see CLAUDE.md
 
   # Markdown
   marksman
