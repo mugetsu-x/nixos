@@ -11,9 +11,6 @@ have to rediscover it.
   rewritten for 0.8), pavucontrol/swayimg float, swayimg 1600x900 centred,
   `Alt+'` toggles split, no Hyprland error bar, hyprlock looks right. Broken →
   previous generation from the boot menu, fix, retry. Then push.
-- **SMART long test on evac-a (WD)** — wait for it before rebooting (a reboot
-  aborts it). Result `sudo smartctl -d sat -a /dev/sda` → check against nas/01
-  step 0.4 criteria, record in nas/01, then the WD goes to another room.
 
 ## 1. Home infrastructure — NAS + `home-server`
 

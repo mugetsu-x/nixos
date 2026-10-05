@@ -195,7 +195,7 @@ them go.
 
 **Blocked by:** None — start here.
 
-**Status:** done 2026-10-05 — 05 unblocked. B was never used (optional). Open tail: SMART long test on A (running), then the WD goes to another room.
+**Status:** done 2026-10-05 — 05 unblocked. B was never used (optional). SMART long test on A passed 2026-10-05 (retry, completed without error — Walter); the WD goes to another room.
 
 - [x] NAS data scrub clean; SMART quick test passes on all three NAS disks — 2026-10-04
 - [ ] SSH key + `/etc/sudoers.d/evac` on the NAS; agent can `ssh -o BatchMode=yes alexandria sudo -n du -sh /volume1/*` without a prompt
