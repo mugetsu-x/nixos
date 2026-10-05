@@ -195,7 +195,7 @@ them go.
 
 **Blocked by:** None — start here.
 
-**Status:** ready-for-agent (after step 0)
+**Status:** done 2026-10-05 — 05 unblocked. B was never used (optional). Open tail: SMART long test on A (running), then the WD goes to another room.
 
 - [x] NAS data scrub clean; SMART quick test passes on all three NAS disks — 2026-10-04
 - [ ] SSH key + `/etc/sudoers.d/evac` on the NAS; agent can `ssh -o BatchMode=yes alexandria sudo -n du -sh /volume1/*` without a prompt
@@ -205,9 +205,9 @@ them go.
 - [x] Copy A: `sha256sum -c` clean, per-source file counts match — 2026-10-04, same 64,849 files as C; SMART long test still to run (deferred by choice)
 - [ ] Copy B: `sha256sum -c` clean, per-source file counts match, any `windows_names` rejects listed and resolved — then **unplugged, other room**
 - [x] Copy C (`main-pc`): everything, `sha256sum -c` clean — 2026-10-04, 64,849 files. Manifest (64,877 on NAS) minus 25 suwayomi cache + 3 calibre qtshadercache files Walter can't read; both disposable
-- [ ] Random sample opened by a human: renders, umlauts intact, dates sane
-- [ ] Synology Photos albums worth keeping listed — or explicitly let go
-- [ ] **Freeze:** phone backup off, shares read-only; final delta to A/C (and B, if added) verified green — *this box is ticked last, immediately before [05](05-wipe-and-rebuild-nas.md)*
+- [x] Random sample opened by a human: renders, umlauts intact, dates sane — Walter, 2026-10-05
+- [x] Synology Photos albums worth keeping listed — or explicitly let go — Walter, 2026-10-05
+- [x] **Freeze:** phone backup off, shares read-only; final delta to A/C (and B, if added) verified green — *this box is ticked last, immediately before [05](05-wipe-and-rebuild-nas.md)* — 2026-10-05: C fully re-verified; A got the delta but no full re-hash (Walter's call — A was verified clean on 10-04 and no NAS content changed since)
 
 ## Progress log
 
@@ -228,8 +228,26 @@ filenames, umlaut paths intact).
   the WD's USB bridge resetting when idle. Retry: unmount `evac-a` (stay powered —
   no `power-off`), `smartctl -d sat -t long /dev/sda`, keep a loop querying
   `smartctl -c` every 120 s so the bridge stays awake; result into `~/smart-wd.txt`.
-- **Human spot check** of ~20 photos/videos from C — Walter, in progress.
-- Albums list, freeze + final delta, then WD into another room.
+- ~~Human spot check~~, ~~albums~~ — done by Walter 2026-10-05.
+
+**2026-10-05.** Freeze done by Walter (phone backup off, shares read-only).
+SMART long-test retry on A running (Walter). Final delta: manifest regenerated on the
+NAS as `/tmp/evac-manifest2.sha256`; delta into C pulled — 4 new files from Anja's
+Pixel 7a (`DCIM/Camera/2026/10/…` ×3, `WhatsApp/2026/10/…` ×1), log
+`~/evac-c-delta.log`. A's delta waits for its SMART test to finish.
+
+Freeze manifest finished 10:03, 0 read errors: **64,834** files (`~/evac-manifest2.full.sha256`;
+filtered as before → `~/evac-manifest2.sha256`, 64,806). Against the first manifest:
+5 new (above, plus `WhatsApp Images/2026/10/IMG_20261004_163036.jpg`, already in C), **no
+content changes**, and **48 files gone** — all Anja's Pixel 7a, Jul–Sep 2026
+(`DCIM/Camera`, `Screenshots`, `WhatsApp Images`), not moved anywhere on the NAS, so
+deleted outright — by Anja, on purpose (Walter, 2026-10-05). All 48 are still in C and A (rsync never deletes); harmless leftovers. C verified
+against the freeze manifest: `sha256sum -c` clean, per-source counts match
+(`homes` has the 48 extras). Log `~/evac-c-delta-verify.log`; both manifests copied into `~/evac/`.
+
+A: same 4-file delta pulled (`~/evac-a-delta.log`), both manifests copied to its root.
+The full re-hash of A was stopped by Walter's call — the 4 new files are not worth a
+541 G read; A's first-pass verification stands. **01 closed; 05 unblocked.**
 
 ## Inventory
 
