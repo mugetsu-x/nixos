@@ -5,7 +5,7 @@ have to rediscover it.
 
 ## 1. Home infrastructure — NAS + `home-server`
 
-Planned in detail, nothing executed yet. Architecture in
+Underway since 2026-10-05; current state and handoff below. Architecture in
 [nas/ARCHITECTURE.md](nas/ARCHITECTURE.md), build detail in
 [nas/PLAN.md](nas/PLAN.md), ordered queue in [nas/build/](nas/build/README.md) —
 read those, not this summary.
@@ -42,8 +42,8 @@ walter@pariggers.com); the NAS joined 2026-10-05, key expiry off on both — 07'
 off-LAN and laptop-down checks remain. **NAS rebuilt (05) 2026-10-05:** DSM
 7.4.1, SHR-1 over all four disks (5.3 TiB), `data` + `photos` exported to
 home-server with squash "Map all users to admin" (write + hardlink tested from
-home-server). Left in 05: initial resync → *Healthy*, the deferred memory test
-(must pass before 10), and reserving home-server's addresses on the A1 router.
+home-server). Resync is *Healthy* and home-server's addresses are bound on the
+router; left in 05: the memory test, running since 2026-10-05 (must pass before 10).
 **08 (GPU + NFS), 11 (arr stack) and 12 (Jellyfin + Jellyseerr) done 2026-10-05; 09 (Immich) is next.**
 
 **Handoff, end of 2026-10-05 session.** Running on home-server now: Jellyfin
@@ -55,16 +55,16 @@ film (Obsession 2026) went request → download → import → Jellyfin.
 - **Next: 09 Immich** (CUDA on the 3060, Postgres + thumbnails on NVMe, originals on
   `/photos`). Order its units on `RequiresMountsFor = [ "/photos" ]`. Hold **10**
   (import) until the NAS memory test passes.
-- **Still waiting on Walter:** NAS resync → *Healthy*, the `memtester` run (gate for
-  10), the plug-meter reading, a day of uptime for 06 (server rebooted 2026-10-05
-  ~21:15). Then 13 (restic, must call `nas-mount-guard /data /photos`) and 14.
+- **Still waiting on Walter:** the `memtester` result (running; gate for 10), the
+  plug-meter reading, a day of uptime for 06 (server rebooted 2026-10-05 ~21:15),
+  and 07's home-server-down check (postponed; do it after the uptime tick, since
+  it resets the clock). Then 13 (restic, must call `nas-mount-guard /data /photos`) and 14.
 - **Gotchas learned.** SABnzbd's in-app Restart does not survive in a container:
   `systemctl restart podman-sabnzbd`. A release with a foreign title (e.g.
   "Saplanti") ends as `importBlocked`: Radarr → Activity → Queue → manual import.
   Usenet imports are a rename inside one export, not a hardlink. Arr/SAB settings
   live in `/var/lib/<app>` (backup scope for 13), not in Nix. API keys are in each
   app's `config.xml`; none are in the repo.
-- Four local commits were unpushed at the time of writing.
 
 **Renewals:** NZBGeek expires **2027-10-08**, Eweka (15-month plan) ~**2028-01-05**.
 Black Friday is the time to look at an NZBGeek lifetime deal and a block account

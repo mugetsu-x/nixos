@@ -190,6 +190,6 @@ Do this at the laptop. Steps 6–9 can run from main-pc once SSH works.
 - [x] Deploy mechanism chosen and documented. Push from main-pc, see above
 - [ ] **Real idle draw measured** (plan assumed ~20 W; expect 25–40 W with the dGPU present)
 - [x] Battery charge-cap availability confirmed either way. Yes, `conservation_mode`, set by udev
-- [ ] Thermals sane in its final location — 45 W CPU + dGPU in a closed cupboard needs airflow
+- [ ] Thermals sane in its final location — 45 W CPU + dGPU in a closed cupboard needs airflow — baseline 2026-10-05 22:53 (idle, on the desk, 1.5 h up): CPU Tctl 41 °C, iGPU edge 41 °C, NVMe 31 °C, 3060 37 °C. Re-read in the cupboard and compare (`ssh root@home-server 'sensors; nvidia-smi'`). **Side finding for the idle-draw item:** the 3060 sits in **P0 with runtime PM `active`** (`/sys/bus/pci/devices/0000:01:00.0/power/runtime_status`), ~19 W by `nvidia-smi -q -d POWER`, persistence mode off — it is not reaching D3 at idle and alone uses most of the plan's 20 W. (The plain `--query-gpu=power.draw` read 752 W: bogus, ignore it.)
 
 _Decision detail: [03](../../issues/03-keystone-server-or-not.md), [01](../../issues/01-thinkpad-unit-and-always-on.md), [research](../../research/thinkpad-p16g2-home-server.md)._
