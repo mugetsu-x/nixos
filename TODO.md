@@ -46,6 +46,26 @@ home-server). Left in 05: initial resync → *Healthy*, the deferred memory test
 (must pass before 10), and reserving home-server's addresses on the A1 router.
 **08 (GPU + NFS), 11 (arr stack) and 12 (Jellyfin + Jellyseerr) done 2026-10-05; 09 (Immich) is next.**
 
+**Handoff, end of 2026-10-05 session.** Running on home-server now: Jellyfin
+(`:8096`), Jellyseerr (`:5055`), Radarr (`:7878`), Sonarr (`:8989`), Prowlarr
+(`:9696`), SABnzbd (`:8080`); mounts `/data` + `/photos` from the NAS
+(192.168.0.70) with `nas-mount-guard`; podman + GPU toolkit. Code is in
+`modules/server/{storage,media,arr}.nix`. Tickets 08, 11, 12 are done; one real
+film (Obsession 2026) went request → download → import → Jellyfin.
+- **Next: 09 Immich** (CUDA on the 3060, Postgres + thumbnails on NVMe, originals on
+  `/photos`). Order its units on `RequiresMountsFor = [ "/photos" ]`. Hold **10**
+  (import) until the NAS memory test passes.
+- **Still waiting on Walter:** NAS resync → *Healthy*, the `memtester` run (gate for
+  10), the plug-meter reading, a day of uptime for 06 (server rebooted 2026-10-05
+  ~21:15). Then 13 (restic, must call `nas-mount-guard /data /photos`) and 14.
+- **Gotchas learned.** SABnzbd's in-app Restart does not survive in a container:
+  `systemctl restart podman-sabnzbd`. A release with a foreign title (e.g.
+  "Saplanti") ends as `importBlocked`: Radarr → Activity → Queue → manual import.
+  Usenet imports are a rename inside one export, not a hardlink. Arr/SAB settings
+  live in `/var/lib/<app>` (backup scope for 13), not in Nix. API keys are in each
+  app's `config.xml`; none are in the repo.
+- Four local commits were unpushed at the time of writing.
+
 **Renewals:** NZBGeek expires **2027-10-08**, Eweka (15-month plan) ~**2028-01-05**.
 Black Friday is the time to look at an NZBGeek lifetime deal and a block account
 on a second backbone (not Omicron) for missing articles — see nas/build 04.
