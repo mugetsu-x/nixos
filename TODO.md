@@ -44,7 +44,7 @@ off-LAN and laptop-down checks remain. **NAS rebuilt (05) 2026-10-05:** DSM
 home-server with squash "Map all users to admin" (write + hardlink tested from
 home-server). Left in 05: initial resync → *Healthy*, the deferred memory test
 (must pass before 10), and reserving home-server's addresses on the A1 router.
-**08 (GPU + NFS foundation) done 2026-10-05; 09, 11 and 12 are unblocked.**
+**08 (GPU + NFS) done 2026-10-05; 11 (arr stack) and 12 (Jellyfin) running, only 09 (Immich) and the Jellyseerr link remain.**
 
 **Renewals:** NZBGeek expires **2027-10-08**, Eweka (15-month plan) ~**2028-01-05**.
 Black Friday is the time to look at an NZBGeek lifetime deal and a block account

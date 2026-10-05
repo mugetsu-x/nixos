@@ -35,15 +35,15 @@ Credentials from sops-nix ([03](03-secrets-management.md), [04](04-usenet-signup
 
 **Blocked by:** 08 (GPU + NFS foundation), 04 (usenet accounts).
 
-**Status:** ready-for-agent
+**Status:** running 2026-10-05, one open item (UI logins). Code: `modules/server/arr.nix` (linuxserver images pinned, host networking, PUID/PGID 1024:100, ports SAB 8080, Prowlarr 9696, Radarr 7878, Sonarr 8989). **Provisioned over the apps' APIs, not declaratively:** the settings (SAB server + categories + dirs, root folders, download clients, the `1080p + 4K` profile, the NZBgeek indexer and the Prowlarr→Radarr/Sonarr links) live in each app's config under `/var/lib/<app>`, which is therefore backup scope for 13 (with `/var/lib/jellyfin` and `/var/lib/jellyseerr`). Credentials were read from `/run/secrets` at setup time. **Usenet imports are a rename, not a hardlink** (hardlinks are for torrents that keep seeding): a same-export `mv` keeps the inode and takes 5 ms for 200 MB, so there is no copy fallback. Test grab: Tears of Steel (CC-BY), 108 MB, imported by Radarr as `Tears of Steel (2012)/…mp4`.
 
-- [ ] All four containers running on `home-server` from in-flake definitions
-- [ ] `incomplete/` on NVMe, `complete/` on NFS beside `media/`
-- [ ] Identical paths inside every container
-- [ ] **A real test grab downloads, hardlink-imports, and lands correctly named — verified by inode, confirming no full-copy fallback**
-- [ ] Custom quality profiles on both: 1080p allowed, 2160p cutoff
-- [ ] Prowlarr feeding NZBGeek to both Radarr and Sonarr
-- [ ] Usenet credentials sourced from sops-nix, not stored in container config
-- [ ] arr databases identified as backup scope for [13](13-restic-321-service.md)
+- [x] All four containers running on `home-server` from in-flake definitions
+- [x] `incomplete/` (`/config/Downloads/incomplete`, i.e. `/var/lib/sabnzbd`) on NVMe, `complete/` on NFS beside `media/`
+- [x] Identical paths inside every container
+- [x] **A real test grab — rename not hardlink for usenet, see Status downloads, hardlink-imports, and lands correctly named — verified by inode, confirming no full-copy fallback**
+- [x] Custom quality — Radarr and Sonarr, profile id 7, cutoff WEB 2160p, upgrades on profiles on both: 1080p allowed, 2160p cutoff
+- [x] Prowlarr feeding NZBGeek to both Radarr and Sonarr
+- [x] Usenet credentials sourced from sops-nix, not stored in container config
+- [x] arr databases identified as backup scope for [13](13-restic-321-service.md)
 
 _Decision detail: [08](../../issues/08-media-relocation-and-plan-consolidation.md#answer--second-pass-2026-07-26)._
