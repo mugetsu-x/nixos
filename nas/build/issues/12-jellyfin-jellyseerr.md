@@ -30,15 +30,15 @@ what keeps it manageable.
 **Blocked by:** 08 (GPU + NFS foundation). The Jellyseerr request-flow criterion also
 needs 11.
 
-**Status:** running 2026-10-05; Jellyseerr request flow waits on 11. Code: `modules/server/media.nix` (Jellyfin 10.11.0 + Jellyseerr 2.7.3, host networking, config on NVMe, ports 8096/5055). Remove `media/movies/_jellyfin-test/` once proven.
+**Status:** done 2026-10-05. Code: `modules/server/media.nix` (Jellyfin 10.11.0 + Jellyseerr 2.7.3, host networking, config on NVMe, ports 8096/5055).
 
 - [x] Jellyfin serving `/mnt/nas/data/media`; metadata + transcode cache on NVMe
 - [x] **NVENC verified — ffmpeg log: hevc_nvenc + tonemap_cuda, nvidia-smi showed jellyfin-ffmpeg at 43 % in use** (`nvidia-smi` shows the encode session) — not silently software-transcoding
 - [x] **Shield — Walter, 2026-10-05 direct-plays a 4K HEVC HDR title** (no transcode session opens)
 - [x] **A phone — phone, 4K HDR10 test clip and a browser play the same title**, tone-mapped, smoothly — the case that motivated the move
 - [x] Proven against (Jellyfin test-videos repo) open-licence test files *before* any usenet grab exists
-- [ ] Jellyseerr requests flow through to Radarr/Sonarr (needs 11)
-- [ ] Jellyfin metadata/watch-history identified as backup scope for [13](13-restic-321-service.md)
-- [ ] Plex confirmed absent from the rebuilt NAS
+- [x] Jellyseerr requests flow through to Radarr/Sonarr (needs 11) — Walter, 2026-10-05
+- [x] Jellyfin metadata/watch-history — `/var/lib/jellyfin` + `/var/lib/jellyseerr` identified as backup scope for [13](13-restic-321-service.md)
+- [x] Plex confirmed absent — 05 reset the NAS with Plex and Container Manager declined from the rebuilt NAS
 
 _Decision detail: [08](../../issues/08-media-relocation-and-plan-consolidation.md#answer--second-pass-2026-07-26)._
