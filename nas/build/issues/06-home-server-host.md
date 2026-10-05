@@ -32,6 +32,7 @@ Base host only — GPU/NFS ([08](08-gpu-nfs-foundation.md)), Tailscale
 - [ ] `nixosConfigurations.home-server` builds; `nix flake check --no-build` passes in CI
 - [ ] ThinkBook boots NixOS from the flake, unattended, lid closed
 - [ ] Reachable over SSH on the LAN via USB-C→RJ45
+- [ ] sops: host's SSH key → age (`ssh-to-age < /etc/ssh/ssh_host_ed25519_key.pub`), added to `.sops.yaml` with a `secrets/home-server.yaml` rule, `canary` readable — see CLAUDE.md "Secrets"
 - [ ] **Wi-Fi failover configured and tested by unplugging the dongle**
 - [ ] Stays up 24/7 — no idle suspend, no lid-close suspend
 - [ ] Deploy mechanism chosen and documented
