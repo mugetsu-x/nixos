@@ -49,6 +49,8 @@ home/
     dev.nix            baseline dev toolchain (node, pnpm, tsc, psql, httpie)
     chrome.nix         google-chrome + Wayland .desktop override + default browser
     swayimg.nix        image viewer + the image/* mime defaults (see below)
+    media.nix          mpv (video) + okular (PDF) mime defaults
+    dolphin.nix        XDG applications.menu so KDE apps see mime defaults
     theme.nix          GTK/Qt theming, cursor, qt6ct palette
     pwas.nix           Chrome --app= desktop entries (Teams, Outlook, Notion, ...)
     gaming.nix         mangohud, vulkan-tools (system half is modules/gaming.nix)
@@ -263,6 +265,12 @@ needs Go ≥ 1.25; 25.05 has 1.24). Unpin with the 25.11 upgrade (TODO.md §0).
   with no explicit default in `xdg.mimeApps.defaultApplications` silently opens
   in a browser tab. `swayimg.nix` exists partly to take `image/*` back. Check
   with `xdg-mime query default image/png`, not by reading the .desktop files.
+- **Dolphin ignores `mimeapps.list` without an `applications.menu`.** KDE apps
+  resolve defaults through KService's sycoca cache, which only registers apps
+  reachable from `${XDG_MENU_PREFIX}applications.menu`. Bare Hyprland ships none,
+  so "Open With" is empty and double-click ignores the defaults even though
+  `xdg-mime query default` looks right. `dolphin.nix` provides a catch-all menu;
+  run `kbuildsycoca6 --noincremental` if Dolphin still shows stale choices.
 - **imv is the wrong image viewer here.** nixpkgs builds it without freeimage,
   and its other backends (libpng/libjpeg/libtiff/librsvg/libheif/libjxl/libnsgif)
   cover neither **webp** nor **bmp** — so the most common browser-download format

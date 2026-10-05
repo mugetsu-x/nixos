@@ -13,6 +13,8 @@
     ./modules/neovim.nix
     ./modules/chrome.nix
     ./modules/swayimg.nix
+    ./modules/media.nix
+    ./modules/dolphin.nix
     ./modules/theme.nix
     ./modules/pwas.nix
     ./modules/gaming.nix

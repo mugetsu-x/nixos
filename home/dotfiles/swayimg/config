@@ -38,3 +38,12 @@ background = #1e2030c0
 [info]
 # Metadata overlay off by default; `i` toggles it.
 show = no
+
+[keys.viewer]
+# Arrows flip through the folder (default: they pan). Panning moves to Shift.
+Left = prev_file
+Right = next_file
+Shift+Left = step_left 10
+Shift+Right = step_right 10
+Shift+Up = step_up 10
+Shift+Down = step_down 10
