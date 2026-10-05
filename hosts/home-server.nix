@@ -11,6 +11,7 @@
     ../modules/server/nvidia.nix
     ../modules/server/secrets.nix
     ../modules/server/storage.nix
+    ../modules/server/media.nix
     ../modules/server/tailscale.nix
   ];
 
