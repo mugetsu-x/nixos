@@ -197,7 +197,7 @@ them go.
 
 **Status:** ready-for-agent (after step 0)
 
-- [ ] NAS data scrub clean; SMART quick test passes on all three NAS disks
+- [x] NAS data scrub clean; SMART quick test passes on all three NAS disks — 2026-10-04
 - [ ] SSH key + `/etc/sudoers.d/evac` on the NAS; agent can `ssh -o BatchMode=yes alexandria sudo -n du -sh /volume1/*` without a prompt
 - [ ] Both USB HDDs emptied; **SMART long test passes on both**; A formatted ext4 (`evac-a`, guard script), B formatted NTFS in Windows (`evac-b`)
 - [ ] Inventory recorded below; every non-disposable path identified, including `photo`, every user under `homes`, and `#recycle`; total ≤ ~1.7 TB
@@ -208,6 +208,28 @@ them go.
 - [ ] Random sample opened by a human: renders, umlauts intact, dates sane
 - [ ] Synology Photos albums worth keeping listed — or explicitly let go
 - [ ] **Freeze:** phone backup off, shares read-only; final delta to A/C (and B, if added) verified green — *this box is ticked last, immediately before [05](05-wipe-and-rebuild-nas.md)*
+
+## Progress log
+
+**2026-10-04/05.** Manifest hashed on the NAS (64,877 files, 0 read errors). Copies
+C (`~/evac/`) and A (WD, `evac-a`) pulled as Walter and `sha256sum -c` clean
+against `evac-manifest.sha256` (64,849 files — the full NAS manifest minus the 25 suwayomi-cache
+and 3 unreadable calibre qtshadercache files; raw manifest kept as
+`evac-manifest.full.sha256`). Both manifests sit at the root of each copy and in
+`~`. rsync/verify logs: `~/evac-{c,a}.log`, `~/evac-{c,a}-verify.log`. One file
+is newer than the manifest (`homes/Anja/…/WhatsApp Images/2026/10/IMG_20261004_163036.jpg`)
+— the freeze delta covers it. Dates spot-checked by the agent (mtimes match
+filenames, umlaut paths intact).
+
+**Open:**
+- **SMART long test on A** — first run came back `Interrupted (host reset)` at 90%
+  remaining; attributes clean (0 reallocated/pending/uncorrectable, 0 CRC, 1,362 h).
+  Not autosuspend (`power/control` = `on`), nothing in the kernel log — most likely
+  the WD's USB bridge resetting when idle. Retry: unmount `evac-a` (stay powered —
+  no `power-off`), `smartctl -d sat -t long /dev/sda`, keep a loop querying
+  `smartctl -c` every 120 s so the bridge stays awake; result into `~/smart-wd.txt`.
+- **Human spot check** of ~20 photos/videos from C — Walter, in progress.
+- Albums list, freeze + final delta, then WD into another room.
 
 ## Inventory
 
