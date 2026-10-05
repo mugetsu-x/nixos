@@ -38,7 +38,7 @@ Auth key comes from sops-nix ([03](03-secrets-management.md)).
   true` (the router does hard NAT) and no UPnP/NAT-PMP. Mobile carriers are hard
   NAT too, and hard ↔ hard can't hole-punch. That's harmless for SSH/admin. If
   remote Jellyfin ([12](12-jellyfin-jellyseerr.md)) or Immich uploads over mobile
-  feel slow, the fix is one router port forward: **UDP 41641 → 192.168.0.74**
+  feel slow, the fix is one router port forward: **UDP 41641 → 192.168.0.73**
   (wired address; in Wi-Fi failover it falls back to relayed). Deferred until
   there's a need.
 

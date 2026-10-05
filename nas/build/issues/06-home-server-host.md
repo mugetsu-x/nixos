@@ -36,9 +36,9 @@ idle draw, the runtime-D3 test, and thermals in the final spot.
   second NVMe fitted. 30 GB usable RAM. RTX 3060 Laptop at PCI `01:00.0`,
   Vega iGPU at `05:00.0` (the bus IDs PRIME offload needs). Intel AX200
   Wi-Fi. The dongle shows up as `enp5s0f4u2`.
-- **Addresses:** wired **192.168.0.74**, Wi-Fi **192.168.0.88**. The router's
-  DNS resolves `home-server`, so deploys use the name. Neither address is
-  reserved on the router yet.
+- **Addresses:** wired **192.168.0.73**, Wi-Fi **192.168.0.87**, both bound by MAC on the router (ticket 05, Open). The first lease was .74/.88. The router's
+  DNS resolves `home-server`, so deploys use the name. Wi-Fi sends the DHCP
+  hostname `home-server-wifi`.
 - **How the install actually went** (it differs slightly from the runbook):
   - At the installer console, `curl https://github.com/mugetsu-x.keys >
     ~/.ssh/authorized_keys`. GitHub publishes main-pc's key, so everything
@@ -60,7 +60,7 @@ idle draw, the runtime-D3 test, and thermals in the final spot.
   after the first boot.
 - **Failover test** (dongle pulled ~45 s, then re-plugged), logged on the box:
   - Carrier loss → routes withdrawn in 60 ms → about **1.2 s** without replies.
-  - Re-plug → same .74 lease and the route back within 35 ms, with no gap.
+  - Re-plug → same wired lease (then .74) and the route back within 35 ms, with no gap.
   - An SSH session on the Wi-Fi address survived throughout.
   - There was also a 9 s gap ~14 s *before* the kernel reported carrier loss.
     The likely cause is the plug being worked loose (packets sent into a dead
@@ -68,7 +68,7 @@ idle draw, the runtime-D3 test, and thermals in the final spot.
 - **Follow-ups (not blocking):**
   - Shut down cleanly on low battery (`services.upower`, critical action
     `PowerOff`), since nothing restarts it after a flat battery anyway.
-  - DHCP reservations for both MACs on the router.
+  - ~~DHCP reservations for both MACs on the router.~~ Done 2026-10-05 (.73/.87, see 05 Open).
   - networkd logs a harmless `Could not set hostname: Access denied` on each
     lease (the hostname is static).
 
@@ -183,7 +183,7 @@ Do this at the laptop. Steps 6–9 can run from main-pc once SSH works.
 
 - [x] `nixosConfigurations.home-server` builds; `nix flake check --no-build` passes in CI (run 37334481819)
 - [x] ThinkBook boots NixOS from the flake, unattended, lid closed
-- [x] Reachable over SSH on the LAN via USB-C→RJ45 (`home-server`, .74)
+- [x] Reachable over SSH on the LAN via USB-C→RJ45 (`home-server`, .73)
 - [x] sops: host's SSH key → age (`ssh-to-age < /etc/ssh/ssh_host_ed25519_key.pub`), added to the existing `secrets/home-server.yaml` rule in `.sops.yaml` (created walter-only by [04](04-usenet-signup.md)), then `sops updatekeys secrets/home-server.yaml`; add a `canary` and check it's readable — see CLAUDE.md "Secrets". Enrolled 2026-10-05, `/run/secrets/canary` reads as rennsemml
 - [x] **Wi-Fi failover configured and tested by unplugging the dongle** (~1.2 s, see "As installed")
 - [ ] Stays up 24/7 — no idle suspend, no lid-close suspend (configured in `modules/server/headless.nix`; tick after a day of uptime)

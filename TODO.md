@@ -35,7 +35,7 @@ final delta run, SMART long test on A passed — so the wipe (05) is unblocked.
 Usenet accounts (Eweka + NZBGeek) done 2026-10-05, credentials in
 `secrets/home-server.yaml`; secrets (sops-nix) done for main-pc. The
 `home-server` host (06) is **installed and running** 2026-10-05 (`home-server`,
-192.168.0.74, deployed from main-pc). Still to do: idle-draw measurement (plug
+192.168.0.73, bound on the router, deployed from main-pc). Still to do: idle-draw measurement (plug
 meter ordered 2026-10-05; measure as-is, then with runtime D3) and thermals.
 Tailscale (07) done for home-server 2026-10-05 (tailnet owned by
 walter@pariggers.com); the NAS joined 2026-10-05, key expiry off on both — 07's
