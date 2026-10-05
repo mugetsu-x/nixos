@@ -48,6 +48,15 @@
         inherit system;
         config.allowUnfree = true;
       };
+      # Every host: hosts/<name>.nix plus sops-nix. Per-host extras (home-manager
+      # is main-pc only) go in `extraModules`.
+      mkHost =
+        name: extraModules:
+        nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = { inherit nix-claude-code pkgs-unstable; };
+          modules = [ (./hosts + "/${name}.nix") ] ++ extraModules ++ [ sops-nix.nixosModules.sops ];
+        };
     in
     {
       # Project scaffolding: `nix flake init -t ~/nixos-config#nextjs` in an empty
@@ -58,16 +67,13 @@
       };
       templates.default = self.templates.nextjs;
 
-      nixosConfigurations.main-pc = nixpkgs.lib.nixosSystem {
-        inherit system;
-        # Add this line to pass the input to your modules
-        specialArgs = { inherit nix-claude-code pkgs-unstable; };
-        modules = [
-          ./hosts/main-pc.nix
+      nixosConfigurations = {
+        main-pc = mkHost "main-pc" [
           home-manager.nixosModules.home-manager
           nix-index-database.nixosModules.nix-index
-          sops-nix.nixosModules.sops
         ];
+        # Headless ThinkBook: storage clients + containers. nas/build/issues/06.
+        home-server = mkHost "home-server" [ ];
       };
     };
 }

@@ -1,49 +1,21 @@
 { config, pkgs, ... }:
 
 {
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.systemd-boot.configurationLimit = 20;
-  boot.loader.efi.canTouchEfiVariables = true;
-
-  networking.hostName = "main-pc";
+  # main-pc's desktop layer on top of base.nix.
   networking.networkmanager.enable = true;
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  nix.settings.auto-optimise-store = true;
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 14d";
-  };
-  time.timeZone = "Europe/Vienna";
-  i18n.defaultLocale = "en_US.UTF-8";
-  nixpkgs.config.allowUnfree = true;
-
-  console = {
-    font = "Lat2-Terminus16";
-    useXkbConfig = true;
-  };
-
-  # kitty lives in home/modules/packages.nix; git stays system-wide so it works as root.
-  environment.systemPackages = with pkgs; [ git ];
+  # kitty lives in home/modules/packages.nix; git is in base.nix.
 
   fonts.packages = with pkgs; [
     nerd-fonts.fira-code
     nerd-fonts.jetbrains-mono
   ];
 
-  users.users.rennsemml = {
-    isNormalUser = true;
-    description = "rennsemml";
-    extraGroups = [ "networkmanager" "wheel" ];
-    shell = pkgs.zsh;
-  };
+  users.users.rennsemml.extraGroups = [ "networkmanager" ];
 
-  programs.zsh.enable = true;
   programs.dconf.enable = true;
 
   # Bluetooth stack
-  hardware.enableRedistributableFirmware = true;
   hardware.firmware = [ pkgs.linux-firmware ];
   hardware.bluetooth = {
     enable = true;
@@ -54,15 +26,12 @@
     };
   };
 
-  services.xserver.xkb.layout = "us";
-  services.xserver.xkb.variant = "altgr-intl";
-
-  # The altgr-intl variant puts ä/ö/ü/ß on the third level of q/p/y/s, reached by
-  # holding Right Alt. Windows also accepts Ctrl+Alt as a stand-in for AltGr; xkb
-  # does not — every lv3: option is a single key — so the Keychron Q8 Pro needs a
-  # real Right Alt in its firmware (Fn2 remapped to KC_RALT via the Keychron
-  # Launcher). These udev rules are what let the browser reach the board over
-  # WebHID; without them the Launcher shows no keyboard at all.
+  # The altgr-intl variant (set in base.nix) puts ä/ö/ü/ß on the third level of
+  # q/p/y/s, reached by holding Right Alt. Windows also accepts Ctrl+Alt as a
+  # stand-in for AltGr; xkb does not — every lv3: option is a single key — so the
+  # Keychron Q8 Pro needs a real Right Alt in its firmware (Fn2 remapped to
+  # KC_RALT via the Keychron Launcher). These udev rules are what let the browser
+  # reach the board over WebHID; without them the Launcher shows no keyboard at all.
   hardware.keyboard.qmk.enable = true;
 
   # qmk-udev-rules assigns GROUP="plugdev", which NixOS does not create. Access
@@ -87,6 +56,4 @@
   };
 
   security.rtkit.enable = true;
-
-  system.stateVersion = "25.05";
 }

@@ -9,8 +9,8 @@ creation_rules:
       - age:
           - *walter
           - *main-pc
-  # home-server doesn't exist yet: walter-only until 06 enrols the host key
-  # (ssh-to-age), then `sops updatekeys secrets/home-server.yaml`.
+  # home-server isn't installed yet: walter-only until its SSH host key is
+  # enrolled (ssh-to-age) — nas/build/issues/06, runbook step 7.
   - path_regex: ^secrets/home-server\.yaml$
     key_groups:
       - age:

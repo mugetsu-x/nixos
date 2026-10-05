@@ -8,6 +8,7 @@
 {
   imports = [
     ../modules/hardware.nix
+    ../modules/base.nix
     ../modules/nvidia.nix
     ../modules/common.nix
     ../modules/login.nix
@@ -16,6 +17,10 @@
     ../modules/keyring.nix
     ../modules/secrets.nix
   ];
+  networking.hostName = "main-pc";
+  # Compatibility marker, not a version to "update". See CLAUDE.md.
+  system.stateVersion = "25.05";
+
   services.printing.enable = true;
 
   home-manager.backupFileExtension = "hm-bak";

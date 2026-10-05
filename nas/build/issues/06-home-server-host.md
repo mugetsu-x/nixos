@@ -27,15 +27,125 @@ Base host only — GPU/NFS ([08](08-gpu-nfs-foundation.md)), Tailscale
 
 **Blocked by:** 03 (secrets — the host needs sops-nix from first activation).
 
-**Status:** ready-for-agent
+**Status:** in progress. Config written and builds on main-pc (2026-10-05); the
+hardware install is next. Follow the runbook below.
 
-- [ ] `nixosConfigurations.home-server` builds; `nix flake check --no-build` passes in CI
+## What landed in the repo (2026-10-05)
+
+- `flake.nix`: a `mkHost` helper. Each host is `hosts/<name>.nix` + sops-nix,
+  and home-manager/nix-index are main-pc-only extras.
+- `modules/base.nix`: what both hosts share (bootloader, nix/gc, locale, keyboard,
+  the user, zsh), split out of `common.nix`, which keeps main-pc's desktop
+  layer. **main-pc's system derivation is byte-identical before and after**
+  (same `.drv` hash), so the refactor is a no-op for main-pc.
+- `hosts/home-server.nix` + `hosts/home-server-hardware.nix` (filesystems **by
+  label**, so it evaluates before the disk exists), and `modules/server/`:
+  - `headless.nix`: key-only sshd, root login for deploys only, lid/sleep off,
+    console blanking.
+  - `networking.nix`: networkd with Ethernet → Wi-Fi failover. Wi-Fi SSID +
+    PSK come from sops.
+  - `nvidia.nix`: open modules, compute only, no X.
+  - `secrets.nix`: sops via the SSH host key, plus a `canary`.
+- `secrets/home-server.yaml`: added `canary`, `wifi_ssid`, `wifi_psk`. The two
+  Wi-Fi values are `REPLACE_ME`. **Fill them in with `sops
+  secrets/home-server.yaml` before the deploy in step 8.**
+
+## Decisions taken while writing it
+
+- **Deploy: push from main-pc.**
+  `nixos-rebuild switch --flake .#home-server --target-host root@<ip>`. The repo,
+  git and Walter's sops key all live on main-pc, so the server needs no checkout
+  and no build tools, and main-pc does the building. The "where does the CUDA
+  closure build" worry turned out to be small: the host carries only the driver
+  (kernel module + libs). CUDA userspace ships inside the Immich/Jellyfin images.
+  `--build-host` is there if that ever changes.
+- **Failover matches by link type, not by MAC.** No custom `.network` files.
+  NixOS's own networkd defaults give every physical Ethernet link
+  (`Type=ether`, `Kind=!*`, which excludes container veths) route metric 1024
+  and every Wi-Fi station 1025. Both links stay up, so when the dongle
+  drops, its routes go and Wi-Fi carries on. The goal behind "match by MAC" was
+  "survive renaming". Type matching gets that too, and a replacement dongle needs
+  no config change. **Caveat:** the two links have *different* IPs. During
+  failover the box is reachable at its Wi-Fi address, not the wired one. Give
+  both MACs a DHCP reservation on the router. Tailscale ([07](07-tailscale-overlay.md))
+  makes this moot with one stable address.
+- **The Wi-Fi SSID is a secret too.** An SSID in a public repo next to a real name
+  is a location lookup on WiGLE. Both values feed a sops template that
+  wpa_supplicant includes (`extraConfigFiles`).
+- **The "headless EDID fix" probably doesn't apply here.** That penalty is a
+  desktop-GPU effect (no monitor, no low P-state). This is a hybrid laptop: the
+  panel hangs off the Ryzen iGPU, and the dGPU's real low-power state is runtime
+  D3 (`hardware.nvidia.powerManagement.finegrained` + PRIME offload, with bus IDs
+  from `lspci`). `nvidiaPersistenced` would block D3, so it is off. Decide after
+  measuring (see the idle-draw box), not before.
+
+## Install runbook
+
+Do this at the laptop. Steps 6–9 can run from main-pc once SSH works.
+
+1. **Windows goes.** The NVMe is wiped. Make sure nothing on the Windows 11
+   install is wanted. While Windows is still there, check Lenovo Vantage for
+   "Conservation mode". If it exists, the charge cap is in the EC and survives
+   the OS swap (step 9 checks it from Linux).
+2. **BIOS:** Secure Boot **off** (systemd-boot and the nvidia modules are
+   unsigned). If there is a "power on with AC attach" / restore-on-power-loss
+   option, turn it **on**. Once the battery is flat after a long outage, that is
+   the only way the box comes back by itself. Note the CPU/fan settings while
+   you're there.
+3. **Boot the NixOS 26.05 minimal ISO** from USB with the RJ45 dongle plugged in.
+   It gets DHCP on its own. Check with `ip -br a`.
+4. **Partition by label.** `lsblk` first: confirm which disk is the 1 TB, and
+   whether the second M.2 slot is populated (open item in PLAN.md).
+   ```
+   parted /dev/nvme0n1 -- mklabel gpt
+   parted /dev/nvme0n1 -- mkpart ESP fat32 1MiB 1GiB
+   parted /dev/nvme0n1 -- set 1 esp on
+   parted /dev/nvme0n1 -- mkpart root ext4 1GiB 100%
+   mkfs.fat -F 32 -n BOOT /dev/nvme0n1p1
+   mkfs.ext4 -L nixos /dev/nvme0n1p2
+   mount /dev/disk/by-label/nixos /mnt
+   mount --mkdir -o umask=077 /dev/disk/by-label/BOOT /mnt/boot
+   ```
+   The labels **must** be `nixos` and `BOOT`: `home-server-hardware.nix` mounts
+   by them.
+5. **Install from the flake** (the commit must be pushed):
+   ```
+   nixos-generate-config --root /mnt --show-hardware-config   # note kernel modules
+   nixos-install --flake github:mugetsu-x/nixos#home-server
+   nixos-enter --root /mnt -c 'passwd rennsemml'
+   ```
+   `nixos-install` asks for a root password. Both passwords are for the console
+   only, since SSH is key-only. Reboot, pull the USB stick, close the lid.
+6. **First boot, expected failures:** `wpa_supplicant` and the sops secrets fail.
+   The host key that decrypts them was only generated on this boot. Wired works.
+   Find the IP (router, or `ip -br a` on the console) and check
+   `ssh rennsemml@<ip>` from main-pc.
+7. **Enrol the host key** (on main-pc, in the repo):
+   ```
+   ssh-keyscan -t ed25519 <ip> | nix run nixpkgs#ssh-to-age
+   ```
+   Add the `age1…` as `&home-server` in `.sops.yaml`, add it to the
+   `home-server.yaml` rule, then run `sops updatekeys secrets/home-server.yaml`.
+   Fill in `wifi_ssid`/`wifi_psk` in the same sitting (`sops secrets/home-server.yaml`).
+   Update the hardware file with anything step 5 showed. Commit.
+8. **Deploy:** `nixos-rebuild switch --flake .#home-server --target-host root@<ip>`.
+9. **Verify:**
+   - `cat /run/secrets/canary` works as rennsemml.
+   - `networkctl` shows both links `routable`.
+   - Pull the dongle: an SSH session to the Wi-Fi IP survives, `ip route` shows
+     the default route moving, and re-plugging takes it back.
+   - `cat /sys/bus/platform/drivers/ideapad_acpi/*/conservation_mode`, if the
+     path exists.
+   - Measure idle at the plug with nothing running. Then try runtime D3
+     (`cat /sys/bus/pci/devices/<nvidia>/power/runtime_status`) and measure again.
+
+- [ ] `nixosConfigurations.home-server` builds; `nix flake check --no-build` passes in CI. Builds and passes locally 2026-10-05, CI after push
 - [ ] ThinkBook boots NixOS from the flake, unattended, lid closed
 - [ ] Reachable over SSH on the LAN via USB-C→RJ45
-- [ ] sops: host's SSH key → age (`ssh-to-age < /etc/ssh/ssh_host_ed25519_key.pub`), added to the existing `secrets/home-server.yaml` rule in `.sops.yaml` (created walter-only by [04](04-usenet-signup.md)), then `sops updatekeys secrets/home-server.yaml`; add a `canary` and check it's readable — see CLAUDE.md "Secrets"
-- [ ] **Wi-Fi failover configured and tested by unplugging the dongle**
-- [ ] Stays up 24/7 — no idle suspend, no lid-close suspend
-- [ ] Deploy mechanism chosen and documented
+- [ ] sops: host's SSH key → age (`ssh-to-age < /etc/ssh/ssh_host_ed25519_key.pub`), added to the existing `secrets/home-server.yaml` rule in `.sops.yaml` (created walter-only by [04](04-usenet-signup.md)), then `sops updatekeys secrets/home-server.yaml`; add a `canary` and check it's readable — see CLAUDE.md "Secrets". The `canary` is in the file and declared; enrolment is runbook step 7
+- [ ] **Wi-Fi failover configured and tested by unplugging the dongle** (configured; the test is step 9)
+- [ ] Stays up 24/7 — no idle suspend, no lid-close suspend (configured in `modules/server/headless.nix`)
+- [x] Deploy mechanism chosen and documented. Push from main-pc, see above
 - [ ] **Real idle draw measured** (plan assumed ~20 W; expect 25–40 W with the dGPU present)
 - [ ] Battery charge-cap availability confirmed either way
 - [ ] Thermals sane in its final location — 45 W CPU + dGPU in a closed cupboard needs airflow

@@ -30,9 +30,12 @@ online-expansion phase 0 and removes the day-long degraded reshape.
 **Critical path:** agent-run evacuation from `main-pc` — SHA-256 manifest hashed
 on the NAS, plain-tree `rsync` onto a USB HDD (A) + `main-pc`'s NVMe (C) → freeze + final
 delta → wipe. Nothing destructive starts until both copies verify against the
-manifest. (Copy C verified 2026-10-04; A in progress.) Usenet accounts
-(Eweka + NZBGeek) done 2026-10-05, credentials in `secrets/home-server.yaml`;
-secrets (sops-nix) done for main-pc.
+manifest. Evacuation (01) **done 2026-10-05** — copies A + C verified, freeze +
+final delta run, SMART long test on A passed — so the wipe (05) is unblocked.
+Usenet accounts (Eweka + NZBGeek) done 2026-10-05, credentials in
+`secrets/home-server.yaml`; secrets (sops-nix) done for main-pc. The
+`home-server` host (06) is **in progress**: config written and building on main-pc
+2026-10-05, hardware install next (runbook in the ticket).
 
 **Renewals:** NZBGeek expires **2027-10-08**, Eweka (15-month plan) ~**2028-01-05**.
 Black Friday is the time to look at an NZBGeek lifetime deal and a block account

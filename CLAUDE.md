@@ -1,7 +1,9 @@
 # nixos-config
 
-Flake-based NixOS config for a single machine. One host (`main-pc`), one user
-(`rennsemml`). Hyprland on Wayland, NVIDIA, Catppuccin Macchiato Blue everywhere.
+Flake-based NixOS config for two hosts and one user (`rennsemml`). `main-pc` is
+the desktop: Hyprland on Wayland, NVIDIA, Catppuccin Macchiato Blue everywhere.
+`home-server` is a headless ThinkBook that runs the NAS-side services (plan in
+`nas/`; install + deploy in `nas/build/issues/06-home-server-host.md`).
 
 Remote: `git@github.com:mugetsu-x/nixos.git`. CI runs `nix flake check --no-build`
 on every push (`.github/workflows/check.yml`).
@@ -14,26 +16,35 @@ and keep it updated as items land.
 ```
 nixre     # alias for: sudo nixos-rebuild switch --flake ~/nixos-config#main-pc
 nixhome   # alias for: cd ~/nixos-config
+
+# home-server: pushed from main-pc, built here, no checkout on the server
+nixos-rebuild switch --flake .#home-server --target-host root@<ip>
 ```
 
 Both aliases are defined in `home/modules/shell.nix`, not in a shell rc file.
 
 Channel: nixpkgs `nixos-26.05`, home-manager `release-26.05` (pinned to follow
-nixpkgs). `system.stateVersion` and `home.stateVersion` are both `25.05` — do not
-bump these to "update"; they are compatibility markers.
+nixpkgs). On main-pc `system.stateVersion` and `home.stateVersion` are both
+`25.05`; home-server's is `26.05` (installed fresh). Do not bump any of these to
+"update": they are compatibility markers.
 
 ## Layout
 
 ```
-flake.nix              inputs + the single nixosConfigurations.main-pc
+flake.nix              inputs + nixosConfigurations (main-pc, home-server) via mkHost
 hosts/main-pc.nix      host entrypoint: imports modules/, wires home-manager
+hosts/home-server.nix  headless server entrypoint: base.nix + modules/server/
+hosts/home-server-hardware.nix  its filesystems (by label) + kernel modules
 modules/               system-level (NixOS options)
   hardware.nix         disk UUIDs, kernel modules — machine-specific, rarely touched
   nvidia.nix           nvidia open driver + Wayland env vars
-  common.nix           bootloader, networking, locale, audio, bluetooth, fonts, user
+  base.nix             shared by both hosts: bootloader, nix/gc, locale, keyboard, user
+  common.nix           main-pc desktop layer: NetworkManager, audio, bluetooth, fonts
   login.nix            greetd + regreet greeter, UWSM-managed Hyprland session
   gaming.nix           steam (+ GE-Proton), gamemode, gamescope
   secrets.nix          sops-nix: machine age key, declared secrets (see below)
+  server/              home-server only: headless (sshd, no sleep), networking
+                       (Ethernet → Wi-Fi failover), nvidia (compute), secrets
 home/
   rennsemml.nix        home-manager entrypoint: imports home/modules/
   modules/             user-level (home-manager options)
@@ -95,7 +106,7 @@ keyboards/             QMK keymap backups — not applied by Nix, see below
   something references `~/.nix-profile`, it is stale.
 - `backupFileExtension = "hm-bak"` — home-manager will move conflicting files to
   `*.hm-bak` instead of failing the switch.
-- `allowUnfree = true` is set once in `modules/common.nix` and inherited by
+- `allowUnfree = true` is set once in `modules/base.nix` and inherited by
   home-manager via `useGlobalPkgs`. Don't re-declare it in `home/`.
 - Nix files are formatted with **nixfmt-rfc-style** (the `nixfmt` binary).
 - **No editor is allowed to download its own language servers.** Zed's built-in
