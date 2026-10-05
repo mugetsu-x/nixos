@@ -24,6 +24,11 @@ in {
   # Bluetooth tray applet
   services.blueman-applet.enable = true;
 
+  # Polkit authentication agent — the GUI password prompt for privileged
+  # actions (udiskie unlocking a LUKS stick, GParted, ...). Without one,
+  # polkitd has nobody to ask and those requests fail silently.
+  services.polkit-gnome.enable = true;
+
   # Auto-connect Bluetooth trusted devices. No home-manager module for this one,
   # so it stays a hand-written unit.
   systemd.user.services.bt-autoconnect = {

@@ -11,10 +11,11 @@
   xdg.configFile."waybar/config.jsonc".source = ../dotfiles/waybar/config.jsonc;
   xdg.configFile."waybar/style.css".source = ../dotfiles/waybar/style.css;
 
-  # Hyprland, Hyprpaper & Hyprlock
+  # Hyprland, Hyprpaper, Hyprlock & Hypridle
   xdg.configFile."hypr/hyprland.conf".source = ../dotfiles/hypr/hyprland.conf;
   xdg.configFile."hypr/hyprpaper.conf".source = ../dotfiles/hypr/hyprpaper.conf;
   xdg.configFile."hypr/hyprlock.conf".source = ../dotfiles/hypr/hyprlock.conf;
+  xdg.configFile."hypr/hypridle.conf".source = ../dotfiles/hypr/hypridle.conf;
 
   # Mako
   xdg.configFile."mako/config".source = ../dotfiles/mako/config;
@@ -40,6 +41,11 @@
   # Static wallpaper. hyprpaper.conf names DP-2 explicitly; DP-4's background
   # layer belongs to mpvpaper below.
   services.hyprpaper.enable = true;
+  # hyprpaper reads its config once at startup; restart it when the file
+  # changes so a switch actually applies it.
+  systemd.user.services.hyprpaper.Unit.X-Restart-Triggers = [
+    "${../dotfiles/hypr/hyprpaper.conf}"
+  ];
 
   # Video wallpaper on DP-4 only. No home-manager module exists for mpvpaper, so
   # this is hand-written — but it is still a systemd user unit, not an
@@ -83,6 +89,16 @@
 
   programs.hyprlock.enable = true;
   programs.hyprlock.settings = { };
+
+  # Like the others, `settings` stays empty and hypridle.conf above is the
+  # source of truth. That file is not optional: with no config at all hypridle
+  # aborts on start ("Could not find config") and Restart=always turns that
+  # into a core dump every 10s.
   services.hypridle.enable = true;
+  # hypridle reads its config once at startup; restart it when the file changes
+  # so a switch actually applies new timeouts.
+  systemd.user.services.hypridle.Unit.X-Restart-Triggers = [
+    "${../dotfiles/hypr/hypridle.conf}"
+  ];
 
 }

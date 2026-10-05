@@ -41,8 +41,8 @@ home/
     shell.nix          zsh (aliases live here) + starship prompt
     wayland.nix        links dotfiles/ into ~/.config; waybar/hyprpaper/mako,
                        hyprlock, hypridle
-    services.nix       cliphist, udiskie, blueman-applet + the hand-written
-                       bt-autoconnect unit
+    services.nix       cliphist, udiskie, blueman-applet, polkit-gnome + the
+                       hand-written bt-autoconnect unit
     neovim.nix         lean hand-rolled Neovim: quick editor + Markdown (no IDE)
     zed.nix            Zed — the primary editor. Nix-pinned node + LSP binaries
     claude.nix         symlinks claude/ (skills, settings, workspace rules) into place
@@ -115,10 +115,14 @@ keyboards/             QMK keymap backups — not applied by Nix, see below
 - `nix.gc` runs weekly, deleting generations older than 14 days; boot menu is
   capped at 20 entries.
 - **Background apps are systemd user units, not `exec-once`.** waybar, hyprpaper,
-  cliphist, udiskie and blueman-applet are enabled via their home-manager
-  modules; mako is D-Bus activated. The *only* remaining `exec-once` in
-  `hyprland.conf` is the polkit agent. Debug them with
+  hypridle, cliphist, udiskie, blueman-applet and the polkit agent
+  (polkit-gnome) are enabled via their home-manager modules; mako is D-Bus
+  activated. `hyprland.conf` has **no** `exec-once` at all. Debug them with
   `journalctl --user -u waybar` etc., not by hunting for stray processes.
+- **hypridle dies without a config file.** Like the others, its `settings` is
+  left empty and `home/dotfiles/hypr/hypridle.conf` is linked in instead — but
+  unlike them, no file at all is fatal: it aborts with `Could not find config`
+  and `Restart=always` turns that into a core dump every 10s.
 - These modules generate a config file *only* when their `settings` option is
   non-empty. We deliberately leave `settings` unset so the raw files in
   `home/dotfiles/` remain the source of truth. If you ever set `settings`, it

@@ -3,15 +3,6 @@
 Planned work on this config. Newest context at the top of each item so we do not
 have to rediscover it.
 
-## 0. In flight (2026-10-05) — remove once verified
-
-- **26.05 upgrade committed but not yet booted.** Run
-  `sudo nixos-rebuild boot --flake ~/nixos-config#main-pc && reboot` (not `switch`:
-  kernel 6.12→6.18, NVIDIA 570→595). Check: wallpaper on DP-2 (hyprpaper.conf
-  rewritten for 0.8), pavucontrol/swayimg float, swayimg 1600x900 centred,
-  `Alt+'` toggles split, no Hyprland error bar, hyprlock looks right. Broken →
-  previous generation from the boot menu, fix, retry. Then push.
-
 ## 1. Home infrastructure — NAS + `home-server`
 
 Planned in detail, nothing executed yet. Architecture in
