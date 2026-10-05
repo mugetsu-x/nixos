@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>My home server setup</title>
+<style>
+  @page { size: A4; margin: 16mm 18mm; }
+  body { font: 10.5pt/1.45 "DejaVu Sans", Arial, sans-serif; color: #111; margin: 0; }
+  h1 { font-size: 19pt; margin: 0 0 2pt; }
+  .sub { color: #555; margin: 0 0 10pt; }
+  h2 { font-size: 12.5pt; margin: 13pt 0 3pt; border-bottom: 1px solid #bbb; padding-bottom: 1pt; }
+  p { margin: 3pt 0; }
+  ul { margin: 3pt 0 3pt 15pt; padding: 0; }
+  li { margin: 1.5pt 0; }
+  table { border-collapse: collapse; width: 100%; margin: 4pt 0; }
+  td, th { text-align: left; vertical-align: top; padding: 2.5pt 6pt 2.5pt 0; border-bottom: 1px solid #ddd; }
+  th { font-weight: 600; width: 27%; }
+  code { font: 9.5pt "DejaVu Sans Mono", monospace; }
+  .flow { font: 9.5pt "DejaVu Sans Mono", monospace; background: #f3f3f3; padding: 6pt 8pt; margin: 5pt 0; white-space: pre; }
+  h2 { break-after: avoid; } table, .flow { break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<h1>My home server</h1>
+<p class="sub">Two boxes, one NixOS flake, media and photos for the household. Written for you to poke holes in.</p>
+
+<h2>The hardware</h2>
+<table>
+<tr><th>NAS</th><td>Synology DS420+ (Celeron J4025, 6 GB), four disks in SHR-1 with btrfs, 5.3 TiB usable, data checksums on. It does one job: store bytes and serve them over NFS. It runs no containers at all.</td></tr>
+<tr><th>Server</th><td>An old ThinkBook 16p (Ryzen 9 5900HX, RTX 3060 with 6 GB, 32 GB RAM, 1 TB NVMe), lid closed on a shelf, on NixOS 26.05. It runs everything else. Wired through a USB-C ethernet dongle with Wi-Fi as a standing failover, which I tested by pulling the dongle.</td></tr>
+</table>
+<p>I first planned to keep the media stack on the NAS. Then I checked: the Celeron can't tone-map 4K HDR in real time, so every client except the Shield would have got a broken stream. That's why the compute moved to the laptop and the NAS went back to being plain storage.</p>
+
+<h2>What runs</h2>
+<ul>
+<li><b>Jellyfin</b> with NVENC and CUDA tone mapping on the 3060. The Shield direct-plays 4K HEVC HDR. Phones and browsers get a GPU transcode, which I checked in the ffmpeg log (<code>hevc_nvenc</code> plus <code>tonemap_cuda</code>).</li>
+<li><b>Jellyseerr</b> for requests, <b>Radarr</b> and <b>Sonarr</b> for films and shows, <b>Prowlarr</b> for the indexer, <b>SABnzbd</b> for downloads. Usenet via Eweka and NZBgeek.</li>
+<li>All of it is plain podman containers declared in the flake, with pinned image versions. No docker-compose files scattered around.</li>
+<li><b>Coming next:</b> Immich on the same GPU, then restic backups and alerting (details at the end).</li>
+</ul>
+<div class="flow">request (Jellyseerr) -> Radarr / Sonarr -> Prowlarr -> NZBgeek
+   -> SABnzbd (downloads from Eweka, unpacks on local NVMe)
+   -> import into /data/media -> Jellyfin</div>
+<p>SABnzbd unpacks on the NVMe on purpose: par2 and unrar are heavy random I/O, and I didn't want that on the array. The finished file crosses the LAN once. Because <code>usenet/complete</code> and <code>media</code> sit in one NFS export, the import is a rename on the NAS, not a copy. I tested it: a 200 MB move took 5 ms and kept its inode.</p>
+
+<h2>Storage and the NFS mount</h2>
+<p>One mount carries the media and the photos, so I treated it as a hard dependency instead of hoping it stays up:</p>
+<ul>
+<li>NFSv4.1 with <code>hard</code> (never <code>soft</code>) and <code>x-systemd.automount</code>. Every service orders itself on its mounts with <code>RequiresMountsFor</code>.</li>
+<li>The same paths (<code>/data</code>, <code>/photos</code>) inside every container, which is what keeps imports cheap.</li>
+<li>A small mount-guard script that the backup job has to call first. The failure I most wanted to design out: restic snapshots an unmounted, empty directory, writes a near-empty snapshot, and the next <code>forget --prune</code> ages out the real history. The guard checks for a live NFS mount from the NAS, and I tested it against a stopped mount, a local directory and a missing path.</li>
+</ul>
+
+<h2>Security</h2>
+<ul>
+<li><b>Nothing is exposed to the internet.</b> I don't forward any ports on the router. QuickConnect is off on the NAS. Remote access is Tailscale only, with key expiry off on both nodes so they don't drop off the tailnet.</li>
+<li><b>SSH is key-only</b> on the server, root included. Root can log in only with my key, because that's how I deploy from my desktop with <code>nixos-rebuild --target-host</code>. No checkout lives on the server.</li>
+<li><b>Default-deny firewall</b> on the server. It lets in only SSH and the six web UI ports, which are LAN and tailnet only. I checked from another machine: rpcbind and LLMNR are listening but closed from outside.</li>
+<li><b>Secrets are sops-nix.</b> The repo is public, so only ciphertext is in it. The server decrypts with its own SSH host key into <code>/run/secrets</code> (ramfs), never onto disk and never into the Nix store. Usenet logins, the Wi-Fi password and the Tailscale key all go through it. The only thing to back up is my personal age key, which lives in a password manager and on paper.</li>
+<li><b>NFS exports</b> are restricted to the server's two addresses (wired and Wi-Fi), which I bound by MAC on the router. The NAS's own admin account is disabled and DSM SSH is on a non-default port with key auth.</li>
+<li>Every web UI has a login. The arrs and SABnzbd were open until I set that up on day one.</li>
+</ul>
+<p><b>Trade-offs I made knowingly.</b> Exports use "map all users to admin", so every write lands as one UID. That makes container permissions trivial, but there is no per-service ownership on the NAS. Web traffic on the LAN is plain HTTP; off the LAN it's inside Tailscale. Jellyfin and Jellyseerr containers run as root, while the arrs and SABnzbd run as the NAS user.</p>
+
+<h2>Keeping the data safe</h2>
+<ul>
+<li><b>Rebuilding the NAS.</b> I wiped and rebuilt it as a clean SHR-1 instead of expanding it live, since an online reshape on a Celeron, with the family photos as the only copy, was the riskiest step in the plan. Before the wipe, a SHA-256 manifest hashed on the NAS had to match two separate copies, a USB disk and my desktop's NVMe, plus a freeze and a final delta so phone uploads weren't lost.</li>
+<li>The photos share has daily btrfs snapshots. Scrub runs every two months, SMART quick weekly and extended every three months, staggered so they never share a day.</li>
+<li>Media is deliberately not backed up. It's re-downloadable, and the array is a rotating pool: when it fills I delete first.</li>
+</ul>
+
+<h2>The config itself</h2>
+<p>Both machines and my desktop are one flake. Servers roll back like any NixOS box, CI runs <code>nix flake check</code> on every push, and the whole thing is documented in tickets with checklists, so I can always tell what was verified and what wasn't. The apps' own settings (indexer, quality profile, root folders) live in each app's config under <code>/var/lib</code>, not in Nix. That's the one place it isn't declarative, and it is in the backup scope.</p>
+
+<h2>Still open, so you don't have to find it</h2>
+<ul>
+<li><b>No UPS</b> on the NAS. The photos export is sync and the media export async for that reason, so a photo write is acknowledged only once it is on disk.</li>
+<li><b>No offsite copy yet.</b> I wanted Google Drive, but my Google account situation is unsettled, so I deferred it. Until then the 3-2-1 isn't complete.</li>
+<li><b>Backups (restic, 3-2-1), Immich and alerting</b> are next. Alerting will be dead-man style, healthchecks pings from every timer, so a job that fails for months looks different from a job that works.</li>
+<li>The NAS RAM test must pass before I import the photo library, and the first array resync should finish. Idle power and thermals on the laptop are still unmeasured.</li>
+</ul>
+
+</body>
+</html>
