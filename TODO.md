@@ -34,8 +34,9 @@ manifest. Evacuation (01) **done 2026-10-05** — copies A + C verified, freeze 
 final delta run, SMART long test on A passed — so the wipe (05) is unblocked.
 Usenet accounts (Eweka + NZBGeek) done 2026-10-05, credentials in
 `secrets/home-server.yaml`; secrets (sops-nix) done for main-pc. The
-`home-server` host (06) is **in progress**: config written and building on main-pc
-2026-10-05, hardware install next (runbook in the ticket).
+`home-server` host (06) is **installed and running** 2026-10-05 (`home-server`,
+192.168.0.74, deployed from main-pc). Still to do: idle-draw measurement and
+thermals.
 
 **Renewals:** NZBGeek expires **2027-10-08**, Eweka (15-month plan) ~**2028-01-05**.
 Black Friday is the time to look at an NZBGeek lifetime deal and a block account

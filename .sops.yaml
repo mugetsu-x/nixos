@@ -3,15 +3,15 @@
 keys:
   - &walter age1dpr5yzhxghcr4s6gy5duls6sartslxemwp6j02s447pwuh3eqfuqh9yln6 # ~/.config/sops/age/keys.txt — backed up off-machine
   - &main-pc age104je5mqhuclyrtept6axazul2ze6pxsg5ugf3h9tf63sevu3mqjs4qnps9 # /var/lib/sops-nix/key.txt
+  - &home-server age1m0qw4yxtwj3m8v9n9pkzn6zehjww0c6cavy6mmku4c0dapl7vuys2782wl # ssh-to-age of /etc/ssh/ssh_host_ed25519_key.pub — changes on reinstall
 creation_rules:
   - path_regex: ^secrets/main-pc\.yaml$
     key_groups:
       - age:
           - *walter
           - *main-pc
-  # home-server isn't installed yet: walter-only until its SSH host key is
-  # enrolled (ssh-to-age) — nas/build/issues/06, runbook step 7.
   - path_regex: ^secrets/home-server\.yaml$
     key_groups:
       - age:
           - *walter
+          - *home-server

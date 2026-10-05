@@ -42,8 +42,8 @@ fine over NFS; what breaks them is separate mounts or mismatched container paths
 
 **Status:** ready-for-agent
 
-- [ ] 01 verified green, **including its freeze box** — copies A and C (B too, if added) exist before a single byte is destroyed
-- [ ] 4 GB SODIMM + IronWolf 4 TB fitted in one session; DSM memory test passes; Info Center reads ~6 GB
+- [x] 01 verified green, **including its freeze box** — copies A and C (B too, if added) exist before a single byte is destroyed — 2026-10-05
+- [ ] 4 GB SODIMM + IronWolf 4 TB fitted in one session; DSM memory test passes; Info Center reads ~6 GB — 2026-10-05: SODIMM was already in (5,776 MB visible), IronWolf in bay 4, healthy. **Memory test deferred (Walter's call)** — Synology Assistant's current version has no memory test; substitute is a static `memtester` (`nix build nixpkgs#pkgsStatic.memtester`, copy over `ssh 'cat > ~/memtester'` — no SFTP on DSM), run as `sudo nohup ~/memtester 4000 2 > memtest.log 2>&1 &`. **Must pass before [10](10-import-photos.md) writes the photos to the array.**
 - [ ] DSM reinstalled clean; **Container Manager and Plex absent**
 - [ ] Fresh **SHR-1** array across all 4 disks, ~6 TB usable, healthy
 - [ ] Share layout created exactly as above

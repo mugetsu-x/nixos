@@ -215,7 +215,10 @@ sops-nix. Secrets are encrypted in `secrets/*.yaml`, decrypted at activation int
   no sshd and so no SSH host key; this is a plain age key. It was created by hand:
   sops-nix's `generateKey` only runs once at least one secret is declared, so on
   a fresh install the first rebuild does it, but not on a config with zero secrets.
-- **home-server** (nas/06) will use its SSH host key, converted with `ssh-to-age`.
+- **home-server's SSH host key**, `/etc/ssh/ssh_host_ed25519_key`, converted with
+  `ssh-to-age`. Nothing to back up, but a reinstall means a new key: re-enrol it
+  (`ssh-keyscan -t ed25519 home-server | nix run nixpkgs#ssh-to-age`) and
+  `sops updatekeys secrets/home-server.yaml`.
 
 Edit: `sops secrets/main-pc.yaml`. New recipient: add it to `.sops.yaml`, then
 `sops updatekeys secrets/<file>.yaml`. Smoke test after any key change:

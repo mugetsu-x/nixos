@@ -27,8 +27,50 @@ Base host only — GPU/NFS ([08](08-gpu-nfs-foundation.md)), Tailscale
 
 **Blocked by:** 03 (secrets — the host needs sops-nix from first activation).
 
-**Status:** in progress. Config written and builds on main-pc (2026-10-05); the
-hardware install is next. Follow the runbook below.
+**Status:** installed and running 2026-10-05. The measurements are left:
+idle draw, the runtime-D3 test, and thermals in the final spot.
+
+## As installed (2026-10-05)
+
+- **Hardware, read off the box:** a single WD SN730 1 TB (`nvme0n1`), with no
+  second NVMe fitted. 30 GB usable RAM. RTX 3060 Laptop at PCI `01:00.0`,
+  Vega iGPU at `05:00.0` (the bus IDs PRIME offload needs). Intel AX200
+  Wi-Fi. The dongle shows up as `enp5s0f4u2`.
+- **Addresses:** wired **192.168.0.74**, Wi-Fi **192.168.0.88**. The router's
+  DNS resolves `home-server`, so deploys use the name. Neither address is
+  reserved on the router yet.
+- **How the install actually went** (it differs slightly from the runbook):
+  - At the installer console, `curl https://github.com/mugetsu-x.keys >
+    ~/.ssh/authorized_keys`. GitHub publishes main-pc's key, so everything
+    after that ran over SSH from main-pc.
+  - The system was **built on main-pc** and `nix copy`'d into `/mnt`
+    (`ssh://root@<ip>?remote-store=local?root=/mnt`, which needs root's
+    authorized_keys in the installer too). Then `nixos-install --system <path>
+    --no-root-passwd`. That took under a minute, with nothing compiled on the laptop.
+  - The passwords were set at the console via `nixos-enter`.
+  - **The installed system got a different DHCP address** from the installer
+    (.73 → .74, a different client ID). After a reinstall, find it with
+    `nmap -p22 --open 192.168.0.0/24`, or just use `home-server`.
+- **BIOS:** Secure Boot off. There is **no power-on-with-AC option**, only
+  "Flip to Boot" (powers on when the lid opens), left on. **If a long outage
+  drains the battery, someone has to press the power button.** Short outages
+  are bridged by the battery.
+- **Charge cap: available.** `ideapad_acpi` exposes `conservation_mode`. A udev
+  rule in `home-server-hardware.nix` sets it to 1 (≈60 % cap), and it read `1`
+  after the first boot.
+- **Failover test** (dongle pulled ~45 s, then re-plugged), logged on the box:
+  - Carrier loss → routes withdrawn in 60 ms → about **1.2 s** without replies.
+  - Re-plug → same .74 lease and the route back within 35 ms, with no gap.
+  - An SSH session on the Wi-Fi address survived throughout.
+  - There was also a 9 s gap ~14 s *before* the kernel reported carrier loss.
+    The likely cause is the plug being worked loose (packets sent into a dead
+    link that wasn't down yet). A clean pull fails over in about a second.
+- **Follow-ups (not blocking):**
+  - Shut down cleanly on low battery (`services.upower`, critical action
+    `PowerOff`), since nothing restarts it after a flat battery anyway.
+  - DHCP reservations for both MACs on the router.
+  - networkd logs a harmless `Could not set hostname: Access denied` on each
+    lease (the hostname is static).
 
 ## What landed in the repo (2026-10-05)
 
@@ -139,15 +181,15 @@ Do this at the laptop. Steps 6–9 can run from main-pc once SSH works.
    - Measure idle at the plug with nothing running. Then try runtime D3
      (`cat /sys/bus/pci/devices/<nvidia>/power/runtime_status`) and measure again.
 
-- [ ] `nixosConfigurations.home-server` builds; `nix flake check --no-build` passes in CI. Builds and passes locally 2026-10-05, CI after push
-- [ ] ThinkBook boots NixOS from the flake, unattended, lid closed
-- [ ] Reachable over SSH on the LAN via USB-C→RJ45
-- [ ] sops: host's SSH key → age (`ssh-to-age < /etc/ssh/ssh_host_ed25519_key.pub`), added to the existing `secrets/home-server.yaml` rule in `.sops.yaml` (created walter-only by [04](04-usenet-signup.md)), then `sops updatekeys secrets/home-server.yaml`; add a `canary` and check it's readable — see CLAUDE.md "Secrets". The `canary` is in the file and declared; enrolment is runbook step 7
-- [ ] **Wi-Fi failover configured and tested by unplugging the dongle** (configured; the test is step 9)
-- [ ] Stays up 24/7 — no idle suspend, no lid-close suspend (configured in `modules/server/headless.nix`)
+- [x] `nixosConfigurations.home-server` builds; `nix flake check --no-build` passes in CI (run 37334481819)
+- [x] ThinkBook boots NixOS from the flake, unattended, lid closed
+- [x] Reachable over SSH on the LAN via USB-C→RJ45 (`home-server`, .74)
+- [x] sops: host's SSH key → age (`ssh-to-age < /etc/ssh/ssh_host_ed25519_key.pub`), added to the existing `secrets/home-server.yaml` rule in `.sops.yaml` (created walter-only by [04](04-usenet-signup.md)), then `sops updatekeys secrets/home-server.yaml`; add a `canary` and check it's readable — see CLAUDE.md "Secrets". Enrolled 2026-10-05, `/run/secrets/canary` reads as rennsemml
+- [x] **Wi-Fi failover configured and tested by unplugging the dongle** (~1.2 s, see "As installed")
+- [ ] Stays up 24/7 — no idle suspend, no lid-close suspend (configured in `modules/server/headless.nix`; tick after a day of uptime)
 - [x] Deploy mechanism chosen and documented. Push from main-pc, see above
 - [ ] **Real idle draw measured** (plan assumed ~20 W; expect 25–40 W with the dGPU present)
-- [ ] Battery charge-cap availability confirmed either way
+- [x] Battery charge-cap availability confirmed either way. Yes, `conservation_mode`, set by udev
 - [ ] Thermals sane in its final location — 45 W CPU + dGPU in a closed cupboard needs airflow
 
 _Decision detail: [03](../../issues/03-keystone-server-or-not.md), [01](../../issues/01-thinkpad-unit-and-always-on.md), [research](../../research/thinkpad-p16g2-home-server.md)._

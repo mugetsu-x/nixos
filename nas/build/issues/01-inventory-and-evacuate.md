@@ -263,7 +263,7 @@ Taken 2026-10-04 over SSH (`du -sh --exclude=@eaDir`, `find -type f | wc -l`).
 | `docker` | 271 M | 1,232 | ✅ (`alexandria/books` + config) |
 | `PlexMediaServer` | 471 G | | ❌ disposable |
 | `@docker`, `@appstore`, other `@*`, `*.core.gz` | ~53 G | | ❌ DSM system / crash dumps |
-| `@database` | 1.9 G | | ⬜ Synology Photos' DB — a raw copy of a live DB, only "just in case" for albums |
+| `@database` | 1.9 G | | ❌ Synology Photos' DB (albums, faces, shared links — no photos) — let go by Walter, 2026-10-05 |
 
 **Irreplaceable total ≈ 541 G** (after the recycle-bin purge) — fits every target, including the 1 TB disk B. File count
 is low enough that Drive's per-file rate limit is not a concern. For contrast, `@eaDir`
