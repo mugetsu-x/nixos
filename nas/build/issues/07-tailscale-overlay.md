@@ -42,8 +42,8 @@ Auth key comes from sops-nix ([03](03-secrets-management.md)).
   (wired address; in Wi-Fi failover it falls back to relayed). Deferred until
   there's a need.
 
-- [ ] `home-server` + NAS both on the tailnet with MagicDNS names (home-server ✔, NAS after 05)
-- [ ] Key expiry disabled on both nodes in the admin console (home-server ✔)
+- [x] `home-server` + NAS both on the tailnet with MagicDNS names (home-server ✔; NAS ✔ 2026-10-05 as `alexandria.tail2c2ea8.ts.net`, 100.64.187.19 — `tailscale ping alexandria` from home-server: direct, 2 ms)
+- [x] Key expiry disabled on both nodes in the admin console (home-server ✔; NAS ✔ 2026-10-05 — `KeyExpiry` absent for both in `tailscale status --json`)
 - [ ] Both reachable by MagicDNS name from a genuinely off-LAN client (home-server ✔, from the phone on mobile data)
 - [ ] NAS verified reachable **with `home-server` powered down**
 

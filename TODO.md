@@ -38,7 +38,13 @@ Usenet accounts (Eweka + NZBGeek) done 2026-10-05, credentials in
 192.168.0.74, deployed from main-pc). Still to do: idle-draw measurement (plug
 meter ordered 2026-10-05; measure as-is, then with runtime D3) and thermals.
 Tailscale (07) done for home-server 2026-10-05 (tailnet owned by
-walter@pariggers.com); the NAS joins after 05.
+walter@pariggers.com); the NAS joined 2026-10-05, key expiry off on both — 07's
+off-LAN and laptop-down checks remain. **NAS rebuilt (05) 2026-10-05:** DSM
+7.4.1, SHR-1 over all four disks (5.3 TiB), `data` + `photos` exported to
+home-server with squash "Map all users to admin" (write + hardlink tested from
+home-server). Left in 05: initial resync → *Healthy*, the deferred memory test
+(must pass before 10), and reserving home-server's addresses on the A1 router.
+**08 (GPU + NFS foundation) is unblocked.**
 
 **Renewals:** NZBGeek expires **2027-10-08**, Eweka (15-month plan) ~**2028-01-05**.
 Black Friday is the time to look at an NZBGeek lifetime deal and a block account

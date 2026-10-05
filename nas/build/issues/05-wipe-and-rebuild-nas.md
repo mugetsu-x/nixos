@@ -40,17 +40,29 @@ fine over NFS; what breaks them is separate mounts or mismatched container paths
 
 **Blocked by:** 01 (evacuation). Hard gate. (02 deferred — not a gate.)
 
-**Status:** ready-for-agent
+**Status:** in progress 2026-10-05 (Walter at the DSM UI, agent guiding)
 
 - [x] 01 verified green, **including its freeze box** — copies A and C (B too, if added) exist before a single byte is destroyed — 2026-10-05
 - [ ] 4 GB SODIMM + IronWolf 4 TB fitted in one session; DSM memory test passes; Info Center reads ~6 GB — 2026-10-05: SODIMM was already in (5,776 MB visible), IronWolf in bay 4, healthy. **Memory test deferred (Walter's call)** — Synology Assistant's current version has no memory test; substitute is a static `memtester` (`nix build nixpkgs#pkgsStatic.memtester`, copy over `ssh 'cat > ~/memtester'` — no SFTP on DSM), run as `sudo nohup ~/memtester 4000 2 > memtest.log 2>&1 &`. **Must pass before [10](10-import-photos.md) writes the photos to the array.**
-- [ ] DSM reinstalled clean; **Container Manager and Plex absent**
-- [ ] Fresh **SHR-1** array across all 4 disks, ~6 TB usable, healthy
-- [ ] Share layout created exactly as above
-- [ ] NFS exports for `data` + `photos`; UID/squash mapping decided and documented **now**, not debugged later under [09](09-deploy-immich.md)
-- [ ] btrfs snapshots enabled on `photos`; **scheduled data scrub + SMART tests configured**
-- [ ] SSH re-enabled (fresh DSM keeps nothing)
-- [ ] Tailscale DSM package installed (see [07](07-tailscale-overlay.md))
+- [x] DSM reinstalled clean; **Container Manager and Plex absent** — 2026-10-05, Control Panel → Update & Restore → Reset → Erase All Data; all suggested packages declined. QuickConnect ships as a system package but is switched off
+- [ ] Fresh **SHR-1** array across all 4 disks, ~6 TB usable, healthy — 2026-10-05: DSM 7.4.1, SHR (LVM `vg1` over `md2`, RAID 5 on the `p5` partitions of all four disks), btrfs, **5.3 TiB** usable. The IronWolf's other 2 TB sits unused until a second ≥4 TB disk arrives — that's SHR working as designed. Initial resync at 49 % at 20:45, ~2 h to go; tick when Storage Manager says *Healthy*
+- [x] Share layout created exactly as above — 2026-10-05; both shares with **data checksum on, recycle bin off**
+- [x] NFS exports for `data` + `photos`; UID/squash mapping decided and documented **now**, not debugged later under [09](09-deploy-immich.md) — **decided 2026-10-05: squash = "Map all users to admin"**. Every write lands as DSM's built-in `admin` (UID 1024), which stays *disabled*: no login, Walter remains the only admin human. Containers can run as any UID (Immich as root, the *arr apps as PUID) without permission mismatches; the cost is no per-service ownership on the NAS. Rules per share: one each for home-server's wired `.74` and Wi-Fi `.88` (failover changes the source IP), Read/Write, `sys`, non-privileged ports off, mounted subfolders on; **async on for `data`, off for `photos`** (no UPS — don't acknowledge photo writes before they are on disk). The `administrators` group needs R/W on both shares, since `admin` is who NFS writes as. **Verified 2026-10-05 from home-server** (temporary NFSv4.1 `hard` mount in `/tmp`, removed after): writes from root and from UID 65534 both land as `1024:100`; a hardlink `usenet/complete` → `media` shares one inode (link count 2); `photos` writable. `showmount -e` lists exactly `.74` + `.88`.
+- [x] btrfs snapshots enabled on `photos`; **scheduled data scrub + SMART tests configured** — 2026-10-05, read back from `/usr/syno/etc/synoschedule.d/root/*.task` and `datascrubbing.conf`: `photos` snapshot daily 04:00 (Snapshot Replication; `data` deliberately not snapshotted); SMART quick weekly 02:00 and SMART extended every 3 months from 2026-10-20 08:00, both on all four disks by serial; data scrub every 2 months from 2026-10-05, allowed to run 01:00–17:00
+- [x] SSH re-enabled (fresh DSM keeps nothing) — 2026-10-05, port 2288, user home service on, key auth works (`ssh -o BatchMode=yes alexandria`). Walter is UID 1026 in `administrators`. The evacuation's `/etc/sudoers.d/evac` is gone with the old DSM, so `sudo` needs the password again
+- [x] Tailscale DSM package installed (see [07](07-tailscale-overlay.md)) — 2026-10-05, `alexandria.tail2c2ea8.ts.net`, key expiry disabled. Also done the same evening: SMART extended moved to start on the 20th so it never shares a day with the scrub (which runs on the 5th); QuickConnect confirmed off
 - [ ] ⬜ *Recommended:* small UPS fitted — the durability layer is the only box without power protection
+
+## Open
+
+- **home-server's addresses are not reserved on the router** (A1 ZTE MC888,
+  firmware `BD_A1EUMC888BV1.0.0B10`). The router lists the entry as
+  *Adresstyp: Benutzereinstellung* and offers no reservation for it. Suspected
+  cause: systemd-networkd sends a DUID-based DHCP client ID rather than the MAC,
+  which would also explain the .73 → .74 jump in [06](06-home-server-host.md).
+  If either address changes, the NFS rules refuse the mount and every service
+  fails together. Fix options: `DHCP.ClientIdentifier=mac` on the server and
+  reserve by MAC, or a static address in `modules/server/`. Solve before
+  [08](08-gpu-nfs-foundation.md) relies on the mounts.
 
 _Detail: [PLAN.md](../../PLAN.md); [ARCHITECTURE.md](../../ARCHITECTURE.md) → The NAS is rebuilt, not expanded._
