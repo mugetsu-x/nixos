@@ -44,7 +44,7 @@ Auth key comes from sops-nix ([03](03-secrets-management.md)).
 
 - [x] `home-server` + NAS both on the tailnet with MagicDNS names (home-server ✔; NAS ✔ 2026-10-05 as `alexandria.tail2c2ea8.ts.net`, 100.64.187.19 — `tailscale ping alexandria` from home-server: direct, 2 ms)
 - [x] Key expiry disabled on both nodes in the admin console (home-server ✔; NAS ✔ 2026-10-05 — `KeyExpiry` absent for both in `tailscale status --json`)
-- [ ] Both reachable by MagicDNS name from a genuinely off-LAN client (home-server ✔, from the phone on mobile data)
+- [x] Both reachable by MagicDNS name from a genuinely off-LAN client (home-server ✔, from the phone on mobile data; NAS ✔ 2026-10-05 — DSM login at `alexandria.tail2c2ea8.ts.net:5000` from the phone on mobile data, Walter)
 - [ ] NAS verified reachable **with `home-server` powered down**
 
 _Decision detail: [04](../../issues/04-remote-access-method.md)._
