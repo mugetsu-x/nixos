@@ -66,14 +66,22 @@ the plug-meter idle reading (battery proxy: ~2.4 W; runtime D3 already works).
     The likely cause is the plug being worked loose (packets sent into a dead
     link that wasn't down yet). A clean pull fails over in about a second.
 - **Follow-ups (not blocking):**
-  - Shut down cleanly on low battery (`services.upower`, critical action
-    `PowerOff`), since nothing restarts it after a flat battery anyway.
+  - **Shut down cleanly on low battery (`services.upower`, critical action
+    `PowerOff`), since nothing restarts it after a flat battery anyway. Now
+    urgent:** 2026-10-06, unplugged at 19:30 to park the battery at 60 %, the
+    Immich import (10) pushed draw to **35.8 W** and it reached **36 %** by
+    21:30, about 38 min from flat, with Postgres mid-write. Caught by hand, charger
+    back in (charging at 40 %). The 2.4 W idle figure says nothing about load.
+    **Never run it on battery under load**, and the upower shutdown should land
+    before anything relies on it. (Alerting on `Discharging` belongs in 14.)
   - ~~DHCP reservations for both MACs on the router.~~ Done 2026-10-05 (.73/.87, see 05 Open).
   - **The battery sits at 100 %, not ~60 %** (2026-10-06). `conservation_mode`
     reads 1, but it only stops *charging*. The pack was already full when the rule
     first ran, and on AC it never discharges (`power_now` 0; 63.7 of 71 Wh design,
     ≈ 90 % health). To park it at ~60 %, run once on battery (charger out, Ethernet
     stays) until `capacity` reads ~60, then plug back in; the cap holds it there.
+    **Done 2026-10-06** (overshot to 36 % under import load, see the upower item above). It
+    charges back up to the ~60 % cap from here.
   - networkd logs a harmless `Could not set hostname: Access denied` on each
     lease (the hostname is static).
 

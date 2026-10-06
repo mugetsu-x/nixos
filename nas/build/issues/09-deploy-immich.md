@@ -71,7 +71,7 @@ Two accounts — **Walter** (admin) + **Anja** — with partner sharing both way
 - [x] `MACHINE_LEARNING_MODEL_TTL` set — `300` (s), in `immich.nix`
 - [ ] `backups/` on NFS; a DB dump has appeared on the NAS after the first nightly run
 - [x] Storage template enabled **before** any asset is uploaded; a test upload lands under `library/<user>/<year>/…` — 2026-10-06, template `{{y}}/{{y}}-{{MM}}-{{dd}}/{{filename}}`: `library/walter/2026/2026-10-01/PXL_….jpg`. Storage labels are `walter` and `anja`. Set them **before** the import: the admin account defaults to `admin`, and changing a label later needs a Storage Template Migration job (Administration → Job Queues) that moves every file
-- [ ] *Optional:* `main-pc` ML worker listed first, laptop second; with the PC off, a test upload still gets smart-search + faces
+- [ ] *Optional:* `main-pc` ML worker listed first, laptop second; with the PC off, a test upload still gets smart-search + faces — 2026-10-06: `modules/immich-ml.nix` on main-pc (Docker, host network, **not started at boot**: `sudo systemctl start docker-immich-machine-learning`; 3003 open to .73/.87 only). URLs set to `http://192.168.0.119:3003`, then the local container. Serving the 10 backlog. Left: the PC-off fallback test
 - [x] Walter (admin) + Anja accounts created with partner sharing — 2026-10-06: both directions, `inTimeline` on for both (one merged timeline each; partner assets are view-only, and face names are kept per account)
 - [x] DB password sourced from sops-nix — `immich_db_password` (40 alnum chars, generated straight into `secrets/home-server.yaml`), rendered into a sops template env file shared by server + Postgres
 

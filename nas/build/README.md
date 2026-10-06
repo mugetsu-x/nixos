@@ -31,6 +31,10 @@ Ordered execution tickets for the architecture in
 
 04 usenet signup ──> 11        (independent, manual, do it whenever)
 02 upload to Drive             (deferred 2026-10-04 — future improvement, not a gate)
+
+15–19 (added 2026-10-06, not grilled): paperless, homepage, actual, home-assistant,
+mealie. All on home-server. 15/17/19 hold data that exists nowhere else, so they
+wait for 13. 17 + 18 need one shared answer for HTTPS (tailscale serve?).
 ```
 
 ## The tickets
@@ -51,6 +55,11 @@ Ordered execution tickets for the architecture in
 | 12 | [Deploy Jellyfin + Jellyseerr](issues/12-jellyfin-jellyseerr.md) | 08 |
 | 13 | [restic 3-2-1 backup service](issues/13-restic-321-service.md) | 09, 06, 03 |
 | 14 | [Dead-man alerting](issues/14-alerting.md) | 06 |
+| 15 | [Paperless-ngx: document archive](issues/15-paperless-ngx.md) *(idea, not grilled)* | 08, 13 for real use |
+| 16 | [Homepage: start page for all services](issues/16-homepage-dashboard.md) *(idea, not grilled)* | 06 |
+| 17 | [Actual Budget: household budgeting](issues/17-actual-budget.md) *(idea, not grilled)* | 06, 07, 13 for real use |
+| 18 | [Home Assistant: smart home](issues/18-home-assistant.md) *(idea, not grilled)* | 06, 08 |
+| 19 | [Mealie: recipes + meal planning](issues/19-mealie.md) *(idea, not grilled)* | 06, 13 for real use |
 
 ## Three things not to get wrong
 

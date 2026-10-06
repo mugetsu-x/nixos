@@ -43,6 +43,8 @@ modules/               system-level (NixOS options)
   login.nix            greetd + regreet greeter, UWSM-managed Hyprland session
   gaming.nix           steam (+ GE-Proton), gamemode, gamescope
   secrets.nix          sops-nix: machine age key, declared secrets (see below)
+  immich-ml.nix        main-pc's spare-GPU ML worker for home-server's Immich;
+                       not started at boot (`systemctl start docker-immich-machine-learning`)
   server/              home-server only: headless (sshd, no sleep), networking
                        (Ethernet → Wi-Fi failover), nvidia (compute), secrets,
                        tailscale (plain tailnet node, key from sops)

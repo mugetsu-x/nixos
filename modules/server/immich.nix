@@ -1,10 +1,11 @@
 { config, ... }:
 let
-  # Server and ML must run the same version. Never `:release`: Immich ships
+  # Server and ML must run the same version (main-pc's ML worker reads the same
+  # file). Never `:release`: Immich ships
   # breaking DB migrations, sometimes ones that need stepped upgrades — read the
   # release notes before bumping. Postgres and valkey are digest-pinned exactly
   # as in that release's docker-compose.yml; take them from the new one on bump.
-  version = "v3.2.4";
+  version = import ./immich-version.nix;
 
   # Host networking, like the rest of home-server. The images' default
   # hostnames ("database", "redis", "immich-machine-learning") are pointed at
@@ -36,7 +37,14 @@ in
         "immich-postgres"
         "immich-redis"
       ];
-      extraOptions = [ "--network=host" ] ++ localHosts;
+      extraOptions = [
+        "--network=host"
+        # NVENC/NVDEC for video transcoding (Admin → Video Transcoding →
+        # Hardware acceleration: NVENC). Over half the library by size is
+        # video; the 5900HX alone would take days on the import.
+        "--device=nvidia.com/gpu=all"
+      ]
+      ++ localHosts;
       volumes = [
         "/photos:/data"
         "/var/cache/immich/thumbs:/data/thumbs"

@@ -16,6 +16,7 @@
     ../modules/nix-tools.nix
     ../modules/keyring.nix
     ../modules/secrets.nix
+    ../modules/immich-ml.nix
   ];
   networking.hostName = "main-pc";
   # Compatibility marker, not a version to "update". See CLAUDE.md.
@@ -67,7 +68,9 @@
 
   # --- CLAUDE CODE INSTALLATION ---
   # Pull the package directly from the flake input
-  environment.systemPackages = [ nix-claude-code.packages.${pkgs.stdenv.hostPlatform.system}.default ];
+  environment.systemPackages = [
+    nix-claude-code.packages.${pkgs.stdenv.hostPlatform.system}.default
+  ];
 
   # Home Manager user config
   home-manager.users.rennsemml = import ../home/rennsemml.nix;
