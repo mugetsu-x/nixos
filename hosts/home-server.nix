@@ -13,6 +13,7 @@
     ../modules/server/storage.nix
     ../modules/server/media.nix
     ../modules/server/arr.nix
+    ../modules/server/immich.nix
     ../modules/server/tailscale.nix
   ];
 

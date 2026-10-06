@@ -27,8 +27,8 @@ Base host only — GPU/NFS ([08](08-gpu-nfs-foundation.md)), Tailscale
 
 **Blocked by:** 03 (secrets — the host needs sops-nix from first activation).
 
-**Status:** installed and running 2026-10-05. The measurements are left:
-idle draw, the runtime-D3 test, and thermals in the final spot.
+**Status:** installed and running 2026-10-05; uptime + thermals ticked 2026-10-06. Left:
+the plug-meter idle reading (battery proxy: ~2.4 W; runtime D3 already works).
 
 ## As installed (2026-10-05)
 
@@ -69,6 +69,11 @@ idle draw, the runtime-D3 test, and thermals in the final spot.
   - Shut down cleanly on low battery (`services.upower`, critical action
     `PowerOff`), since nothing restarts it after a flat battery anyway.
   - ~~DHCP reservations for both MACs on the router.~~ Done 2026-10-05 (.73/.87, see 05 Open).
+  - **The battery sits at 100 %, not ~60 %** (2026-10-06). `conservation_mode`
+    reads 1, but it only stops *charging*. The pack was already full when the rule
+    first ran, and on AC it never discharges (`power_now` 0; 63.7 of 71 Wh design,
+    ≈ 90 % health). To park it at ~60 %, run once on battery (charger out, Ethernet
+    stays) until `capacity` reads ~60, then plug back in; the cap holds it there.
   - networkd logs a harmless `Could not set hostname: Access denied` on each
     lease (the hostname is static).
 
@@ -186,10 +191,11 @@ Do this at the laptop. Steps 6–9 can run from main-pc once SSH works.
 - [x] Reachable over SSH on the LAN via USB-C→RJ45 (`home-server`, .73)
 - [x] sops: host's SSH key → age (`ssh-to-age < /etc/ssh/ssh_host_ed25519_key.pub`), added to the existing `secrets/home-server.yaml` rule in `.sops.yaml` (created walter-only by [04](04-usenet-signup.md)), then `sops updatekeys secrets/home-server.yaml`; add a `canary` and check it's readable — see CLAUDE.md "Secrets". Enrolled 2026-10-05, `/run/secrets/canary` reads as rennsemml
 - [x] **Wi-Fi failover configured and tested by unplugging the dongle** (~1.2 s, see "As installed")
-- [ ] Stays up 24/7 — no idle suspend, no lid-close suspend (configured in `modules/server/headless.nix`; tick after a day of uptime)
+- [x] Stays up 24/7 — no idle suspend, no lid-close suspend (configured in `modules/server/headless.nix`) — 2026-10-06 19:30: up 22 h 13 min since the 2026-10-05 21:16 boot, `sleep.target`/`suspend.target` masked, no suspend in the journal, 0 failed units, all six containers up 21–22 h
 - [x] Deploy mechanism chosen and documented. Push from main-pc, see above
-- [ ] **Real idle draw measured** (plan assumed ~20 W; expect 25–40 W with the dGPU present)
+- [ ] **Real idle draw measured** (plan assumed ~20 W; expect 25–40 W with the dGPU present) — **battery proxy 2026-10-06 19:35:** charger out, idle with all six media/arr containers up, `power_now` read **2.3–2.4 W** over 30 s (energy_now agrees, ~3 W), dGPU `suspended`. That's DC draw at the battery, so no charger losses and no dongle/AC overhead. The plug meter still decides it, but it'll be single digits, nowhere near 25–40 W.
 - [x] Battery charge-cap availability confirmed either way. Yes, `conservation_mode`, set by udev
-- [ ] Thermals sane in its final location — 45 W CPU + dGPU in a closed cupboard needs airflow — baseline 2026-10-05 22:53 (idle, on the desk, 1.5 h up): CPU Tctl 41 °C, iGPU edge 41 °C, NVMe 31 °C, 3060 37 °C. Re-read in the cupboard and compare (`ssh root@home-server 'sensors; nvidia-smi'`). **Side finding for the idle-draw item:** the 3060 sits in **P0 with runtime PM `active`** (`/sys/bus/pci/devices/0000:01:00.0/power/runtime_status`), ~19 W by `nvidia-smi -q -d POWER`, persistence mode off — it is not reaching D3 at idle and alone uses most of the plan's 20 W. (The plain `--query-gpu=power.draw` read 752 W: bogus, ignore it.)
+- [x] Thermals sane in its final location — **the final location is the desk** (Walter, 2026-10-06: it stays there, no cupboard). Baseline 2026-10-05 22:53 (idle, 1.5 h up): CPU Tctl 41 °C, iGPU edge 41 °C, NVMe 31 °C, 3060 37 °C. Re-read 2026-10-06 19:30 (idle, 22 h up, load 0.06): Tctl 35 °C, iGPU edge 36 °C, NVMe 26 °C, 3060 31 °C, acpitz 35 °C; no thermal/MCE events in the kernel log. `sensors` isn't on the host; read `/sys/class/hwmon/*/temp*_input`. Re-check under load once Immich's import (10) runs the 3060.
+- **Runtime D3 works out of the box. The 2026-10-05 "stuck in P0" finding was caused by measuring it.** The open driver enables fine-grained runtime D3 by default on this laptop (`/proc/driver/nvidia/gpus/0000:01:00.0/power`: `Runtime D3 status: Enabled (fine-grained)`, `Video Memory: Off`). Read without touching the GPU, `runtime_status` is `suspended`. **Running `nvidia-smi` wakes the GPU**, and the earlier readings ran it *before* reading `runtime_status`, so they always saw `active`/P0. Read the sysfs file first, and never run `nvidia-smi` in a loop to watch idle power. (`--query-gpu=power.draw` reports a bogus 752 W; ignore it.) No `finegrained` / PRIME config needed.
 
 _Decision detail: [03](../../issues/03-keystone-server-or-not.md), [01](../../issues/01-thinkpad-unit-and-always-on.md), [research](../../research/thinkpad-p16g2-home-server.md)._

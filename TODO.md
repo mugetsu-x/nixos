@@ -43,22 +43,27 @@ off-LAN and laptop-down checks remain. **NAS rebuilt (05) 2026-10-05:** DSM
 7.4.1, SHR-1 over all four disks (5.3 TiB), `data` + `photos` exported to
 home-server with squash "Map all users to admin" (write + hardlink tested from
 home-server). Resync is *Healthy* and home-server's addresses are bound on the
-router; left in 05: the memory test, running since 2026-10-05 (must pass before 10).
-**08 (GPU + NFS), 11 (arr stack) and 12 (Jellyfin + Jellyseerr) done 2026-10-05; 09 (Immich) is next.**
+router; the memory test **passed 2026-10-06** (memtester, 2 loops, 0 failures), so 05 is done (memtester removed from the NAS 2026-10-06).
+**08 (GPU + NFS), 11 (arr stack) and 12 (Jellyfin + Jellyseerr) done 2026-10-05; 09 (Immich) deployed 2026-10-06, first-run setup pending.**
 
 **Handoff, end of 2026-10-05 session.** Running on home-server now: Jellyfin
 (`:8096`), Jellyseerr (`:5055`), Radarr (`:7878`), Sonarr (`:8989`), Prowlarr
-(`:9696`), SABnzbd (`:8080`); mounts `/data` + `/photos` from the NAS
+(`:9696`), SABnzbd (`:8080`), Immich (`:2283`, since 2026-10-06); mounts `/data` + `/photos` from the NAS
 (192.168.0.70) with `nas-mount-guard`; podman + GPU toolkit. Code is in
-`modules/server/{storage,media,arr}.nix`. Tickets 08, 11, 12 are done; one real
+`modules/server/{storage,media,arr,immich}.nix`. Tickets 08, 11, 12 are done; one real
 film (Obsession 2026) went request → download → import → Jellyfin.
-- **Next: 09 Immich** (CUDA on the 3060, Postgres + thumbnails on NVMe, originals on
-  `/photos`). Order its units on `RequiresMountsFor = [ "/photos" ]`. Hold **10**
-  (import) until the NAS memory test passes.
-- **Still waiting on Walter:** the `memtester` result (running; gate for 10), the
-  plug-meter reading, a day of uptime for 06 (server rebooted 2026-10-05 ~21:15),
-  and 07's home-server-down check (postponed; do it after the uptime tick, since
-  it resets the clock). Then 13 (restic, must call `nas-mount-guard /data /photos`) and 14.
+- **09 Immich deployed 2026-10-06** (`modules/server/immich.nix`, v3.2.4, `http://home-server:2283`).
+  First-run setup done (storage template on, labels `walter`/`anja`, partner
+  sharing both ways, CUDA ML verified). Left: confirm a DB dump lands in
+  `/photos/backups` after the 02:00 run on 2026-10-07. **10** (import) is next; the memory-test gate is
+  gone (passed 2026-10-06).
+- **Still waiting on Walter:** the plug-meter reading for 06. Uptime and thermals
+  are ticked (it stays on the desk). The battery proxy reads ~2.4 W idle, and
+  runtime D3 already works: the old "stuck in P0" was `nvidia-smi` waking the GPU.
+  The battery was unplugged 2026-10-06 19:30 to drain to ~60 %. At ~2.4 W that
+  takes ~10 h, so plug it back in at `capacity` ≈ 60. 07's home-server-down check
+  is **deferred by Walter** (small, do it any time). Then 13 (restic, must call
+  `nas-mount-guard /data /photos`; skip `/var/cache/immich`) and 14.
 - **Gotchas learned.** SABnzbd's in-app Restart does not survive in a container:
   `systemctl restart podman-sabnzbd`. A release with a foreign title (e.g.
   "Saplanti") ends as `importBlocked`: Radarr → Activity → Queue → manual import.

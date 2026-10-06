@@ -39,7 +39,7 @@ assets.
 Mis-sorted assets can be moved or shared via albums afterwards — the mapping doesn't
 need to be perfect.
 
-**Blocked by:** 09 (Immich deployed), 01 (copies C and A are the source), and the **NAS memory test** in [05](05-wipe-and-rebuild-nas.md) — running since 2026-10-05 22:51; don't write the photos to the array until it has passed.
+**Blocked by:** 09 (Immich deployed), 01 (copies C and A are the source), and the **NAS memory test** in [05](05-wipe-and-rebuild-nas.md) — **passed 2026-10-06** (2 loops, 4,000 MB, 0 failures); no longer a blocker.
 
 **Status:** ready-for-agent
 

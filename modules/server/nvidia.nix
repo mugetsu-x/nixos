@@ -12,9 +12,9 @@
     nvidiaSettings = false;
   };
 
-  # Idle power is deliberately left at the driver default until it is measured
-  # on the box (06's checklist). This is a hybrid laptop: the panel hangs off the
-  # Ryzen iGPU, so the desktop "headless EDID" penalty may not apply at all, and
-  # the real lever is runtime D3 (powerManagement.finegrained + PRIME offload bus
-  # IDs from lspci). nvidiaPersistenced would block exactly that, so it is off.
+  # Idle power needs nothing here: the open driver already does fine-grained
+  # runtime D3 on this hybrid laptop, and the idle dGPU reads `suspended` (06,
+  # measured 2026-10-06). Don't add powerManagement.finegrained/PRIME "to fix
+  # it". nvidiaPersistenced would block D3, so it stays off. And `nvidia-smi`
+  # itself wakes the GPU: read power/runtime_status in sysfs *before* running it.
 }
