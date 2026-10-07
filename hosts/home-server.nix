@@ -15,6 +15,7 @@
     ../modules/server/arr.nix
     ../modules/server/immich.nix
     ../modules/server/tailscale.nix
+    ../modules/server/homepage.nix
   ];
 
   networking.hostName = "home-server";

@@ -31,4 +31,32 @@ Added 2026-10-06 as a wish (Walter); **not grilled yet**.
 
 **Blocked by:** 06. Nicer once the other services exist.
 
-**Status:** idea, not grilled
+**Status:** done 2026-10-07: `http://home-server:8082`, `modules/server/homepage.nix`
+
+## Decisions (Walter, 2026-10-07)
+
+- **Port 8082**, the nixpkgs default. 80/443 stay free for the HTTPS answer
+  17/18 need.
+- **Widgets:** SABnzbd, Radarr, Sonarr (downloads), Jellyfin (now playing),
+  Jellyseerr (requests), Immich (counts). Prowlarr is a link only.
+- **Health:** the built-in `resources` widget only: CPU, RAM, CPU temp, uptime,
+  `/`, and the NAS. `/data` and `/photos` are one volume, so one disk entry.
+  Battery and alerting stay in 14.
+- **Not** set as Chrome's start page on main-pc; just a bookmark.
+
+## What landed (2026-10-07)
+
+- Keys in sops as `<app>_api_key`, rendered into one env file
+  (`sops.templates."homepage.env"`) as `HOMEPAGE_VAR_<APP>_KEY`. Radarr, Sonarr,
+  SABnzbd and Jellyseerr were copied from the apps' config files on the box.
+  Jellyfin and Immich were made in their UIs, both named `homepage`. Immich's
+  is Walter's (admin) key with only `server.statistics`.
+- `allowedHosts`: localhost, `home-server`, .73, .87, the tailnet name and IP.
+  The check guards **the API, not the page**: an unknown `Host` still gets the
+  HTML shell but `400 Host validation failed` on every widget call.
+- Every service has a `siteMonitor` up/down dot.
+- Verified through Homepage's own proxy: all six widgets return data, and the
+  `resources` widget reads `/data` over NFS despite the unit's `PrivateMounts`.
+- **Gotcha:** the Immich widget's v2 endpoint is called `statistics_v2`.
+  `statistics` maps to the old `/api/server-info/statistics` and returns 404.
+  The page itself uses the right one; only a hand-made proxy call trips on it.

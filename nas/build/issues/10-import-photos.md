@@ -41,15 +41,15 @@ need to be perfect.
 
 **Blocked by:** 09 (Immich deployed), 01 (copies C and A are the source), and the **NAS memory test** in [05](05-wipe-and-rebuild-nas.md) — **passed 2026-10-06** (2 loops, 4,000 MB, 0 failures); no longer a blocker.
 
-**Status:** in progress 2026-10-06: walter imported, anja uploading (detached, see "Handover"); see "Run" below
+**Status:** import done 2026-10-07; cleanup left for Walter (see "Handover" and "Result" below)
 
-- [ ] `@eaDir` excluded — confirmed by asset count sanity, not by hope
-- [ ] All sources imported to the correct accounts. There is no `photo/`: the shared space was never used (01). Mapping decided 2026-10-06, see "Run"
-- [ ] Hash-dedup confirmed working (re-running the import adds nothing)
-- [ ] Counts + spot-checks verify nothing lost vs. source
-- [ ] Thumbnail + ML jobs completed across the whole library
+- [x] `@eaDir` excluded — confirmed by asset count sanity, not by hope — 2026-10-07: the CLI's file counts equal the files on disk *excluding* `@eaDir`/`#recycle`, for both accounts
+- [x] All sources imported to the correct accounts. There is no `photo/`: the shared space was never used (01). Mapping decided 2026-10-06, see "Run"
+- [x] Hash-dedup confirmed working (re-running the import adds nothing) — 2026-10-07: both re-check passes 0 new (only the 0-byte files re-attempted, rejected again)
+- [ ] Counts + spot-checks verify nothing lost vs. source — counts done 2026-10-07; **UI spot-check left (Walter)**
+- [x] Thumbnail + ML jobs completed across the whole library — 2026-10-07 08:15: every queue 0 waiting / 0 active / 0 failed
 - [x] Partner sharing visible from both accounts — set up in 09 (2026-10-06): both directions, in timeline
-- [ ] Per-source asset counts in Immich reconciled against 01's manifest counts (minus non-media files)
+- [x] Per-source asset counts in Immich reconciled against 01's manifest counts (minus non-media files) — 2026-10-07, see "Result"
 - [ ] **Copies A/B/C left intact** — they are the fallback until [13](13-restic-321-service.md) is green on both repos
 
 _Decision detail: [06](../../issues/06-immich-placement-migration.md#amendment--second-pass-2026-07-26)._
@@ -121,15 +121,43 @@ face grouping, ~5 k OCR, ~3 k metadata, ~2.4 k thumbnails, ~230 videos. Anja's
 assets add to that.
 
 **To finish 10, next session:**
-- [ ] `run.log` shows the anja upload's summary. Account for its failures the same
-      way (manifest hash), and both re-check passes find 0 new.
-- [ ] Per-account counts reconciled: walter 18,429 (+1 test photo); anja ≈ 36,059 − duplicates.
+- [x] `run.log` shows the anja upload's summary. Account for its failures the same
+      way (manifest hash), and both re-check passes find 0 new. — 2026-10-07, see "Result"
+- [x] Per-account counts reconciled: walter 18,429 (+1 test photo); anja ≈ 36,059 − duplicates. — 2026-10-07, see "Result"
 - [ ] Spot-check a few albums from both accounts in the UI (dates, videos play).
-- [ ] Wait for every job queue to read 0, then:
-  - put the job concurrency back to the defaults;
-  - stop the main-pc worker (`sudo systemctl stop docker-immich-machine-learning`);
-  - run the PC-off fallback test for 09.
-- [ ] **Delete both API keys**, in Immich (each user's Account Settings → API
-      Keys) and in `~/.cache/immich-import/` (`walter.key`, `anja.key`, plus
-      `config*.json`, which holds the system config).
+- [x] Wait for every job queue to read 0 — 2026-10-07 08:15. Then:
+  - [x] put the job concurrency back to the defaults (thumbnails 3, video 1,
+        faces 2, smart search 2, OCR 1) — Walter, 2026-10-07;
+  - [x] stop the main-pc worker — Walter, 2026-10-07;
+  - [ ] run the PC-off fallback test for 09.
+- [x] **Delete both API keys** in Immich — Walter, 2026-10-07. The local copies
+      in `~/.cache/immich-import/` were deleted the same day; the logs and
+      `run.sh` stay. (The key named `homepage` on Walter's account is 16's,
+      created afterwards: keep it.)
 - [ ] Walter: move private photos into the Locked Folder (sharing to Anja stayed on).
+
+## Result (2026-10-07)
+
+`run.sh` finished 23:11 on 2026-10-06, all three passes exit 0:
+
+| Pass | Found | Uploaded | Duplicates | Failed |
+|---|---|---|---|---|
+| anja upload (21:33–23:07) | 36,059 (299.8 GB) | **32,628 (293.3 GB)** | 3,430 (6.5 GB) | 1 |
+| walter re-check | 22,367 | 0 | 22,356 | 11 |
+| anja re-check | 36,059 | 0 | 36,058 | 1 |
+
+- **Failures:** the same 12 files every time, all 0 bytes and all hashed
+  `e3b0c442…` (empty) in 01's NAS-side manifest. Anja's one is
+  `homes/Anja/Photos/MobileBackup/Mi A3/DCIM/Camera/2022/04/IMG_20220416_143536.jpg`.
+  Nothing lost.
+- **Immich:** walter **18,430** (17,357 photos, 1,073 videos, 145 GB) = 18,429 + the
+  test photo. anja **32,628** (31,043 photos, 1,585 videos, 302 GB).
+- **Anja vs. 01's manifests:** 36,059 files on disk in her sources (minus
+  `@eaDir`/`#recycle`) = 36,054 in `evac-manifest.full.sha256` + the 5 freeze-delta
+  files; = 36,011 in `evac-manifest2.full.sha256` + the 48 files gone at the freeze.
+  Every file on disk is accounted for.
+- **Those 48 are now in Anja's Immich.** 01: Anja deleted them from the NAS on
+  purpose (Pixel 7a, Jul–Sep 2026, `DCIM/Camera`, `Screenshots`, `WhatsApp Images`),
+  but rsync kept them in C, and C was the import source. They show up in her
+  timeline again. Her call whether to delete them again; the paths are the
+  `comm -23` of the two manifests.

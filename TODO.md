@@ -46,7 +46,7 @@ home-server with squash "Map all users to admin" (write + hardlink tested from
 home-server). Resync is *Healthy* and home-server's addresses are bound on the
 router; the memory test **passed 2026-10-06** (memtester, 2 loops, 0 failures), so 05 is done (memtester removed from the NAS 2026-10-06).
 **08 (GPU + NFS), 11 (arr stack) and 12 (Jellyfin + Jellyseerr) done 2026-10-05;
-09 (Immich) deployed and set up 2026-10-06; 10 (photo import) running.**
+09 (Immich) deployed and set up 2026-10-06; 10 (photo import) imported 2026-10-07, cleanup left.**
 
 **Handoff, end of 2026-10-06 session.** Running on home-server now: Jellyfin
 (`:8096`), Jellyseerr (`:5055`), Radarr (`:7878`), Sonarr (`:8989`), Prowlarr
@@ -54,35 +54,32 @@ router; the memory test **passed 2026-10-06** (memtester, 2 loops, 0 failures), 
 (192.168.0.70) with `nas-mount-guard`; podman + GPU toolkit. Code is in
 `modules/server/{storage,media,arr,immich}.nix`. Tickets 08, 11, 12 are done; one real
 film (Obsession 2026) went request → download → import → Jellyfin.
-- **10, the photo import, is running *detached* on main-pc.**
-  - It runs as `immich-import.service`, a transient user unit. **Read 10's
-    "Handover" first.** Status: `cat ~/.cache/immich-import/run.log`.
-  - Walter is done: 18,429 assets, 3,926 duplicates skipped, 11 files that were
-    already 0-byte on the old NAS. Anja's upload (~300 GB) started 21:33, followed by
-    a re-check pass for each account (must find 0 new).
-  - **Keep main-pc on and logged in** until the run and the ML queues finish.
-    The 3080 does the ML (`modules/immich-ml.nix`, started by hand), and the
-    3060's NVENC does video.
-  - Then: reconcile counts, reset job concurrency, stop the main-pc worker,
-    **delete both API keys**.
+- **10, the photo import, is imported (2026-10-07).** See 10's "Result".
+  - walter 18,430 assets, anja 32,628. Both re-checks found 0 new. The 12
+    failures were already 0-byte on the old NAS. Counts reconciled against 01's
+    manifests, and every ML/thumbnail/video queue reached 0.
+  - The 48 files Anja deleted before the freeze are back in her timeline
+    (they were still in copy C). Her call whether to delete them again.
+  - Cleanup done 2026-10-07 (Walter): job concurrency back to the defaults,
+    main-pc worker stopped, both import API keys deleted.
+    **Left for Walter:** UI spot-check, Locked Folder.
 - **09, Immich:** deployed 2026-10-06 (`modules/server/immich.nix`, v3.2.4,
   `http://home-server:2283`). Setup is done (storage template, labels
-  `walter`/`anja`, partner sharing both ways, CUDA ML, NVENC). Left: confirm a DB
-  dump in `/photos/backups` after the 02:00 run on 2026-10-07, and the PC-off
-  fallback test.
-- **Urgent, 06: the upower low-battery shutdown.**
-  - Unplugged to park the battery at 60 %, the server drew **35.8 W** under the
-    import and was at **36 %** by 21:30, ~38 min from flat with Postgres
-    mid-write.
-  - Charger back in; it now charges to the ~60 % cap and holds.
-  - Idle on battery is ~2.4 W. Runtime D3 works on its own: the old "stuck in
-    P0" was `nvidia-smi` waking the GPU.
+  `walter`/`anja`, partner sharing both ways, CUDA ML, NVENC). The first nightly
+  DB dump landed (`/photos/backups/immich-db-backup-20261007T020000-…sql.gz`,
+  346 MB). Left: the PC-off fallback test.
+- **06, the upower low-battery shutdown:** done 2026-10-07. It powers off at
+  10 % (`modules/server/headless.nix`), and upower now starts at boot. Not
+  drill-tested. Background: under the import the server drew **35.8 W** on
+  battery and reached 36 %, about 38 min from flat. Idle on battery is ~2.4 W.
 - **Still waiting on Walter:** the plug-meter reading (06), the private photos
   into the Locked Folder (10), and 07's home-server-down check (**deferred by
   Walter**, do it any time).
-- **Next builds:** 13 (restic; must call `nas-mount-guard /data /photos`; skip
+- **16, Homepage:** done 2026-10-07, `http://home-server:8082`
+  (`modules/server/homepage.nix`). All six widgets verified.
+- **Next build: 13** (restic; must call `nas-mount-guard /data /photos`; skip
   `/var/cache/immich`; Postgres via the dumps in `/photos/backups`), then 14.
-  **New 2026-10-06, not grilled:** 15 Paperless-ngx, 16 Homepage, 17 Actual
+  **New 2026-10-06, not grilled:** 15 Paperless-ngx, 17 Actual
   Budget, 18 Home Assistant, 19 Mealie (in `nas/build/`). 15/17/19 hold
   irreplaceable data, so they wait for 13. 17/18 need one shared HTTPS answer
   (tailscale serve?).
@@ -90,8 +87,11 @@ film (Obsession 2026) went request → download → import → Jellyfin.
   `systemctl restart podman-sabnzbd`. A release with a foreign title (e.g.
   "Saplanti") ends as `importBlocked`: Radarr → Activity → Queue → manual import.
   Usenet imports are a rename inside one export, not a hardlink. Arr/SAB settings
-  live in `/var/lib/<app>` (backup scope for 13), not in Nix. API keys are in each
-  app's `config.xml`; none are in the repo.
+  live in `/var/lib/<app>` (backup scope for 13), not in Nix. The apps keep their
+  API keys in their own config. Since 16, **copies** of the Radarr, Sonarr,
+  SABnzbd, Jellyseerr, Jellyfin and Immich keys are in sops for Homepage's
+  widgets. Regenerate a key in an app and you must update its sops copy, or
+  that widget goes dead.
 
 **Renewals:** NZBGeek expires **2027-10-08**, Eweka (15-month plan) ~**2028-01-05**.
 Black Friday is the time to look at an NZBGeek lifetime deal and a block account

@@ -74,6 +74,12 @@ the plug-meter idle reading (battery proxy: ~2.4 W; runtime D3 already works).
     back in (charging at 40 %). The 2.4 W idle figure says nothing about load.
     **Never run it on battery under load**, and the upower shutdown should land
     before anything relies on it. (Alerting on `Discharging` belongs in 14.)
+    **Done 2026-10-07** in `modules/server/headless.nix`: `PowerOff` at **10 %**
+    (low 30, critical 15), about 10 min at full load. upower is D-Bus activated,
+    so it gets `wantedBy = multi-user.target`: nothing on a headless box asks it
+    anything, and it wouldn't be running after a reboot. Verified on the box:
+    enabled, active, `GetCriticalAction` → `PowerOff`. **Not drill-tested** (that
+    would mean running the battery down to 10 %).
   - ~~DHCP reservations for both MACs on the router.~~ Done 2026-10-05 (.73/.87, see 05 Open).
   - **The battery sits at 100 %, not ~60 %** (2026-10-06). `conservation_mode`
     reads 1, but it only stops *charging*. The pack was already full when the rule
