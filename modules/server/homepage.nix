@@ -40,8 +40,10 @@ in
     listenPort = port;
     openFirewall = true;
     # Every name it is reached by, or it refuses the request: LAN by name and
-    # by both addresses (Ethernet .73, Wi-Fi .87), and the tailnet.
-    allowedHosts = lib.concatMapStringsSep "," (h: "${h}:${toString port}") [
+    # by both addresses (Ethernet .73, Wi-Fi .87), and the tailnet. Each name
+    # twice: with :8082 when hit directly, and bare when it comes through Caddy
+    # on :80 (the Host header carries no port there).
+    allowedHosts = lib.concatMapStringsSep "," (h: "${h},${h}:${toString port}") [
       "localhost"
       "127.0.0.1"
       "home-server"
@@ -115,6 +117,17 @@ in
       }
     ];
   };
+
+  # `http://home-server/` (port 80) opens Homepage. The router's DNS already
+  # resolves `home-server` for every LAN device. DNS can't carry a port, so
+  # this proxy does. `:80` catches every Host (name, IPs, tailnet) and stays
+  # plain HTTP: no hostname in the site address, so no automatic HTTPS. If 17/18
+  # bring a real reverse proxy, this block moves into it.
+  services.caddy = {
+    enable = true;
+    virtualHosts.":80".extraConfig = "reverse_proxy localhost:${toString port}";
+  };
+  networking.firewall.allowedTCPPorts = [ 80 ];
 
   sops.secrets = lib.genAttrs (map (n: "${n}_api_key") keyed) (_: { });
   sops.templates."homepage.env" = {

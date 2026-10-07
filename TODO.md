@@ -75,8 +75,9 @@ film (Obsession 2026) went request → download → import → Jellyfin.
 - **Still waiting on Walter:** the plug-meter reading (06), the private photos
   into the Locked Folder (10), and 07's home-server-down check (**deferred by
   Walter**, do it any time).
-- **16, Homepage:** done 2026-10-07, `http://home-server:8082`
-  (`modules/server/homepage.nix`). All six widgets verified.
+- **16, Homepage:** done 2026-10-07, **`http://home-server/`** (Caddy on :80
+  proxies to :8082; `modules/server/homepage.nix`). All six widgets verified.
+  Caddy on :80 is the seed for 17/18's HTTPS answer.
 - **Next build: 13** (restic; must call `nas-mount-guard /data /photos`; skip
   `/var/cache/immich`; Postgres via the dumps in `/photos/backups`), then 14.
   **New 2026-10-06, not grilled:** 15 Paperless-ngx, 17 Actual

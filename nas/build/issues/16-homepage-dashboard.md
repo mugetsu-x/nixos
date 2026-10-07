@@ -31,7 +31,8 @@ Added 2026-10-06 as a wish (Walter); **not grilled yet**.
 
 **Blocked by:** 06. Nicer once the other services exist.
 
-**Status:** done 2026-10-07: `http://home-server:8082`, `modules/server/homepage.nix`
+**Status:** done 2026-10-07: **`http://home-server/`** (Caddy on :80 → :8082) or
+`http://home-server:8082` directly, `modules/server/homepage.nix`
 
 ## Decisions (Walter, 2026-10-07)
 
@@ -55,6 +56,16 @@ Added 2026-10-06 as a wish (Walter); **not grilled yet**.
   The check guards **the API, not the page**: an unknown `Host` still gets the
   HTML shell but `400 Host validation failed` on every widget call.
 - Every service has a `siteMonitor` up/down dot.
+- **`http://home-server/`** (Walter's wish, same day). The router's DNS already
+  resolves `home-server` for every LAN device (from the DHCP hostname), so only
+  the port was missing, and DNS can't carry one. Caddy listens on `:80`, catches
+  every Host, and reverse-proxies to `:8082`. It is plain HTTP, with no hostname
+  in the site address, so there is no automatic HTTPS. `allowedHosts` lists every
+  name twice, bare (through Caddy, no port in `Host`) and with `:8082`. A
+  dash-free `homeserver` was dropped: the router can only rename the device, and
+  running our own DNS would make the whole household's DNS depend on this box.
+- Browsers treat a bare single word as a search: type `home-server/` or
+  `http://home-server`, or bookmark it. On phones, add it to the home screen.
 - Verified through Homepage's own proxy: all six widgets return data, and the
   `resources` widget reads `/data` over NFS despite the unit's `PrivateMounts`.
 - **Gotcha:** the Immich widget's v2 endpoint is called `statistics_v2`.
