@@ -36,8 +36,9 @@ Usenet accounts (Eweka + NZBGeek) done 2026-10-05, credentials in
 `secrets/home-server.yaml`; secrets (sops-nix) done for main-pc. The
 `home-server` host (06) is **installed and running** 2026-10-05 (`home-server`,
 192.168.0.73, bound on the router, deployed from main-pc). Uptime and thermals were
-ticked 2026-10-06. Still to do: the plug-meter idle reading, and the upower
-low-battery shutdown, which is urgent (see the handoff).
+ticked 2026-10-06; the plug meter read **4–7 W** idle at the wall on 2026-10-07
+(16–19 W while SABnzbd downloads), and the upower shutdown landed the same day,
+so 06 is done.
 Tailscale (07) done for home-server 2026-10-05 (tailnet owned by
 walter@pariggers.com); the NAS joined 2026-10-05, key expiry off on both — 07's
 off-LAN and laptop-down checks remain. **NAS rebuilt (05) 2026-10-05:** DSM
@@ -74,7 +75,7 @@ film (Obsession 2026) went request → download → import → Jellyfin.
   10 % (`modules/server/headless.nix`), and upower now starts at boot. Not
   drill-tested. Background: under the import the server drew **35.8 W** on
   battery and reached 36 %, about 38 min from flat. Idle on battery is ~2.4 W.
-- **Still waiting on Walter:** the plug-meter reading (06), the private photos
+- **Still waiting on Walter:** the private photos
   into the Locked Folder (10), and 07's home-server-down check (**deferred by
   Walter**, do it any time).
 - **16, Homepage:** done 2026-10-07, **`http://home-server/`** (Caddy on :80
@@ -82,10 +83,26 @@ film (Obsession 2026) went request → download → import → Jellyfin.
   Caddy on :80 is the seed for 17/18's HTTPS answer.
 - **Next build: 13** (restic; must call `nas-mount-guard /data /photos`; skip
   `/var/cache/immich`; Postgres via the dumps in `/photos/backups`), then 14.
+  **Agreed with Walter 2026-10-07:** the Drive leg waits for the account
+  decision, so 13 builds the USB leg now, in this order:
+  1. **Restore the non-photo evac data to the NAS first.** ~100 GB (Anja's
+     `08_Dokumente`, `01_Ausbildung`, `06_Freizeitstuff`, `07_Rezepte`, the
+     rest of `Walter`, `docker/alexandria/books`) was never put back. 10
+     imported photos only, so these exist **only on copies A and C**. Copy from
+     C into a new NAS share `files`, **one folder per person**
+     (`files/walter`, `files/anja`), and verify against 01's manifests.
+  2. Restic covers `/photos` + `files` + the app state in `/var/lib`.
+  3. **Then** wipe disk A (2 TB WD) and make it the restic USB target; first
+     backup + restore drill.
+  4. Keep C (`~/evac` on main-pc) until an offsite copy exists.
+  Note **copy B was never made** (01's box is unticked), so A and C are the
+  only evac copies. Source size today: `/photos/library` 407 GB, DB dumps
+  330 MB.
   **New 2026-10-06, not grilled:** 15 Paperless-ngx, 17 Actual
   Budget, 18 Home Assistant, 19 Mealie (in `nas/build/`). 15/17/19 hold
   irreplaceable data, so they wait for 13. 17/18 need one shared HTTPS answer
-  (tailscale serve?).
+  (tailscale serve?). **20, a Drive-like file service** (Nextcloud vs
+  OpenCloud over the `files` share) added 2026-10-07, also not grilled.
 - **Gotchas learned.** SABnzbd's in-app Restart does not survive in a container:
   `systemctl restart podman-sabnzbd`. A release with a foreign title (e.g.
   "Saplanti") ends as `importBlocked`: Radarr → Activity → Queue → manual import.

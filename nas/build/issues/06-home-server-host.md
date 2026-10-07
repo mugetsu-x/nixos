@@ -27,8 +27,8 @@ Base host only — GPU/NFS ([08](08-gpu-nfs-foundation.md)), Tailscale
 
 **Blocked by:** 03 (secrets — the host needs sops-nix from first activation).
 
-**Status:** installed and running 2026-10-05; uptime + thermals ticked 2026-10-06. Left:
-the plug-meter idle reading (battery proxy: ~2.4 W; runtime D3 already works).
+**Status:** done. Installed and running 2026-10-05; uptime + thermals ticked 2026-10-06;
+plug-meter idle reading 2026-10-07: **4–7 W at the wall**.
 
 ## As installed (2026-10-05)
 
@@ -207,7 +207,7 @@ Do this at the laptop. Steps 6–9 can run from main-pc once SSH works.
 - [x] **Wi-Fi failover configured and tested by unplugging the dongle** (~1.2 s, see "As installed")
 - [x] Stays up 24/7 — no idle suspend, no lid-close suspend (configured in `modules/server/headless.nix`) — 2026-10-06 19:30: up 22 h 13 min since the 2026-10-05 21:16 boot, `sleep.target`/`suspend.target` masked, no suspend in the journal, 0 failed units, all six containers up 21–22 h
 - [x] Deploy mechanism chosen and documented. Push from main-pc, see above
-- [ ] **Real idle draw measured** (plan assumed ~20 W; expect 25–40 W with the dGPU present) — **battery proxy 2026-10-06 19:35:** charger out, idle with all six media/arr containers up, `power_now` read **2.3–2.4 W** over 30 s (energy_now agrees, ~3 W), dGPU `suspended`. That's DC draw at the battery, so no charger losses and no dongle/AC overhead. The plug meter still decides it, but it'll be single digits, nowhere near 25–40 W.
+- [x] **Real idle draw measured** (plan assumed ~20 W; expect 25–40 W with the dGPU present) — **plug meter 2026-10-07 ~20:15: 4–7 W at the wall, idle** (charger in, battery held at 60 % and `Not charging`, dGPU `suspended`, all ten containers up, SABnzbd paused). During a SABnzbd download (~28 MB/s, CPU boosting to ~4.5 GHz, NFS writes) it read **16–19 W**. The first reading was taken mid-download by accident, so check SABnzbd's queue and live CPU before trusting an "idle" number. ~5.5 W around the clock is ~48 kWh/yr. **Battery proxy 2026-10-06 19:35:** charger out, idle with all six media/arr containers up, `power_now` read **2.3–2.4 W** over 30 s (energy_now agrees, ~3 W), dGPU `suspended`. That's DC draw at the battery, so no charger losses and no dongle/AC overhead. The plug meter still decides it, but it'll be single digits, nowhere near 25–40 W.
 - [x] Battery charge-cap availability confirmed either way. Yes, `conservation_mode`, set by udev
 - [x] Thermals sane in its final location — **the final location is the desk** (Walter, 2026-10-06: it stays there, no cupboard). Baseline 2026-10-05 22:53 (idle, 1.5 h up): CPU Tctl 41 °C, iGPU edge 41 °C, NVMe 31 °C, 3060 37 °C. Re-read 2026-10-06 19:30 (idle, 22 h up, load 0.06): Tctl 35 °C, iGPU edge 36 °C, NVMe 26 °C, 3060 31 °C, acpitz 35 °C; no thermal/MCE events in the kernel log. `sensors` isn't on the host; read `/sys/class/hwmon/*/temp*_input`. Re-check under load once Immich's import (10) runs the 3060.
 - **Runtime D3 works out of the box. The 2026-10-05 "stuck in P0" finding was caused by measuring it.** The open driver enables fine-grained runtime D3 by default on this laptop (`/proc/driver/nvidia/gpus/0000:01:00.0/power`: `Runtime D3 status: Enabled (fine-grained)`, `Video Memory: Off`). Read without touching the GPU, `runtime_status` is `suspended`. **Running `nvidia-smi` wakes the GPU**, and the earlier readings ran it *before* reading `runtime_status`, so they always saw `active`/P0. Read the sysfs file first, and never run `nvidia-smi` in a loop to watch idle power. (`--query-gpu=power.draw` reports a bogus 752 W; ignore it.) No `finegrained` / PRIME config needed.

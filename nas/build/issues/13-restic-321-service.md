@@ -51,7 +51,17 @@ Retention 7d/8w/12m/5y; **prune weekly as a separate, deliberate, logged operati
 
 **Blocked by:** 09 (Immich — the library + DB to back up), 06, 03.
 
-**Status:** ready-for-agent
+**Status:** ready-for-agent. **Scoped 2026-10-07 (Walter):** USB leg now, Drive
+leg waits for the Google account decision (see TODO.md "offsite copy").
+
+**Before A is wiped (found 2026-10-07):** ~100 GB of the evacuation is not photos
+and was never restored. [10](10-import-photos.md) imported photos only, so
+`Anja/{01_Ausbildung,06_Freizeitstuff,07_Rezepte,08_Dokumente}`, the rest of
+`Walter`, and `docker/alexandria/books` exist **only on A and C**. Copy B was never
+made. Order: restore those from C into a new NAS share `files` (one folder per
+person, `files/walter` + `files/anja`, so [20](20-file-sync.md) can adopt it),
+verify against 01's manifests, add `files` to the restic scope, **then** wipe A
+for the repo. C stays until an offsite copy exists.
 
 - [ ] Nightly restic to both repos from `services.restic.backups`; DBs `pg_dump`'d first
 - [ ] **Mount guard proven:** unmount the NFS share, run the job, confirm it aborts instead of snapshotting an empty tree
