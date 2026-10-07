@@ -161,3 +161,20 @@ assets add to that.
   but rsync kept them in C, and C was the import source. They show up in her
   timeline again. Her call whether to delete them again; the paths are the
   `comm -23` of the two manifests.
+
+## Dates (checked 2026-10-07)
+
+Not an Immich bug: wrong dates are in the files themselves.
+
+- **Future/ancient dates:** only 8 assets, all walter, all videos from the
+  **Kodak EasyShare M763** in `homes/Walter/Photos/Handy/backup/2014/uralt/`.
+  Its clock was broken: `100_3860.MOV` says 2037-06-26 in its QuickTime
+  CreateDate, and 7 `100_40xx`/`100_41xx.MOV` say 1990-02-15 (their file
+  mtime says 2060). The Kodak's photos from the same folder all say
+  `2009-01-01 01:21` (a reset default), so the real dates exist nowhere. Fix
+  by hand in the UI ("Change date"), e.g. to 2009-01-01 to sit with the photos.
+- **Filename date vs Immich date:** of 36,241 assets with a
+  `YYYYMMDD_HHMMSS` filename, 134 differ by more than a day. Most are anja
+  `IMG_…jpg` with no camera EXIF (re-saved/messenger copies), where Immich falls
+  back to file mtime, plus 7 walter Samsung GT-I9100G shots with a wrong
+  camera clock. Her call whether to fix.

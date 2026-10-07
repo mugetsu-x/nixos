@@ -113,3 +113,24 @@ _Decision detail: [06](../../issues/06-immich-placement-migration.md#amendment--
    the ML process while it's being processed.
 4. Create Anja's account, then set up partner sharing both ways (each user's
    Account settings → Partner sharing).
+
+## Phone backup (Immich app)
+
+Walter's Pixel 10 connected and backing up 2026-10-07. Anja's phone: not yet.
+
+Set up per phone, in the app; nothing in Nix. Two server URLs, so a phone
+uploads straight over the LAN at home and over Tailscale when it's away:
+
+- **Local:** `http://192.168.0.73:2283` (Ethernet address; Android won't
+  resolve the bare `home-server` name), tied to the home Wi-Fi SSID. Type the
+  `http://` prefix: without it the app says "server not reachable".
+- **External:** `http://home-server.tail2c2ea8.ts.net:2283`. Plain HTTP is fine,
+  since the tailnet is WireGuard-encrypted. Off-LAN goes via DERP Frankfurt
+  ([07](07-tailscale-overlay.md)), so big videos are slow until UDP 41641 is
+  forwarded.
+
+2283 is open on every interface (`allowedTCPPorts`), so `tailscale0` included.
+Already-imported photos still on a phone are skipped by checksum: dedup is per
+owner, and Synology Photos uploaded byte-identical originals. **Don't use the
+app's "Free up space"** until [13](13-restic-321-service.md) is green: a new
+phone photo's only other copy is the NAS.

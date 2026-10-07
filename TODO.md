@@ -68,6 +68,8 @@ film (Obsession 2026) went request → download → import → Jellyfin.
   `walter`/`anja`, partner sharing both ways, CUDA ML, NVENC). The first nightly
   DB dump landed (`/photos/backups/immich-db-backup-20261007T020000-…sql.gz`,
   346 MB). Left: the PC-off fallback test.
+  Walter's Pixel 10 backs up via the Immich app since 2026-10-07 (LAN URL
+  + tailnet URL, see 09 "Phone backup"). Anja's phone not yet.
 - **06, the upower low-battery shutdown:** done 2026-10-07. It powers off at
   10 % (`modules/server/headless.nix`), and upower now starts at boot. Not
   drill-tested. Background: under the import the server drew **35.8 W** on
