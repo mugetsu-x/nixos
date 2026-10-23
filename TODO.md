@@ -134,6 +134,31 @@ anything long-lived belongs to pariggers.com (Tailscale does, ticket 07), and th
 offsite copy should not land on the gmail account's 5 TB unless that account is
 explicitly kept.
 
+## Remove the Enshrouded server once Walter stops playing
+
+Set up 2026-10-23 as **temporary**: the only public service on home-server, and
+it stays only while someone actually plays. When that ends, undo all of it:
+
+- **Router (A1):** delete the port forward `enshroudedServer` (UDP 15637 →
+  192.168.0.73).
+- **A1 line:** optionally ask A1 to switch back to CGNAT (private IP). The public
+  IPv4 was requested only for this; nothing else uses it — Tailscale works
+  without it.
+- **Repo:** delete `modules/server/enshrouded.nix` and its import in
+  `hosts/home-server.nix`; the `enshrouded-up/-down/-status` aliases in
+  `home/modules/shell.nix`; `enshrouded_admin_password` and
+  `enshrouded_friend_password` from `secrets/home-server.yaml`
+  (`sops secrets/home-server.yaml`); the enshrouded line in CLAUDE.md's layout;
+  the "One exception" paragraph in `nas/ARCHITECTURE.md` (Remote access); the
+  Enshrouded world in ticket 13's backup scope; and this item.
+- **On home-server, after the rebuild** (Nix doesn't delete state):
+  save the world first if it's worth keeping (`/var/lib/enshrouded/savegame`),
+  then `rm -rf /var/lib/enshrouded` (~8 GB),
+  `podman network rm enshrouded`, and `podman image rm
+  docker.io/mornedhels/enshrouded-server:1.8.0`. The `enshrouded-isolate`
+  iptables chain goes away with the firewall reload on that rebuild; check
+  with `iptables -t mangle -S | grep enshrouded` (should print nothing).
+
 ## 2. E-book library and download flow
 
 Not started. Wants a library plus a way to get books into it. Open questions:

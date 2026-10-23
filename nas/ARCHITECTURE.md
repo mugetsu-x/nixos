@@ -213,8 +213,10 @@ it is a native package, not a container.
 
 **One exception, 2026-10-23:** the Enshrouded game server
 (`modules/server/enshrouded.nix`) is public — UDP 15637 forwarded on the router,
-password-gated. A1 switched the line from CGNAT to a public dynamic IPv4 for it, so
-"CGNAT moot" no longer describes the line; nothing else is forwarded.
+password-gated, on its own podman network that cannot reach any private or
+tailnet address (the NAS included). Temporary — removal checklist in TODO.md.
+A1 switched the line from CGNAT to a public dynamic IPv4 for it, so "CGNAT
+moot" no longer describes the line; nothing else is forwarded.
 
 ## Cross-cutting concerns
 
