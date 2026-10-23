@@ -18,6 +18,12 @@
       pdf = "okular";
       lgit = "lazygit";
       ldocker = "lazydocker";
+
+      # Enshrouded on home-server runs only on demand (modules/server/enshrouded.nix).
+      # Starting also pulls any game update first.
+      enshrouded-up = "ssh root@192.168.0.73 systemctl start podman-enshrouded";
+      enshrouded-down = "ssh root@192.168.0.73 systemctl stop podman-enshrouded";
+      enshrouded-status = "ssh root@192.168.0.73 systemctl is-active podman-enshrouded";
     };
 
     # initExtra is deprecated → use initContent

@@ -15,7 +15,10 @@ in
   # takes a role password from sops.
   virtualisation.oci-containers.containers.enshrouded = {
     image = "docker.io/mornedhels/enshrouded-server:1.8.0";
-    autoStart = true;
+    # Started by hand when someone wants to play (`enshrouded-up` on main-pc),
+    # not at boot: idle it still keeps Wine busy on about half a core, and
+    # while it is down the router forward points at nothing.
+    autoStart = false;
     extraOptions = [
       "--network=host"
       # Time to write the world out before `podman stop` kills it; under the
