@@ -268,7 +268,10 @@ Edit: `sops secrets/main-pc.yaml`. New recipient: add it to `.sops.yaml`, then
   which would fail. The trade-off is the symlink resolves to a fixed path, so
   the repo must stay at `~/nixos-config`. Only `skills/`, `settings.json` and
   the workspace rules are managed; credentials/sessions/memory under `~/.claude`
-  are left alone.
+  are left alone. `settings.json` is the exception to `home.file`: it is a
+  direct `ln -s` made by an activation step, because Claude Code follows only
+  the first hop of home-manager's link chain and then fails to write with
+  `EROFS` (`/model` and `/config` can't save).
 - The bluetooth auto-connect user service is a shell script built inline with
   `pkgs.writeShellScript` in `home/modules/services.nix`.
 - **Zed's agent needs a Secret Service, and bare Hyprland has none.** Zed keeps

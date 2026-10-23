@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, lib, ... }:
 let
   # The repo's live working tree, not a /nix/store copy.
   repo = "${config.home.homeDirectory}/nixos-config";
@@ -15,8 +15,15 @@ in
   # sessions, history, memory) is deliberately left untouched and untracked.
   home.file.".claude/skills".source = config.lib.file.mkOutOfStoreSymlink "${repo}/claude/skills";
 
-  home.file.".claude/settings.json".source =
-    config.lib.file.mkOutOfStoreSymlink "${repo}/claude/settings.json";
+  # settings.json is linked straight at the repo, not via home.file: that goes
+  # ~/.claude -> home-manager-files -> hm_settings.json -> repo, and Claude Code
+  # (2.1.309) follows only the first hop and writes its temp file into the
+  # read-only store, so `/model` and `/config` fail with EROFS. Runs after
+  # linkGeneration so the old home.file link is cleaned up first.
+  home.activation.claudeSettingsLink = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    run ln -sfn ${lib.escapeShellArg "${repo}/claude/settings.json"} \
+      ${lib.escapeShellArg "${config.home.homeDirectory}/.claude/settings.json"}
+  '';
 
   # Workspace house rules shared by every project under ~/workspace.
   home.file."workspace/CLAUDE.md".source =
