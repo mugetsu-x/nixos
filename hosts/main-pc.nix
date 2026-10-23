@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   nix-claude-code,
   pkgs-unstable,
@@ -42,6 +43,18 @@
     ];
 
     ensureDefaultPrinter = "brother-hl-l8260cdw";
+  };
+  # `model = "everywhere"` makes lpadmin query the printer, so if it is off at
+  # boot the unit fails once and CUPS is left with no queue. Retry until the
+  # printer shows up. `simple` rather than upstream's `oneshot`, because
+  # multi-user.target is ordered after this unit and would otherwise wait on it.
+  systemd.services.ensure-printers = {
+    startLimitIntervalSec = 0;
+    serviceConfig = {
+      Type = lib.mkForce "simple";
+      Restart = "on-failure";
+      RestartSec = "30s";
+    };
   };
 
   # Hyprland
