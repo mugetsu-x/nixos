@@ -31,8 +31,9 @@ owned**. Mandatory config, all of it:
 - **Media → excluded.** Re-downloadable; the array is a rotating pool.
 - **Laptop app-state → lighter tier, and it is now the *whole* application layer:**
   Immich Postgres, Jellyfin metadata + watch history + users, and the arr databases
-  (quality profiles, indexer config, monitored series). None of it rebuilds from the
-  flake. **`pg_dump` first, then restic the dump** — never file-snapshot a live DB.
+  (quality profiles, indexer config, monitored series), and the Enshrouded world
+  (`/var/lib/enshrouded/savegame`; the server already zips it to `backups/`
+  every 30 min). None of it rebuilds from the flake. **`pg_dump` first, then restic the dump** — never file-snapshot a live DB.
   *(The first-pass plan had these apps on the NAS, where they fell into no tier at
   all. The relocation fixed that by accident; make it deliberate here.)*
 

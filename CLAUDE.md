@@ -47,7 +47,8 @@ modules/               system-level (NixOS options)
                        not started at boot (`systemctl start docker-immich-machine-learning`)
   server/              home-server only: headless (sshd, no sleep), networking
                        (Ethernet → Wi-Fi failover), nvidia (compute), secrets,
-                       tailscale (plain tailnet node, key from sops)
+                       tailscale (plain tailnet node, key from sops),
+                       enshrouded (game server — the one public port)
 home/
   rennsemml.nix        home-manager entrypoint: imports home/modules/
   modules/             user-level (home-manager options)
