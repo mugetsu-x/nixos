@@ -171,18 +171,19 @@ Not started. Candidates to evaluate in nixpkgs.
 
 ## 4. Monitors and Hyprland behaviour
 
-Mostly done. The physical setup is two Dells: DP-2, the AW3423DWF ultrawide
-(3440x1440 @ 165 Hz), and DP-4, a P2426H (1920x1080 @ 120 Hz) sitting **below**
+Mostly done. The physical setup is two Dells: the AW3423DWF ultrawide
+(3440x1440 @ 165 Hz) and a P2426H (1920x1080 @ 120 Hz) sitting **below**
 it, not to the right. Both are now positioned and rate-pinned explicitly in
 `hyprland.conf`, the layout moved from `master` to `dwindle`, and waybar is
-pinned to DP-4 only (`"output"` in `waybar/config.jsonc`).
+pinned to the P2426H only (`"output"` in `waybar/config.jsonc`).
 
 Still open:
 
-- Workspace-to-monitor pinning (`workspace = 1, monitor:DP-2` etc). Today
+- Workspace-to-monitor pinning (`workspace = 1, monitor:desc:Dell Inc.
+  AW3423DWF J2872S3` etc). Today
   workspaces float between outputs.
 - `input { follow_mouse = 0 }` is click-to-focus; confirm that is deliberate.
-- VRR is now on for DP-2, fullscreen-only (`vrr,2`). Watch for OLED flicker in
+- VRR is now on for the ultrawide, fullscreen-only (`vrr,2`). Watch for OLED flicker in
   games with uneven frame times; if it shows up, cap the in-game frame rate
   (mangohud can) rather than turning VRR off — the flicker comes from the swing,
   not from VRR itself.

@@ -247,10 +247,16 @@ Edit: `sops secrets/main-pc.yaml`. New recipient: add it to `.sops.yaml`, then
   that is correct, `altgr-intl` converts right Alt into the level-3 chooser, and
   it is also why right Alt sets Mod5 and cannot collide with the `ALT` binds in
   `hyprland.conf`.
-- **Two monitors, stacked vertically.** DP-2 is a 3440x1440 ultrawide at `0x0`;
-  DP-4 is a 1920x1080 panel *below* it at `760x1440` (centred under it), **not**
-  to its right. Waybar is pinned to DP-4 alone via `"output"` in
-  `waybar/config.jsonc` — drop that key and you get a bar on every output.
+- **Two monitors, stacked vertically.** The AW3423DWF is a 3440x1440 ultrawide at
+  `0x0`; the P2426H is a 1920x1080 panel *below* it at `760x1440` (centred under
+  it), **not** to its right. Waybar is pinned to the P2426H alone via `"output"`
+  in `waybar/config.jsonc` — drop that key and you get a bar on every output.
+- **Monitors are matched by EDID description, never by connector name.**
+  hyprland.conf (`desc:`), hyprpaper.conf (`desc:`), waybar (`"output"`) and the
+  mpvpaper unit all use strings like `Dell Inc. DELL P2426H FHVRYD4`. NVIDIA
+  driver updates renumber DP-n (615.78 turned DP-2/DP-4 into DP-1/DP-3), and a
+  stale name fails silently: auto layout side by side at 60 Hz, no bar, black
+  wallpaper. `hyprctl monitors` prints each description.
 - Monitor **refresh rates are pinned explicitly** (165 Hz / 120 Hz). Do not
   "simplify" these back to `preferred`: the EDID-preferred mode is 60 Hz on both
   panels, so `preferred` silently costs you the high refresh rate.

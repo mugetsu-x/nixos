@@ -2,8 +2,9 @@
   "layer": "top",
   "position": "top",
   // Bar only on the small 1080p screen (below the ultrawide). Without this,
-  // waybar spawns one bar per output.
-  "output": "DP-4",
+  // waybar spawns one bar per output. Matched by description, not DP-n
+  // (see hyprland.conf).
+  "output": "Dell Inc. DELL P2426H FHVRYD4",
   "height": 38,
   "margin-top": 8,
   "margin-left": 12,
