@@ -1,4 +1,9 @@
-{ pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   nas = "192.168.0.70"; # DS420+ ("alexandria"), LAN — the exports allow only .73/.87
 
@@ -68,4 +73,23 @@ in
   virtualisation.podman.enable = true;
   virtualisation.oci-containers.backend = "podman";
   hardware.nvidia-container-toolkit.enable = true;
+
+  # Every container that asks for the GPU waits for the CDI spec. Without
+  # this, a rebuild that restarts the generator can start a container in the
+  # gap: "unresolvable CDI devices nvidia.com/gpu=all", five fast failures,
+  # start-limit-hit, and it stays down (Jellyfin, 2026-11-01).
+  systemd.services =
+    let
+      cdi = "nvidia-container-toolkit-cdi-generator.service";
+      gpu = lib.filterAttrs (
+        _: c: lib.any (lib.hasInfix "nvidia.com/gpu") c.extraOptions
+      ) config.virtualisation.oci-containers.containers;
+    in
+    lib.mapAttrs' (
+      n: _:
+      lib.nameValuePair "podman-${n}" {
+        after = [ cdi ];
+        wants = [ cdi ];
+      }
+    ) gpu;
 }
