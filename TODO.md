@@ -164,7 +164,7 @@ it stays only while someone actually plays. When that ends, undo all of it:
   save the world first if it's worth keeping (`/var/lib/enshrouded/savegame`),
   then `rm -rf /var/lib/enshrouded` (~8 GB),
   `podman network rm enshrouded`, and `podman image rm
-  docker.io/mornedhels/enshrouded-server:1.8.0`. The `enshrouded-isolate`
+  docker.io/mornedhels/enshrouded-server:1.8.1`. The `enshrouded-isolate`
   iptables chain goes away with the firewall reload on that rebuild; check
   with `iptables -t mangle -S | grep enshrouded` (should print nothing).
 

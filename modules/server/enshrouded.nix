@@ -22,7 +22,7 @@ in
   #
   # Temporary: remove all of it once nobody plays any more — see TODO.md.
   virtualisation.oci-containers.containers.enshrouded = {
-    image = "docker.io/mornedhels/enshrouded-server:1.8.0";
+    image = "docker.io/mornedhels/enshrouded-server:1.8.1";
     # Started by hand when someone wants to play (`enshrouded-up` on main-pc),
     # not at boot: idle it still keeps Wine busy on about half a core, and
     # while it is down the router forward points at nothing.
