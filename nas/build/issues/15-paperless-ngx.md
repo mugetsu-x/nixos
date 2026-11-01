@@ -73,6 +73,12 @@ directory). **Don't put real documents in before 13 is green.**
   `RequiresMountsFor = /documents`.
 - `services.postgresqlBackup` writes a nightly dump to
   `/var/backup/postgresql/paperless.sql.gz` for 13.
+- **Changing `paperless_admin_password` in sops does not change the login.**
+  The module's `manage_superuser` only *creates* the user ("Did not create
+  superuser, a user walter already exists"). After `sops set` + deploy, set
+  it in the DB as well (stdin, because `paperless-manage` runs as `paperless`
+  and can't read the root-only secret):
+  `cat /run/secrets/paperless_admin_password | paperless-manage shell -c "import sys; from django.contrib.auth.models import User; u=User.objects.get(username='walter'); u.set_password(sys.stdin.read().strip()); u.save()"`
 - No Tika/Gotenberg yet: PDFs and images only, no Office files or `.eml`.
   `services.paperless.configureTika = true` adds them.
 
