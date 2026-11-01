@@ -108,9 +108,13 @@ in
     POSTGRES_PASSWORD=${config.sops.placeholder.immich_db_password}
   '';
 
+  # The postgres dir belongs to 999, the container's `postgres` user. Its
+  # entrypoint chowns it on start, but tmpfiles re-runs on any rebuild that
+  # touches tmpfiles config: with root here it took the dir away from the
+  # live Postgres (2026-11-01: every query "Permission denied", Immich 500s).
   systemd.tmpfiles.rules = [
     "d /var/cache/immich/thumbs 0755 root root -"
-    "d /var/lib/immich/postgres 0700 root root -"
+    "d /var/lib/immich/postgres 0700 999 999 -"
     "d /var/cache/immich/encoded-video 0755 root root -"
     "d /var/cache/immich/model-cache 0755 root root -"
   ];

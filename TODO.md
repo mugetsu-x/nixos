@@ -112,7 +112,12 @@ film (Obsession 2026) went request → download → import → Jellyfin.
   "Saplanti") ends as `importBlocked`: Radarr → Activity → Queue → manual import.
   Usenet imports are a rename inside one export, not a hardlink. Arr/SAB settings
   live in `/var/lib/<app>` (backup scope for 13), not in Nix. The apps keep their
-  API keys in their own config. Since 16, **copies** of the Radarr, Sonarr,
+  API keys in their own config. **A tmpfiles rule for a container's
+  directory must name the uid the container writes as.** Any rebuild that
+  changes tmpfiles config re-runs them on live services: Immich's Postgres dir
+  was `root` in the rule, so the Enshrouded deploy (2026-10-23, ~42 h, no DB dumps
+  on 10-24/25) and the Paperless deploy (2026-11-01) both cut Postgres off from its
+  data and Immich returned 500s. Fixed: `999 999`. Since 16, **copies** of the Radarr, Sonarr,
   SABnzbd, Jellyseerr, Jellyfin and Immich keys are in sops for Homepage's
   widgets. Regenerate a key in an app and you must update its sops copy, or
   that widget goes dead.
