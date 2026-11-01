@@ -98,8 +98,12 @@ film (Obsession 2026) went request → download → import → Jellyfin.
   Note **copy B was never made** (01's box is unticked), so A and C are the
   only evac copies. Source size today: `/photos/library` 407 GB, DB dumps
   330 MB.
-  **New 2026-10-06, not grilled:** 15 Paperless-ngx, 17 Actual
-  Budget, 18 Home Assistant, 19 Mealie (in `nas/build/`). 15/17/19 hold
+- **15, Paperless-ngx:** deployed 2026-11-01, `http://home-server:28981`
+  (`modules/server/paperless.nix`; originals on the new `documents` share at
+  `/documents`). Consume folder and search tested end to end. Left: Anja's
+  account. **No real documents until 13 covers `/documents` and the DB dump.**
+- **New 2026-10-06, not grilled:** 17 Actual
+  Budget, 18 Home Assistant, 19 Mealie (in `nas/build/`). 17/19 hold
   irreplaceable data, so they wait for 13. 17/18 need one shared HTTPS answer
   (tailscale serve?). **20, a Drive-like file service** (Nextcloud vs
   OpenCloud over the `files` share) added 2026-10-07, also not grilled.

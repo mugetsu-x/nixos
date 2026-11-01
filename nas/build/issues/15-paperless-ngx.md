@@ -41,4 +41,59 @@ directory). **Don't put real documents in before 13 is green.**
 
 **Blocked by:** 08 (GPU + NFS foundation: mounts + podman), 13 for real use.
 
-**Status:** idea, not grilled
+## Decisions (Walter, 2026-11-01)
+
+- **Originals on a new `documents` NAS share**, mounted at `/documents`. Not a
+  folder in `data`: that is the media pool, which 13 excludes.
+- **In via web upload / phone app, plus a consume folder** on the share
+  (`documents/consume`) that a scanner or PC writes into over SMB. Polled
+  every 60 s (inotify is blind on NFS), and subfolders are included.
+- **One shared archive, two accounts.** `walter` is the superuser (password in
+  sops: `paperless_admin_password`). Anja gets a normal account in the UI.
+- Mail fetching: not now (configured in the UI if ever wanted).
+- Importing the old documents: open, and after 13 in any case.
+
+## Build (2026-11-01)
+
+`modules/server/paperless.nix`, using the native `services.paperless` module
+(2.20.15), at `http://home-server:28981`, with a Homepage tile under
+"Documents".
+- Postgres is native, **socket-only** (`listen_addresses = ""`), because
+  Immich's container already holds 0.0.0.0:5432 on the host network. Redis is
+  native, also socket-only.
+- `/var/lib/paperless` (NVMe) holds the search index, the Django secret key and
+  `superuser-state`. `/documents/media` holds the originals, archive PDFs and
+  thumbnails.
+- `PAPERLESS_FILENAME_FORMAT` = `{{ created_year }}/{{ correspondent }}/{{ created }} {{ title }}`,
+  set before any document.
+- OCR `deu+eng`; the module builds tesseract with just those languages.
+- The module's tmpfiles rules for the two NAS folders are dropped (tmpfiles at
+  early boot would trip the automount before the network is up), so the folders
+  are created once by hand. Every Paperless unit has
+  `RequiresMountsFor = /documents`.
+- `services.postgresqlBackup` writes a nightly dump to
+  `/var/backup/postgresql/paperless.sql.gz` for 13.
+- No Tika/Gotenberg yet: PDFs and images only, no Office files or `.eml`.
+  `services.paperless.configureTika = true` adds them.
+
+### Deploy runbook
+
+1. **DSM (Walter):** create a shared folder `documents` on volume1, with an NFS
+   rule for 192.168.0.73 and 192.168.0.87 matching `photos` (read/write, squash
+   "Map all users to admin"). Enable SMB access to it for the scanner and PCs.
+   Give it a snapshot schedule like `photos`.
+2. Check from home-server: `showmount -e 192.168.0.70` lists `/volume1/documents`.
+3. Deploy: `nixos-rebuild switch --flake .#home-server --target-host root@home-server`.
+4. Once: `mkdir -p /documents/media /documents/consume` on home-server, then
+   `systemctl restart paperless-scheduler`.
+5. Log in as `walter` (`sops -d --extract '["paperless_admin_password"]' secrets/home-server.yaml`)
+   and create Anja's account.
+
+- [x] `documents` share + NFS rule in DSM — 2026-11-01: checksum on, recycle bin off, not encrypted; NFS like `photos` (async off); daily snapshot 04:15
+- [x] Deployed 2026-11-01; web UI up; a test PDF in `consume/` was picked up on the next poll, OCR'd and filed as `originals/2026/2026-11-01 claude-test.pdf`, found by full-text search, then deleted (+ trash emptied)
+- [ ] Anja's account
+- [ ] 13 covers `/documents` + the dump, **then** real documents
+
+**Status:** deployed 2026-11-01. Left: Anja's account; real documents only after 13.
+
+**Watch:** OCRmyPDF warns that Ghostscript 10.6.x can corrupt JPEG images in the *archive* PDF. Originals are never touched. Spot-check the first real photo-scans and bump nixpkgs when a fixed Ghostscript lands.

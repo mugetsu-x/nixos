@@ -48,6 +48,7 @@ modules/               system-level (NixOS options)
   server/              home-server only: headless (sshd, no sleep), networking
                        (Ethernet → Wi-Fi failover), nvidia (compute), secrets,
                        tailscale (plain tailnet node, key from sops),
+                       storage (NFS mounts), media/arr/immich/paperless/homepage,
                        enshrouded (game server — the one public port)
 home/
   rennsemml.nix        home-manager entrypoint: imports home/modules/

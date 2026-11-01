@@ -53,6 +53,13 @@ in
     fsType = "nfs";
     options = mountOpts;
   };
+  # Paperless (15): originals, archive and consume folder. Its own share, so
+  # it gets its own snapshot schedule and backup tier, apart from the media pool.
+  fileSystems."/documents" = {
+    device = "${nas}:/volume1/documents";
+    fsType = "nfs";
+    options = mountOpts;
+  };
 
   environment.systemPackages = [ nasMountGuard ];
 

@@ -57,7 +57,7 @@ same two gates (13, HTTPS).
 | 12 | [Deploy Jellyfin + Jellyseerr](issues/12-jellyfin-jellyseerr.md) | 08 |
 | 13 | [restic 3-2-1 backup service](issues/13-restic-321-service.md) | 09, 06, 03 |
 | 14 | [Dead-man alerting](issues/14-alerting.md) | 06 |
-| 15 | [Paperless-ngx: document archive](issues/15-paperless-ngx.md) *(idea, not grilled)* | 08, 13 for real use |
+| 15 | [Paperless-ngx: document archive](issues/15-paperless-ngx.md) *(deployed 2026-11-01; real use after 13)* | 08, 13 for real use |
 | 16 | [Homepage: start page for all services](issues/16-homepage-dashboard.md) *(idea, not grilled)* | 06 |
 | 17 | [Actual Budget: household budgeting](issues/17-actual-budget.md) *(idea, not grilled)* | 06, 07, 13 for real use |
 | 18 | [Home Assistant: smart home](issues/18-home-assistant.md) *(idea, not grilled)* | 06, 08 |

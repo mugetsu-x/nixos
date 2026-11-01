@@ -14,6 +14,7 @@
     ../modules/server/media.nix
     ../modules/server/arr.nix
     ../modules/server/immich.nix
+    ../modules/server/paperless.nix
     ../modules/server/tailscale.nix
     ../modules/server/homepage.nix
     ../modules/server/enshrouded.nix

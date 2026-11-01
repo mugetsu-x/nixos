@@ -28,6 +28,11 @@ owned**. Mandatory config, all of it:
 
 - **Photos → full 3-2-1.** The crown jewels. This includes Immich's `backups/`
   folder of nightly DB dumps, which [09](09-deploy-immich.md) puts on the NAS.
+- **Documents → full 3-2-1, same as photos.** Paperless ([15](15-paperless-ngx.md)):
+  the `documents` share (`/documents`, guard it like `/photos`) plus its DB, which
+  is **only** on the NVMe. `services.postgresqlBackup` already dumps it nightly
+  to `/var/backup/postgresql/paperless.sql.gz`. Back up that dump and
+  `/var/lib/paperless` (search index, secret key), never `/var/lib/postgresql`.
 - **Media → excluded.** Re-downloadable; the array is a rotating pool.
 - **Laptop app-state → lighter tier, and it is now the *whole* application layer:**
   Immich Postgres, Jellyfin metadata + watch history + users, and the arr databases

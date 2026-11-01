@@ -93,6 +93,11 @@ in
           { Prowlarr = app "prowlarr" 9696; }
         ];
       }
+      {
+        Documents = [
+          { Paperless = app "paperless-ngx" 28981; }
+        ];
+      }
     ];
 
     # Health at a glance only; alerting is 14. /data and /photos are one
