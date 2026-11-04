@@ -20,6 +20,11 @@
   # Mako
   xdg.configFile."mako/config".source = ../dotfiles/mako/config;
 
+  # Swappy (screenshot editor behind SUPER+P). It does not create save_dir
+  # itself, so a tmpfiles rule makes sure the folder exists.
+  xdg.configFile."swappy/config".source = ../dotfiles/swappy/config;
+  systemd.user.tmpfiles.rules = [ "d %h/Pictures/Screenshots - - - -" ];
+
   # These modules only generate a config file when their `settings` option is
   # set. We leave `settings` empty on purpose, so the raw dotfiles linked above
   # stay the source of truth and we get the systemd units for free.
