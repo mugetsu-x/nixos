@@ -27,10 +27,10 @@ in
   # Ports on the host network: SABnzbd 8080, Prowlarr 9696,
   # Radarr 7878, Sonarr 8989.
   virtualisation.oci-containers.containers = {
-    sabnzbd = arr "sabnzbd" "5.1.3-ls279";
-    prowlarr = arr "prowlarr" "2.7.0.5723-ls166";
-    radarr = arr "radarr" "6.4.4.10685-ls324";
-    sonarr = arr "sonarr" "4.0.20.3014-ls2";
+    sabnzbd = arr "sabnzbd" "5.1.3-ls281";
+    prowlarr = arr "prowlarr" "2.7.0.5723-ls168";
+    radarr = arr "radarr" "6.4.4.10685-ls326";
+    sonarr = arr "sonarr" "4.0.20.3014-ls4";
   };
 
   systemd.services = builtins.listToAttrs (
