@@ -258,6 +258,22 @@ Edit: `sops secrets/main-pc.yaml`. New recipient: add it to `.sops.yaml`, then
   driver updates renumber DP-n (615.78 turned DP-2/DP-4 into DP-1/DP-3), and a
   stale name fails silently: auto layout side by side at 60 Hz, no bar, black
   wallpaper. `hyprctl monitors` prints each description.
+- **The Wacom Intuos S needs no driver package.** Kernel `wacom` module +
+  libinput; Hyprland lists it under `hyprctl devices` → Tablets. The only config
+  is `input:tablet` in `hyprland.conf`: bound to the P2426H by `desc:`, with a
+  16:9 `active_area_*` slice so the 16:10 tablet does not distort. Do not add
+  OpenTabletDriver or `services.xserver.wacom` — the former fights the kernel
+  driver, the latter is X11-only.
+- **Hyprland carries two local patches** (`modules/patches/`, applied in
+  `hosts/main-pc.nix`), so it compiles locally. The second makes the pen's side
+  buttons bindable as `mouse:331` (lower) / `mouse:332` (upper) — stock Hyprland
+  only forwards them to the app; the lower one is bound to undo in
+  `hyprland.conf`. The first: stock Hyprland sends
+  `wl_pointer.motion` alongside the tablet's own motion events while the pen
+  hovers; Chrome reports both, and Microsoft Whiteboard flips to its mouse tool
+  after every stroke. The patch suppresses pointer motion for a client that has
+  the pen in proximity. If a Hyprland bump breaks a patch, rebase or drop it —
+  the symptom of it missing is "only the first pen stroke draws".
 - Monitor **refresh rates are pinned explicitly** (165 Hz / 120 Hz). Do not
   "simplify" these back to `preferred`: the EDID-preferred mode is 60 Hz on both
   panels, so `preferred` silently costs you the high refresh rate.

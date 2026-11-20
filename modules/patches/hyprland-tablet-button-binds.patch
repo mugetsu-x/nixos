@@ -1,0 +1,26 @@
+--- a/src/managers/input/Tablets.cpp	2026-11-18 09:06:24.666621838 +0100
++++ b/src/managers/input/Tablets.cpp	2026-11-18 09:06:24.671578031 +0100
+@@ -3,6 +3,8 @@
+ #include "../../protocols/Tablet.hpp"
+ #include "../../devices/Tablet.hpp"
+ #include "../../managers/PointerManager.hpp"
++#include "../../managers/KeybindManager.hpp"
++#include "../../devices/IPointer.hpp"
+ #include "../../managers/SeatManager.hpp"
+ #include "../../protocols/PointerConstraints.hpp"
+ #include "../../protocols/core/DataDevice.hpp"
+@@ -211,6 +213,14 @@
+ 
+     const auto PTOOL = ensureTabletToolPresent(e.tool);
+ 
++    // Offer pen buttons to the keybind manager first, under the same name a
++    // mouse button would have (BTN_STYLUS = mouse:331, BTN_STYLUS2 = mouse:332),
++    // so they can be bound in the config. A bound button is consumed and never
++    // reaches the client; an unbound one goes through untouched.
++    if (!g_pKeybindManager->onMouseEvent(
++            IPointer::SButtonEvent{.timeMs = e.timeMs, .button = e.button, .state = e.down ? WL_POINTER_BUTTON_STATE_PRESSED : WL_POINTER_BUTTON_STATE_RELEASED}, nullptr))
++        return;
++
+     if (e.down)
+         refocus();
+ 

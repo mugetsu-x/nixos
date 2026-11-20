@@ -24,6 +24,18 @@
       icon = "mail-client";
     };
 
+    whiteboard-pwa = {
+      name = "Microsoft Whiteboard";
+      genericName = "Whiteboard";
+      comment = "Microsoft Whiteboard (PWA)";
+      exec =
+        "google-chrome-stable --ozone-platform-hint=wayland --enable-features=WaylandWindowDecorations --app=https://whiteboard.cloud.microsoft/";
+      terminal = false;
+      # Main = Office; custom category must be prefixed with X-
+      categories = [ "Office" "X-Whiteboard" ];
+      icon = "applications-graphics";
+    };
+
     monday-pwa = {
       name = "monday.com";
       genericName = "Project Management";

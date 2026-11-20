@@ -1,0 +1,50 @@
+--- a/src/managers/SeatManager.cpp	2026-06-11 19:10:04.000000000 +0200
++++ b/src/managers/SeatManager.cpp	2026-11-18 08:50:45.414127669 +0100
+@@ -6,6 +6,7 @@
+ #include "../protocols/PrimarySelection.hpp"
+ #include "../protocols/core/Compositor.hpp"
+ #include "../protocols/LayerShell.hpp"
++#include "../protocols/Tablet.hpp"
+ #include "../Compositor.hpp"
+ #include "../desktop/state/FocusState.hpp"
+ #include "../devices/IKeyboard.hpp"
+@@ -286,6 +287,16 @@
+     if (!m_state.pointerFocusResource)
+         return;
+ 
++    // A tablet-aware client with a pen in proximity already gets the position as
++    // zwp_tablet_tool_v2.motion. Sending wl_pointer.motion on top makes it see a
++    // mouse and a pen moving in lockstep; apps that pick a tool by pointer type
++    // (Microsoft Whiteboard) flip back to the mouse tool between strokes.
++    // sway and KWin send tablet events only.
++    if (PROTO::tablet && PROTO::tablet->hasToolInProximity(m_state.pointerFocusResource->client())) {
++        m_lastLocalCoords = local;
++        return;
++    }
++
+     for (auto const& s : m_seatResources) {
+         if (s->resource->client() != m_state.pointerFocusResource->client())
+             continue;
+--- a/src/protocols/Tablet.cpp	2026-06-11 19:10:04.000000000 +0200
++++ b/src/protocols/Tablet.cpp	2026-11-18 08:50:45.408127673 +0100
+@@ -646,3 +646,7 @@
+ void CTabletV2Protocol::ring(SP<CTabletPad> pad, uint32_t ring, double position, bool finger, uint32_t timeMs) {
+     LOGM(Log::ERR, "FIXME: STUB: CTabletV2Protocol::ring not implemented");
+ }
++
++bool CTabletV2Protocol::hasToolInProximity(wl_client* client) {
++    return std::ranges::any_of(m_tools, [client](const auto& t) { return t->m_current && t->m_resource->client() == client; });
++}
+--- a/src/protocols/Tablet.hpp	2026-06-11 19:10:04.000000000 +0200
++++ b/src/protocols/Tablet.hpp	2026-11-18 08:50:45.407992348 +0100
+@@ -183,6 +183,10 @@
+     void buttonTool(SP<CTabletTool> tool, uint32_t button, uint32_t state);
+     void motion(SP<CTabletTool> tool, const Vector2D& value);
+ 
++    // true while a tool is in proximity over a surface of this client, i.e. the
++    // client is tablet-aware and is already being sent tablet_tool events
++    bool hasToolInProximity(wl_client* client);
++
+     // Tablet pad events
+     void mode(SP<CTabletPad> pad, uint32_t group, uint32_t mode, uint32_t timeMs);
+     void buttonPad(SP<CTabletPad> pad, uint32_t button, uint32_t timeMs, uint32_t state);

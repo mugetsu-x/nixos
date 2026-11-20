@@ -59,12 +59,31 @@
 
   # Hyprland
   programs.hyprland.enable = true;
+  # One local patch, for the Wacom tablet: Hyprland sends wl_pointer.motion next
+  # to zwp_tablet_tool_v2.motion while the pen hovers, so a tablet-aware client
+  # sees a mouse and a pen at once. Microsoft Whiteboard (Chrome) then switches
+  # to its mouse tool after every stroke and the next stroke does not draw.
+  # The patch drops the pointer motion for a client that has the pen in
+  # proximity, as sway and KWin do. Cost: Hyprland is compiled locally instead
+  # of fetched from the cache, and a Hyprland bump may stop the patch applying
+  # (the build fails loudly; rebase or drop it).
+  programs.hyprland.package = pkgs.hyprland.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [
+      ../modules/patches/hyprland-tablet-no-pointer-motion.patch
+      # Makes the pen buttons bindable (mouse:331 / mouse:332 in hyprland.conf);
+      # stock Hyprland only forwards them to the client.
+      ../modules/patches/hyprland-tablet-button-binds.patch
+    ];
+  });
 
   xdg.portal = {
     enable = true;
     xdgOpenUsePortal = true;
     extraPortals = [
-      pkgs.xdg-desktop-portal-hyprland
+      # Not pkgs.xdg-desktop-portal-hyprland: programs.hyprland builds its portal
+      # against the (patched) Hyprland package, and a second, stock copy collides
+      # with it over xdg-desktop-portal-hyprland.service.
+      config.programs.hyprland.portalPackage
       pkgs.xdg-desktop-portal-gtk
     ];
     config.common.default = [
