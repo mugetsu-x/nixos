@@ -80,4 +80,36 @@ for the repo. C stays until an offsite copy exists.
 - [ ] **Only then:** 01/02's evacuation copies retired — `gdrive:evac-2026-10` deleted, `~/evac/` on `main-pc` deleted, USB disk reformatted if reused
 - [ ] Keys stored off the laptop (password manager + printed)
 
+## Interim offsite: rotated SSD
+
+**Agreed 2026-11-04 (Walter).** Until the Drive leg exists there is no offsite
+copy. A spare **1 TB SATA SSD** on a USB adapter fills the gap. It is kept at
+**another address**, not in another room: fire, theft and surges reach the next
+room too. Ticket 05 rejected disk rotation as the *primary* offsite because it
+depends on discipline. As a stopgap it beats having no copy at all, and it stays
+in place alongside Drive later if Walter wants.
+
+- **Size:** today's set is ~510 GB (`/photos/library` 407 GB, `files` ~100 GB,
+  `/documents`, dumps, `/var/lib` state). Photos are append-only and restic
+  dedups, so history is cheap. Watch the fill level once Anja's phone backs up
+  too.
+- **Its own restic repo, pulled from the source.** It is a second
+  `services.restic.backups` target, never a copy of disk A's repo. Same rule as
+  01: copies are independent, so one bad read can't land in both. It uses the
+  same mount guard on the source, plus a guard that the SSD itself is mounted.
+- **One action per swap:** plug into home-server → one unit runs backup +
+  `restic check --read-data-subset` + a small sample restore → notification
+  (14) → unplug and take it back. A fixed **monthly** date.
+- **SSD, not HDD:** an unpowered consumer SSD slowly loses data. The monthly
+  swap powers it up regularly. Don't let it sit unplugged for many months.
+- **Encrypted by restic**, so leaving it at someone else's place is fine.
+  Restoring needs the repo password, which is in the password manager and on paper.
+
+- [ ] USB 3 → 2.5" SATA adapter bought (bus-powered, UASP, ASMedia ASM1153E/ASM235CM)
+- [ ] SSD SMART-checked (`smartctl -a`: power-on hours, wear, reallocated/pending, CRC errors)
+- [ ] Repo initialised; swap-in unit runs backup + check + sample restore, notifies, aborts if source or SSD isn't mounted
+- [ ] First full backup + restore drill done, SSD moved to its offsite address
+- [ ] Monthly swap date set
+- [ ] **Then** decide whether this counts as the offsite copy that lets C (`~/evac` on main-pc) go
+
 _Decision detail: [05](../../issues/05-backup-topology.md#amendment--second-pass-2026-07-26)._

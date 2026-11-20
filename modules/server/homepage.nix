@@ -1,4 +1,9 @@
-{ config, lib, ... }:
+{
+  config,
+  lib,
+  pkgs-unstable,
+  ...
+}:
 let
   port = 8082;
 
@@ -37,6 +42,9 @@ in
   # own, so nothing for 13 to back up.
   services.homepage-dashboard = {
     enable = true;
+    # 26.05 ships 1.12, whose Jellyfin widget only speaks the /emby routes that
+    # Jellyfin 12 removed. 2.x has the `version = 2` widget.
+    package = pkgs-unstable.homepage-dashboard;
     listenPort = port;
     openFirewall = true;
     # Every name it is reached by, or it refuses the request: LAN by name and
@@ -79,9 +87,10 @@ in
             Jellyfin = withWidget "jellyfin" 8096 {
               enableBlocks = true;
               enableNowPlaying = true;
+              version = 2;
             };
           }
-          { Jellyseerr = withWidget "jellyseerr" 5055 { }; }
+          { Seerr = withWidget "jellyseerr" 5055 { }; }
           { Immich = withWidget "immich" 2283 { version = 2; }; }
         ];
       }

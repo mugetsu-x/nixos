@@ -27,10 +27,10 @@ in
   # Ports on the host network: SABnzbd 8080, Prowlarr 9696,
   # Radarr 7878, Sonarr 8989.
   virtualisation.oci-containers.containers = {
-    sabnzbd = arr "sabnzbd" "5.1.3-ls281";
-    prowlarr = arr "prowlarr" "2.7.0.5723-ls168";
-    radarr = arr "radarr" "6.4.4.10685-ls326";
-    sonarr = arr "sonarr" "4.0.20.3014-ls4";
+    sabnzbd = arr "sabnzbd" "5.1.3-ls282";
+    prowlarr = arr "prowlarr" "3.0.2.5780-ls169";
+    radarr = arr "radarr" "7.0.3.10918-ls328";
+    sonarr = arr "sonarr" "4.0.20.3014-ls5";
   };
 
   systemd.services = builtins.listToAttrs (
@@ -60,6 +60,7 @@ in
   sops.secrets.eweka_username = { };
   sops.secrets.eweka_password = { };
   sops.secrets.nzbgeek_api_key = { };
+  sops.secrets.althub_api_key = { };
 
   networking.firewall.allowedTCPPorts = [
     8080

@@ -1,13 +1,13 @@
 { ... }:
 {
-  # Jellyfin + Jellyseerr (nas/build/issues/12). Host networking so Jellyseerr
+  # Jellyfin + Seerr (nas/build/issues/12). Host networking so Seerr
   # reaches Jellyfin (and later Radarr/Sonarr from 11) on localhost; the library
   # is /data mounted at the same path as in every other container. Config and
   # transcode cache stay on local NVMe, never on NFS. Containers run as root:
   # the NAS maps every write to 1024:100 anyway.
   virtualisation.oci-containers.containers = {
     jellyfin = {
-      image = "docker.io/jellyfin/jellyfin:10.11.0";
+      image = "docker.io/jellyfin/jellyfin:12.4";
       autoStart = true;
       extraOptions = [
         "--network=host"
@@ -21,11 +21,17 @@
       environment.TZ = "Europe/Vienna";
     };
 
-    jellyseerr = {
-      image = "docker.io/fallenbagel/jellyseerr:2.7.3";
+    # Seerr is Jellyseerr renamed (v3 on). It runs as the image's `node` user
+    # (uid 1000) and ships no init process: hence --init and the 1000:1000
+    # config directory below.
+    seerr = {
+      image = "ghcr.io/seerr-team/seerr:v3.5.2";
       autoStart = true;
-      extraOptions = [ "--network=host" ];
-      volumes = [ "/var/lib/jellyseerr:/app/config" ];
+      extraOptions = [
+        "--network=host"
+        "--init"
+      ];
+      volumes = [ "/var/lib/seerr:/app/config" ];
       environment = {
         TZ = "Europe/Vienna";
         PORT = "5055";
@@ -40,13 +46,13 @@
   systemd.tmpfiles.rules = [
     "d /var/lib/jellyfin/config 0755 root root -"
     "d /var/cache/jellyfin 0755 root root -"
-    "d /var/lib/jellyseerr 0755 root root -"
+    "d /var/lib/seerr 0755 1000 1000 -"
   ];
 
   # LAN clients (the Shield) and the tailnet; no public exposure, the router
   # forwards nothing.
   networking.firewall.allowedTCPPorts = [
     8096 # Jellyfin
-    5055 # Jellyseerr
+    5055 # Seerr
   ];
 }

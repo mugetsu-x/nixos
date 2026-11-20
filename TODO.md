@@ -121,10 +121,32 @@ film (Obsession 2026) went request → download → import → Jellyfin.
   SABnzbd, Jellyseerr, Jellyfin and Immich keys are in sops for Homepage's
   widgets. Regenerate a key in an app and you must update its sops copy, or
   that widget goes dead.
+- **2026-11-20 upgrades.** Prowlarr 3.0, Radarr 7.0, Jellyfin 12.4, Immich
+  v3.4.2. **Jellyseerr is now Seerr** (v3.5.2): container `seerr`, config in
+  `/var/lib/seerr` owned by 1000:1000, same port `:5055`; the sops key is still
+  named `jellyseerr_api_key`. Jellyfin 12 removed the `/emby` routes, so Homepage
+  comes from nixpkgs-unstable (2.x) with `version = 2` on the Jellyfin widget.
+  Fallback copies on the server, delete when settled: `/var/lib/prowlarr.pre-3.0`,
+  `/var/lib/radarr.pre-7.0`, `/var/lib/jellyseerr.pre-seerr`.
+- **German dubs for kids movies** (set in the apps, not in Nix): Radarr profile
+  **German Kids** (id 8, copy of the default profile with Language = German) and a Seerr
+  override rule sending every **Family**-genre movie request to it. Anything else
+  keeps the default profile; pick "German Kids" by hand in Radarr for exceptions.
+  The profile also requires the custom format "German in title" (min score 100):
+  NZBGeek's language metadata alone let an English Moana 2 through. It allows
+  SD and 720p too (German releases are often no better) and upgrades from there.
+  The default profile (id 7) is now **Beamer Default**: SD upwards, upgrades to
+  WEB 2160p. A Radarr release profile "No 3D" (all movies) ignores 3D/SBS releases; a custom
+  format cannot do it, it never sees a "3D" placed before the year. **Open:**
+  neither altHUB, NZBGeek nor SceneNZBs (checked by hand, not added) has a
+  German release of Frozen or The Emperor's New Groove; they stay monitored.
 
 **Renewals:** NZBGeek expires **2027-10-08**, Eweka (15-month plan) ~**2028-01-05**.
+altHUB is a **lifetime** licence (bought 2026-11-20, second indexer in Prowlarr,
+key in sops as `althub_api_key`): nothing to renew.
 Black Friday is the time to look at an NZBGeek lifetime deal and a block account
 on a second backbone (not Omicron) for missing articles — see nas/build 04.
+Black Friday 2026 (11-27) is the last one before NZBGeek runs out.
 
 ### Future improvement: an offsite copy
 
@@ -142,6 +164,15 @@ not changing away"); the personal `@gmail.com` is the one that may go. So
 anything long-lived belongs to pariggers.com (Tailscale does, ticket 07), and the
 offsite copy should not land on the gmail account's 5 TB unless that account is
 explicitly kept.
+
+**Interim offsite, agreed 2026-11-04:** a spare **1 TB SATA SSD**, rotated to
+another address. It's a stopgap until the Drive leg exists, not a replacement.
+Today's backup set is ~510 GB, so it fits for now. Detail and checklist:
+[ticket 13, "Interim offsite"](nas/build/issues/13-restic-321-service.md#interim-offsite-rotated-ssd).
+
+- [ ] Buy a bus-powered USB 3 → 2.5" SATA adapter (UASP, ASMedia ASM1153E/ASM235CM)
+- [ ] SMART-check the SSD (`smartctl -a`) before trusting it with anything
+- [ ] Wire it into 13 as a second restic target, then start the monthly swap
 
 ## Remove the Enshrouded server once Walter stops playing
 
