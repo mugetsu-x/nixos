@@ -7,7 +7,8 @@
 
     shellAliases = {
       # NicOs worflow
-      nixre = "sudo nixos-rebuild switch --flake ~/nixos-config#main-pc";
+      # No #host: nixos-rebuild picks the configuration named after the hostname.
+      nixre = "sudo nixos-rebuild switch --flake ~/nixos-config";
       nixhome = "cd ~/nixos-config";
 
       # Editors

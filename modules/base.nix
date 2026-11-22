@@ -1,7 +1,7 @@
 { pkgs, ... }:
 
 {
-  # Shared by every host. Anything desktop-only belongs in common.nix (main-pc);
+  # Shared by every host. Anything desktop-only belongs in common.nix (main-pc, xps13);
   # hostName and system.stateVersion live in each hosts/<name>.nix.
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.configurationLimit = 20;

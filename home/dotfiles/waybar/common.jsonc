@@ -1,10 +1,11 @@
+// Shared by every desktop host: the bar's look and every module definition.
+// Not loaded directly: each host's config.jsonc (home/dotfiles/hosts/<host>/
+// waybar.jsonc) includes this file and adds "output" and "modules-right".
+// A key set there wins over the same key here, and waybar logs an error for
+// it, so keep host-specific keys out of this file.
 {
   "layer": "top",
   "position": "top",
-  // Bar only on the small 1080p screen (below the ultrawide). Without this,
-  // waybar spawns one bar per output. Matched by description, not DP-n
-  // (see hyprland.conf).
-  "output": "Dell Inc. DELL P2426H FHVRYD4",
   "height": 38,
   "margin-top": 8,
   "margin-left": 12,
@@ -13,15 +14,6 @@
 
   "modules-left": ["hyprland/workspaces", "hyprland/window"],
   "modules-center": ["clock"],
-  "modules-right": [
-    "tray",
-    "pulseaudio",
-    "cpu",
-    "memory",
-    "network",
-    "bluetooth",
-    "custom/power"
-  ],
 
   "hyprland/workspaces": {
     "format": "{icon}",
@@ -74,6 +66,25 @@
     "scroll-step": 3,
     "on-click": "pavucontrol",
     "tooltip-format": "{desc} — {volume}%"
+  },
+
+  // Laptop only (xps13); unused on main-pc.
+  "backlight": {
+    "format": "󰃠  {percent}%",
+    "on-scroll-up": "brightnessctl set 2%+",
+    "on-scroll-down": "brightnessctl set 2%-",
+    "tooltip": false
+  },
+
+  // Laptop only (xps13); unused on main-pc.
+  "battery": {
+    "interval": 30,
+    "states": { "warning": 25, "critical": 10 },
+    "format": "{icon}  {capacity}%",
+    "format-charging": "󰂄  {capacity}%",
+    "format-plugged": "󰚥  {capacity}%",
+    "format-icons": ["󰁺", "󰁼", "󰁾", "󰂀", "󰁹"],
+    "tooltip-format": "{timeTo}\n{power:0.1f} W"
   },
 
   "cpu": {

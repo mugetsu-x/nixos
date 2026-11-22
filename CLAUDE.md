@@ -1,9 +1,11 @@
 # nixos-config
 
-Flake-based NixOS config for two hosts and one user (`rennsemml`). `main-pc` is
+Flake-based NixOS config for three hosts and one user (`rennsemml`). `main-pc` is
 the desktop: Hyprland on Wayland, NVIDIA, Catppuccin Macchiato Blue everywhere.
 `home-server` is a headless ThinkBook that runs the NAS-side services (plan in
-`nas/`; install + deploy in `nas/build/issues/06-home-server-host.md`).
+`nas/`; install + deploy in `nas/build/issues/06-home-server-host.md`). `xps13` is
+the work laptop (Dell XPS 13 9333): main-pc's desktop without NVIDIA, gaming,
+Docker and Zed, on a LUKS-encrypted disk.
 
 Remote: `git@github.com:mugetsu-x/nixos.git`. CI runs `nix flake check --no-build`
 on every push (`.github/workflows/check.yml`).
@@ -14,7 +16,9 @@ and keep it updated as items land.
 ## Rebuild
 
 ```
-nixre     # alias for: sudo nixos-rebuild switch --flake ~/nixos-config#main-pc
+nixre     # alias for: sudo nixos-rebuild switch --flake ~/nixos-config
+          # (no #host: it picks the configuration named after the hostname,
+          # so the same alias works on main-pc and on xps13's own checkout)
 nixhome   # alias for: cd ~/nixos-config
 
 # home-server: pushed from main-pc, built here, no checkout on the server
@@ -25,21 +29,25 @@ Both aliases are defined in `home/modules/shell.nix`, not in a shell rc file.
 
 Channel: nixpkgs `nixos-26.05`, home-manager `release-26.05` (pinned to follow
 nixpkgs). On main-pc `system.stateVersion` and `home.stateVersion` are both
-`25.05`; home-server's is `26.05` (installed fresh). Do not bump any of these to
+`25.05`; home-server and xps13 are `26.05` (installed fresh). Do not bump any of these to
 "update": they are compatibility markers.
 
 ## Layout
 
 ```
-flake.nix              inputs + nixosConfigurations (main-pc, home-server) via mkHost
+flake.nix              inputs + nixosConfigurations (main-pc, home-server, xps13) via mkHost
 hosts/main-pc.nix      host entrypoint: imports modules/, wires home-manager
 hosts/home-server.nix  headless server entrypoint: base.nix + modules/server/
 hosts/home-server-hardware.nix  its filesystems (by label) + kernel modules
+hosts/xps13.nix        work laptop entrypoint: the desktop modules + laptop.nix + sshd
+hosts/xps13-hardware.nix  its LUKS volume, filesystems (by label), Intel bits
 modules/               system-level (NixOS options)
   hardware.nix         disk UUIDs, kernel modules — machine-specific, rarely touched
   nvidia.nix           nvidia open driver + Wayland env vars
-  base.nix             shared by both hosts: bootloader, nix/gc, locale, keyboard, user
-  common.nix           main-pc desktop layer: NetworkManager, audio, bluetooth, fonts
+  hyprland.nix         the Hyprland session + portals, shared by main-pc and xps13
+  laptop.nix           xps13 only: power profiles, thermald, upower, zram, fstrim
+  base.nix             shared by every host: bootloader, nix/gc, locale, keyboard, user
+  common.nix           desktop layer (main-pc, xps13): NetworkManager, audio, bluetooth, fonts
   login.nix            greetd + regreet greeter, UWSM-managed Hyprland session
   gaming.nix           steam (+ GE-Proton), gamemode, gamescope
   secrets.nix          sops-nix: machine age key, declared secrets (see below)
@@ -51,12 +59,15 @@ modules/               system-level (NixOS options)
                        storage (NFS mounts), media/arr/immich/paperless/homepage,
                        enshrouded (game server — the one public port)
 home/
-  rennsemml.nix        home-manager entrypoint: imports home/modules/
+  rennsemml.nix        home-manager entrypoint for main-pc: imports home/modules/
+  xps13.nix            home-manager entrypoint for xps13 (no gaming, no Zed)
   modules/             user-level (home-manager options)
     packages.nix       home.packages — the big app/CLI list
     shell.nix          zsh (aliases live here) + starship prompt
-    wayland.nix        links dotfiles/ into ~/.config; waybar/hyprpaper/mako,
+    wayland.nix        links the shared dotfiles/ into ~/.config; waybar/hyprpaper/mako,
                        hyprlock, hypridle
+    desktop-main-pc.nix  main-pc's host dotfiles (dotfiles/hosts/main-pc/) + mpvpaper
+    desktop-xps13.nix    xps13's host dotfiles (dotfiles/hosts/xps13/) + brightnessctl
     services.nix       cliphist, udiskie, blueman-applet, polkit-gnome + the
                        hand-written bt-autoconnect unit
     neovim.nix         lean hand-rolled Neovim: quick editor + Markdown (no IDE)
@@ -74,6 +85,9 @@ home/
     ts-packages.nix    the shared LSP/formatter list (Zed; see zed.nix)
   dotfiles/            raw config files, sourced verbatim by wayland.nix
     hypr/ kitty/ mako/ waybar/ wofi/   (swayimg/ is linked by swayimg.nix)
+    hosts/<host>/      the per-machine parts: hyprland.conf (linked as hypr/host.conf
+                       and sourced by hypr/hyprland.conf), hyprpaper.conf, waybar.jsonc
+                       (linked as waybar/config.jsonc; includes waybar/common.jsonc)
 claude/                Claude Code config, symlinked live by home/modules/claude.nix
   skills/              user-level skills (grill-me + Matt Pocock's engineering set)
   settings.json        global Claude Code settings
@@ -91,7 +105,9 @@ keyboards/             QMK keymap backups — not applied by Nix, see below
 - **Anything scoped to my user** → `home/modules/`.
 - **Hyprland/waybar/kitty/wofi/mako tweaks** → edit the file in `home/dotfiles/`
   directly. These are plain config files symlinked in by `wayland.nix`; you do
-  not need to touch Nix to change a keybind or a bar module.
+  not need to touch Nix to change a keybind or a bar module. Shared files are in
+  `hypr/` and `waybar/`; anything naming a monitor, the tablet or the touchpad is
+  in `home/dotfiles/hosts/<host>/`.
 - **Something that should run in the background** → prefer a home-manager module
   (`services.foo.enable`) over `exec-once` in `hyprland.conf` or a hand-written
   `systemd.user.services` block. See below.
@@ -251,7 +267,7 @@ Edit: `sops secrets/main-pc.yaml`. New recipient: add it to `.sops.yaml`, then
 - **Two monitors, stacked vertically.** The AW3423DWF is a 3440x1440 ultrawide at
   `0x0`; the P2426H is a 1920x1080 panel *below* it at `760x1440` (centred under
   it), **not** to its right. Waybar is pinned to the P2426H alone via `"output"`
-  in `waybar/config.jsonc` — drop that key and you get a bar on every output.
+  in `hosts/main-pc/waybar.jsonc` — drop that key and you get a bar on every output.
 - **Monitors are matched by EDID description, never by connector name.**
   hyprland.conf (`desc:`), hyprpaper.conf (`desc:`), waybar (`"output"`) and the
   mpvpaper unit all use strings like `Dell Inc. DELL P2426H FHVRYD4`. NVIDIA

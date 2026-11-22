@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 
 {
-  # main-pc's desktop layer on top of base.nix.
+  # The desktop layer on top of base.nix, shared by main-pc and xps13.
   networking.networkmanager.enable = true;
 
   # kitty lives in home/modules/packages.nix; git is in base.nix.

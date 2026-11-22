@@ -74,6 +74,11 @@
         ];
         # Headless ThinkBook: storage clients + containers. nas/build/issues/06.
         home-server = mkHost "home-server" [ ];
+        # Work laptop (Dell XPS 13 9333): main-pc's desktop, LUKS-encrypted.
+        xps13 = mkHost "xps13" [
+          home-manager.nixosModules.home-manager
+          nix-index-database.nixosModules.nix-index
+        ];
       };
     };
 }

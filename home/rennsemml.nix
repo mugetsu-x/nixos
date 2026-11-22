@@ -9,6 +9,7 @@
     ./modules/packages.nix
     ./modules/shell.nix
     ./modules/wayland.nix
+    ./modules/desktop-main-pc.nix
     ./modules/services.nix
     ./modules/neovim.nix
     ./modules/chrome.nix

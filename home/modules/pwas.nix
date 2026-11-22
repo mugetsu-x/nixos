@@ -60,6 +60,17 @@
       icon = "accessories-text-editor";
     };
 
+    figma-pwa = {
+      name = "Figma";
+      genericName = "Design Tool";
+      comment = "Figma (PWA)";
+      exec =
+        "google-chrome-stable --ozone-platform-hint=wayland --enable-features=WaylandWindowDecorations --app=https://www.figma.com/files";
+      terminal = false;
+      categories = [ "Graphics" ];
+      icon = "applications-graphics";
+    };
+
     gemini-pwa = {
       name = "Google Gemini";
       genericName = "AI Assistant";

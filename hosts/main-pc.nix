@@ -12,6 +12,7 @@
     ../modules/base.nix
     ../modules/nvidia.nix
     ../modules/common.nix
+    ../modules/hyprland.nix
     ../modules/login.nix
     ../modules/gaming.nix
     ../modules/nix-tools.nix
@@ -57,8 +58,7 @@
     };
   };
 
-  # Hyprland
-  programs.hyprland.enable = true;
+  # Hyprland itself is enabled in modules/hyprland.nix.
   # One local patch, for the Wacom tablet: Hyprland sends wl_pointer.motion next
   # to zwp_tablet_tool_v2.motion while the pen hovers, so a tablet-aware client
   # sees a mouse and a pen at once. Microsoft Whiteboard (Chrome) then switches
@@ -75,24 +75,6 @@
       ../modules/patches/hyprland-tablet-button-binds.patch
     ];
   });
-
-  xdg.portal = {
-    enable = true;
-    xdgOpenUsePortal = true;
-    extraPortals = [
-      # Not pkgs.xdg-desktop-portal-hyprland: programs.hyprland builds its portal
-      # against the (patched) Hyprland package, and a second, stock copy collides
-      # with it over xdg-desktop-portal-hyprland.service.
-      config.programs.hyprland.portalPackage
-      pkgs.xdg-desktop-portal-gtk
-    ];
-    config.common.default = [
-      "hyprland"
-      "gtk"
-    ];
-  };
-
-  environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
   virtualisation.docker.enable = true;
   hardware.nvidia-container-toolkit.enable = true;

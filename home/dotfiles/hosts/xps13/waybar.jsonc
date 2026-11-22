@@ -1,0 +1,21 @@
+// xps13's waybar config, linked as ~/.config/waybar/config.jsonc. The module
+// definitions are shared (../../waybar/common.jsonc); this file only says
+// where the bar goes and what is on its right-hand side.
+{
+  "include": ["~/.config/waybar/common.jsonc"],
+
+  // Bar on the built-in panel only, also when an external monitor is attached.
+  "output": "eDP-1",
+
+  "modules-right": [
+    "tray",
+    "pulseaudio",
+    "backlight",
+    "battery",
+    "cpu",
+    "memory",
+    "network",
+    "bluetooth",
+    "custom/power"
+  ]
+}

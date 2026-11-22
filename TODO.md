@@ -214,8 +214,8 @@ Not started. Candidates to evaluate in nixpkgs.
 Mostly done. The physical setup is two Dells: the AW3423DWF ultrawide
 (3440x1440 @ 165 Hz) and a P2426H (1920x1080 @ 120 Hz) sitting **below**
 it, not to the right. Both are now positioned and rate-pinned explicitly in
-`hyprland.conf`, the layout moved from `master` to `dwindle`, and waybar is
-pinned to the P2426H only (`"output"` in `waybar/config.jsonc`).
+`hosts/main-pc/hyprland.conf`, the layout moved from `master` to `dwindle`, and waybar is
+pinned to the P2426H only (`"output"` in `hosts/main-pc/waybar.jsonc`).
 
 Still open:
 
@@ -246,3 +246,32 @@ Still open:
 
 - Zed's agent needs an interactive sign-in on first launch (provider + model).
 - No ORM picked yet. Drizzle is the assumed default; decide when the app starts.
+
+## 6. Work laptop — `xps13`
+
+Installed 2026-11-22: Dell XPS 13 9333 (i7-4510U, 8 GB, 512 GB mSATA, Intel 7260
+Wi-Fi, 1080p touch), LUKS-encrypted, same desktop as main-pc without NVIDIA,
+gaming, Docker and Zed. Built on main-pc and `nix copy`'d over, like home-server.
+The laptop has its own checkout at `~/nixos-config` (Claude Code's skills and
+settings are symlinked out of it) and rebuilds itself with `nixre`; main-pc can
+also push with `nixos-rebuild switch --flake .#xps13 --target-host root@xps13`.
+
+Checked after first boot: Hyprland at scale 1.25, waybar with battery and
+backlight, touchpad and touchscreen detected, zram swap, Wi-Fi, Bluetooth, sound
+card, upower (critical action `PowerOff`).
+
+Still open:
+
+- main-pc has not been rebuilt since its dotfiles were split into shared and
+  per-host files (`home/dotfiles/hosts/`). Both configs pass
+  `Hyprland --verify-config` and a waybar test run, but the first `nixre` on
+  main-pc is the real test.
+- The laptop's checkout was copied over, not cloned with credentials: it has no
+  GitHub SSH key, so it can pull (public repo over https) but not push.
+- Not yet tried by hand: suspend on lid close and resume, brightness keys,
+  three-finger workspace swipe, Teams call (camera + microphone), Figma.
+- Battery is at 57 % of design capacity (4279 of 7560 mAh).
+- sshd is on with key-only login from main-pc. Fine at home; revisit if the
+  laptop spends time on untrusted networks (firewall it to the LAN, or Tailscale).
+- No sops secrets on this host yet. When one is needed: derive its age key from
+  `/etc/ssh/ssh_host_ed25519_key.pub` with `ssh-to-age`, as for home-server.
